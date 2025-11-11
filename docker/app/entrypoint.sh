@@ -21,8 +21,11 @@ docker/app/run_migrations.sh
 
 # Permissions (use numeric IDs to avoid “user not found”)
 if [ -d storage ]; then
+  UID_NOW="${PUID:-$(id -u)}"
+  GID_NOW="${PGID:-$(id -g)}"
   chmod -R 775 storage bootstrap/cache || true
-  chown -R ${PUID:-1000}:${PGID:-1000} storage bootstrap/cache || true
+  chown -R "$UID_NOW:$GID_NOW" storage bootstrap/cache || true
+
 fi
 
 # Hand off to php-fpm
