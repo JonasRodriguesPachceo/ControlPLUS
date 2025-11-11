@@ -37,6 +37,11 @@ RUN apk add --no-cache \
     && apk del autoconf g++ make \
     && rm -rf /tmp/pear
 
+RUN apk add --no-cache libpng libpng-dev libjpeg-turbo-dev freetype-dev && \
+    docker-php-ext-install pdo_mysql mysqli && \
+    docker-php-ext-enable mysqli
+
+
 # Copiar binário do composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
