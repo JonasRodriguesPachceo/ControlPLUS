@@ -29,14 +29,6 @@ services:
       interval: 30s
       timeout: 5s
       retries: 5
-    deploy:
-      resources:
-        limits:
-          cpus: "1.0"
-          memory: "512M"
-        reservations:
-          cpus: "0.25"
-          memory: "256M"
     networks:
       - controlplus_network
 
@@ -57,11 +49,6 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
-    deploy:
-      resources:
-        limits:
-          cpus: "0.50"
-          memory: "256M"
     networks:
       - controlplus_network
 
@@ -70,11 +57,8 @@ services:
     container_name: mariadb
     restart: unless-stopped
     command: ["mariadbd","--character-set-server=utf8mb4","--collation-server=utf8mb4_unicode_ci"]
-    environment:
-      MARIADB_ROOT_PASSWORD: root
-      MARIADB_DATABASE: control_plus
-      MARIADB_USER: control
-      MARIADB_PASSWORD: control
+    env_file:
+      - .env
     volumes:
       - dbdata:/var/lib/mysql
     ports:
@@ -85,14 +69,6 @@ services:
       timeout: 5s
       retries: 30
       start_period: 120s
-    deploy:
-      resources:
-        limits:
-          cpus: "1.0"
-          memory: "1G"
-        reservations:
-          cpus: "0.50"
-          memory: "512M"
     networks:
       - controlplus_network
 
@@ -101,6 +77,8 @@ services:
     container_name: frontend-node
     working_dir: /var/www/html
     user: "${PUID:-1000}:${PGID:-1000}"
+    env_file:
+      - .env
     command: >
       sh -c "
         if [ ! -d node_modules ]; then
@@ -112,8 +90,6 @@ services:
       - ./:/var/www/html
     ports:
       - "5173:5173"
-    environment:
-      - CHOKIDAR_USEPOLLING=true
     depends_on:
       app:
         condition: service_started
@@ -123,11 +99,6 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
-    deploy:
-      resources:
-        limits:
-          cpus: "0.75"
-          memory: "512M"
     networks:
       - controlplus_network
 
@@ -143,11 +114,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-    deploy:
-      resources:
-        limits:
-          cpus: "0.50"
-          memory: "256M"
     networks:
       - controlplus_network
 
