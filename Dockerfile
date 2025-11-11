@@ -24,35 +24,40 @@ WORKDIR ${APP_DIR}
 # deps + extensões
 RUN apk add --no-cache \
     bash git unzip icu-dev libpng-dev libjpeg-turbo-dev oniguruma-dev libzip-dev \
-    freetype-dev autoconf g++ make acl ca-certificates \
+    freetype-dev autoconf g++ make acl ca-certificates openssl-dev \
     && update-ca-certificates \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" pdo_mysql intl bcmath gd zip opcache \
+    \
+    # --- Instalar e habilitar Redis ---
     && pecl install redis \
-    && docker-php-ext-enable redis
+    && docker-php-ext-enable redis \
+    \
+    # limpeza
+    && apk del autoconf g++ make \
+    && rm -rf /tmp/pear
 
-
+# Copiar binário do composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # --- Usuário/grupo harmonizados com host ---
-# Grupo www com GID do host; usuário "app" com UID do host
 RUN addgroup -g ${PGID} -S www || true \
     && adduser  -S -D -H -u ${PUID} -G www app \
     && addgroup app www || true
 
-# Ajustar PHP-FPM para rodar como app:www (usar sintaxe compatível com BusyBox sed)
+# Ajustar PHP-FPM para rodar como app:www
 RUN sed -i -E 's|^user = .*$|user = app|g; s|^group = .*$|group = www|g' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i -E 's|^;?listen.owner =.*$|listen.owner = app|g; s|^;?listen.group =.*$|listen.group = www|g' /usr/local/etc/php-fpm.d/www.conf
 
-# php.ini local (se existir no repo)
+# php.ini local (se existir)
 COPY docker/php/local.ini /usr/local/etc/php/conf.d/local.ini
 
 # Copiar app (use .dockerignore para não enviar node_modules/vendor)
 COPY . ${APP_DIR}
-# Trazer vendor da stage composer (mais rápido e reprodutível)
+# Trazer vendor da stage composer
 COPY --from=vendor /app/vendor ${APP_DIR}/vendor
 
-# Criar dirs críticos e ajustar permissões SOMENTE no que precisa
+# Criar dirs críticos e ajustar permissões
 RUN mkdir -p ${APP_DIR}/storage/logs \
     ${APP_DIR}/storage/framework/{cache,sessions,testing,views} \
     ${APP_DIR}/bootstrap/cache \
