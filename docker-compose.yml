@@ -19,7 +19,7 @@ services:
     command: []
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
