@@ -48,6 +48,7 @@ echo "FIRST_RUN=0\n"; // fallback defensivo
 ' 2> /tmp/migrate_probe.log | awk -F= '/^FIRST_RUN=/{print $2; exit}'
 )
 
+# Mostra logs do probe
 cat /tmp/migrate_probe.log
 
 echo "[migrate] Aplicando migrations..."
