@@ -10,8 +10,6 @@ services:
         PGID: ${PGID}
     image: control-plus-app
     restart: unless-stopped
-    env_file:
-      - .env
     user: "${PUID}:${PGID}"
     volumes:
       - ./:/var/www/html
