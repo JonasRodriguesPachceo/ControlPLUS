@@ -16,10 +16,29 @@ services:
       - ./:/var/www/html
     command: >
       sh -c "
+        # Composer (primeira vez)
+        if [ ! -d vendor ]; then
+          composer install --no-interaction --prefer-dist --no-progress || exit 1;
+        fi;
+
+        # .env e APP_KEY
+        if [ ! -s .env ] && [ -f .env.example ]; then
+          cp .env.example .env;
+        fi;
+        if ! grep -q '^APP_KEY=' .env || grep -q '^APP_KEY=$' .env; then
+          php artisan key:generate || true;
+        fi;
+
+        # Migrations (não falha o container se DB ainda não estiver pronto)
+        php artisan migrate --force || true;
+
+        # Permissões
         if [ -d storage ]; then
           chmod -R 775 storage bootstrap/cache;
           chown -R app:www storage bootstrap/cache;
         fi;
+
+        # Inicia FPM
         php-fpm
       "
     depends_on:
@@ -98,7 +117,13 @@ services:
     container_name: frontend-node
     working_dir: /var/www/html
     user: "${PUID:-1000}:${PGID:-1000}"
-    command: sh -c "npm install && npm run dev -- --host"
+    command: >
+      sh -c "
+        if [ ! -d node_modules ]; then
+          (npm ci || npm install);
+        fi;
+        npm run dev -- --host
+      "
     volumes:
       - ./:/var/www/html
     ports:
