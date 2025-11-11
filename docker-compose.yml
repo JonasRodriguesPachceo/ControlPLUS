@@ -1,20 +1,17 @@
-name: controlplus
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        PUID: ${PUID}
-        PGID: ${PGID}
+        PUID: 1000
+        PGID: 1000
     image: control-plus-app
     restart: unless-stopped
-    user: "${PUID}:${PGID}"
+    user: "1000:1000"
     volumes:
       - ./:/var/www/html
     entrypoint: ["/bin/sh", "-c", "chmod +x docker/app/entrypoint.sh && docker/app/entrypoint.sh"]
-    command: []
     depends_on:
       db:
         condition: service_healthy
@@ -28,31 +25,12 @@ services:
     networks:
       - controlplus_network
 
-  nginx:
-    image: nginx:1.27-alpine
-    restart: unless-stopped
-    ports:
-      - "8080:80"
-    volumes:
-      - ./:/var/www/html:rw
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      app:
-        condition: service_started
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost/ >/dev/null 2>&1 || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-    networks:
-      - controlplus_network
-
   db:
     image: mariadb:11.4
     restart: unless-stopped
     command: ["mariadbd", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
     env_file:
-      - .env
+      - compose.env
     volumes:
       - dbdata:/var/lib/mysql
     ports:
@@ -69,9 +47,9 @@ services:
   node:
     image: node:20-alpine
     working_dir: /var/www/html
-    user: "${PUID}:${PGID}"
+    user: "1000:1000"
     env_file:
-      - .env
+      - compose.env
     command: >
       sh -c "
         if [ ! -d node_modules ]; then
@@ -95,6 +73,25 @@ services:
     networks:
       - controlplus_network
 
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html:rw
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      app:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - controlplus_network
+
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -110,8 +107,8 @@ services:
       - controlplus_network
 
 volumes:
-  dbdata:
-  redisdata:
+    dbdata:
+    redisdata:
 
 networks:
   controlplus_network:
