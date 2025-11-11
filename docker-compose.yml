@@ -29,20 +29,8 @@ services:
           php artisan key:generate || true;
         fi;
 
-        # Aguarda o banco ficar pronto
-        until php -r 'mysqli_connect(getenv(\"DB_HOST\"), getenv(\"DB_USERNAME\"), getenv(\"DB_PASSWORD\"), getenv(\"DB_DATABASE\"));' 2>/dev/null; do
-          echo 'Aguardando o banco de dados ficar disponível...';
-          sleep 5;
-        done;
-
-        # Verifica se já existem migrations aplicadas
-        if php artisan migrate:status --no-interaction | grep -q 'No migrations found'; then
-          echo 'Nenhuma migration encontrada — executando migrate e seed';
-          php artisan migrate --force && php artisan db:seed --force;
-        else
-          echo 'Migrations já existentes — apenas aplicando pendentes';
-          php artisan migrate --force;
-        fi;
+        # Migrations (não falha o container se DB ainda não estiver pronto)
+        php artisan migrate --force || true;
 
         # Permissões
         if [ -d storage ]; then
@@ -50,7 +38,7 @@ services:
           chown -R app:www storage bootstrap/cache;
         fi;
 
-        # Inicia PHP-FPM
+        # Inicia FPM
         php-fpm
       "
     depends_on:
