@@ -53,17 +53,6 @@ exit
 | Redis   | 6379  | —                     |
 | Mailpit | 1025  | —                     |
 
-## 📂 Estrutura
-
-```
-/ControlPLUS
-├── .env.example
-├── compose.env.example
-├── docker-compose.yml
-├── docker/app/entrypoint.sh
-└── README.md
-```
-
 ## 🧱 Tecnologias
 
 Laravel • PHP 8.2 • MariaDB 11 • Redis 7 • Node 20 • Docker
@@ -79,4 +68,5 @@ docker compose exec app bash
 
 ## 📜 Licença
 
-MIT
+Este projeto possui **licença privada**.  
+A reprodução, distribuição ou uso não autorizado é proibido sem permissão expressa do autor.
