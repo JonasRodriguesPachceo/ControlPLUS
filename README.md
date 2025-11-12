@@ -23,10 +23,14 @@ cd controlplus
 
 ```bash
 cp .env.example .env
-cp compose.env.example compose.env
+cp compose.example.env compose.env
 ```
 
-# Suba os containers
+# buildar/Subir os containers
+
+```bash
+docker compose build
+```
 
 ```bash
 docker compose up -d
