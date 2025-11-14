@@ -10,6 +10,40 @@ COMPOSER_CMD ?= install
 NPM_CMD      ?= install
 ARTISAN_CMD  ?= list
 
+# Variáveis obrigatórias no .env para subir o ambiente utilizadas pelo check-env
+REQUIRED_ENV = \
+	APP_ENV \
+	APP_URL \
+	DB_CONNECTION \
+	DB_HOST \
+	DB_PORT \
+	DB_DATABASE \
+	DB_USERNAME \
+	DB_PASSWORD
+
+check-env:
+	@echo "Verificando arquivo .env..."
+	@if [ ! -f .env ]; then \
+		echo "ERRO: arquivo .env não encontrado na raiz do projeto."; \
+		echo "Crie o arquivo com base no .env.example e ajuste as variáveis necessárias."; \
+		echo "Comando sugerido: cp .env.example .env"; \
+		exit 1; \
+	fi; \
+	missing=""; \
+	for var in $(REQUIRED_ENV); do \
+		if ! grep -q "^$$var=" .env; then \
+			missing="$$missing $$var"; \
+		fi; \
+	done; \
+	if [ -n "$$missing" ]; then \
+		echo "ERRO: variáveis obrigatórias ausentes no .env:"; \
+		echo "  $$missing"; \
+		echo "Corrija o arquivo .env e execute novamente."; \
+		exit 1; \
+	fi; \
+	echo ".env OK: todas as variáveis obrigatórias foram encontradas."
+
+
 .PHONY: up down restart logs build install fresh-install \
 	composer npm artisan migrate rollback seed fresh key \
 	tinker bash dbbash perms
@@ -31,7 +65,7 @@ build:
 	$(COMPOSE) build
 
 # Primeira vez / setup completo (build + deps + key + migrate + seed)
-first-build:
+first-build: check-env
 	$(COMPOSE) up -d --build
 	$(COMPOSE) exec $(APP_SERVICE) composer install
 	$(COMPOSE) exec $(APP_SERVICE) npm install
