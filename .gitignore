@@ -8,6 +8,7 @@
 # Composer PHAR
 composer.phar
 
+
 # Laravel storage & cache
 /storage/*.key
 /storage/app/*
@@ -16,6 +17,8 @@ composer.phar
 /storage/framework/testing/*
 /storage/framework/views/*
 /storage/logs/*
+.npm/
+.composer/
 
 # Bootstrap cache: versionar só a pasta, não os arquivos gerados
 /bootstrap/cache/*

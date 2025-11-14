@@ -48,6 +48,9 @@ WORKDIR /var/www/html
 # A partir daqui o usuário padrão é www-data (mesmo UID do rob)
 USER www-data
 
+# Define o home do www-data
+ENV HOME=/var/www/html
+
 # Configs úteis do Composer
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV COMPOSER_ALLOW_SUPERUSER=1
