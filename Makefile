@@ -10,6 +10,8 @@ COMPOSER_CMD ?= install
 NPM_CMD      ?= install
 ARTISAN_CMD  ?= list
 
+container: install
+
 .PHONY: up down restart logs build install fresh-install \
 	composer npm artisan migrate rollback seed fresh key \
 	tinker bash dbbash perms
@@ -30,17 +32,19 @@ logs:
 build:
 	$(COMPOSE) build
 
+# Primeira vez / setup completo (build + deps + key + migrate + seed)
 install:
 	$(COMPOSE) up -d --build
 	$(COMPOSE) exec $(APP_SERVICE) composer install
 	$(COMPOSE) exec $(APP_SERVICE) npm install
+	$(MAKE) perms
+	$(COMPOSE) exec $(APP_SERVICE) php artisan key:generate
+	$(COMPOSE) exec $(APP_SERVICE) php artisan migrate --seed
 
+# Reset total (derruba tudo, recria containers e roda install)
 fresh-install:
 	$(COMPOSE) down -v
-	$(COMPOSE) up -d --build
-	$(COMPOSE) exec $(APP_SERVICE) composer install
-	$(COMPOSE) exec $(APP_SERVICE) npm install
-	$(COMPOSE) exec $(APP_SERVICE) php artisan migrate --seed
+	$(MAKE) install
 
 composer:
 	$(COMPOSE) exec $(APP_SERVICE) composer $(COMPOSER_CMD)
@@ -76,4 +80,8 @@ dbbash:
 	$(COMPOSE) exec $(DB_SERVICE) sh -c 'mysql -u$$DB_USERNAME -p$$DB_PASSWORD $$DB_DATABASE'
 
 perms:
-	$(COMPOSE) exec $(APP_SERVICE) sh -c "chown -R www-data:www-data storage bootstrap/cache"
+	$(COMPOSE) exec $(APP_SERVICE) sh -c "\
+		mkdir -p storage/logs bootstrap/cache && \
+		chown -R www-data:www-data storage bootstrap/cache && \
+		chmod -R 775 storage/bootstrap/cache \
+	"
