@@ -16,10 +16,10 @@ composer.phar
 /storage/framework/testing/*
 /storage/framework/views/*
 /storage/logs/*
-/bootstrap/cache/*.php
-bootstrap/cache/packages.php
-bootstrap/cache/services.php
-bootstrap/cache/*.json
+
+# Bootstrap cache: versionar só a pasta, não os arquivos gerados
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
 
 # Laravel .env files
 .env
