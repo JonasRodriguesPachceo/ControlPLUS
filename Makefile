@@ -31,7 +31,7 @@ build:
 	$(COMPOSE) build
 
 # Primeira vez / setup completo (build + deps + key + migrate + seed)
-upbuild:
+first-build:
 	$(COMPOSE) up -d --build
 	$(COMPOSE) exec $(APP_SERVICE) composer install
 	$(COMPOSE) exec $(APP_SERVICE) npm install
