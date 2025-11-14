@@ -26,7 +26,6 @@ composer.phar
 
 # Laravel .env files
 .env
-.env.*
 .env.backup
 .env.local
 .env.development
