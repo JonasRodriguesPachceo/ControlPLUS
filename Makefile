@@ -10,8 +10,6 @@ COMPOSER_CMD ?= install
 NPM_CMD      ?= install
 ARTISAN_CMD  ?= list
 
-container: install
-
 .PHONY: up down restart logs build install fresh-install \
 	composer npm artisan migrate rollback seed fresh key \
 	tinker bash dbbash perms
@@ -33,7 +31,7 @@ build:
 	$(COMPOSE) build
 
 # Primeira vez / setup completo (build + deps + key + migrate + seed)
-install:
+upbuild:
 	$(COMPOSE) up -d --build
 	$(COMPOSE) exec $(APP_SERVICE) composer install
 	$(COMPOSE) exec $(APP_SERVICE) npm install
@@ -83,5 +81,5 @@ perms:
 	$(COMPOSE) exec $(APP_SERVICE) sh -c "\
 		mkdir -p storage/logs bootstrap/cache && \
 		chown -R www-data:www-data storage bootstrap/cache && \
-		chmod -R 775 storage/bootstrap/cache \
+		chmod -R 775 storage bootstrap/cache \
 	"
