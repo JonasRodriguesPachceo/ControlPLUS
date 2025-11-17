@@ -13,6 +13,8 @@ use App\Models\ProdutoCombo;
 use App\Models\CategoriaWoocommerce;
 use App\Models\MovimentacaoProduto;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Utils\UploadUtil;
 use App\Imports\ProdutoImport;
 use App\Models\Marca;
@@ -33,7 +35,7 @@ use App\Utils\MercadoLivreUtil;
 use App\Utils\NuvemShopUtil;
 use App\Utils\EstoqueUtil;
 use App\Utils\WoocommerceUtil;
-use App\Rules\ValidaReferenciaBalanca;
+use App\Services\ProductService;
 use App\Exports\ProdutoExport;
 
 class ProdutoController extends Controller
@@ -283,10 +285,9 @@ class ProdutoController extends Controller
                 'ecommerce', 'mercadolivre', 'configMercadoLivre', 'categoriasWoocommerce', 'unidades', 'configGeral'));
     }
 
-    public function store(Request $request)
+    public function store(StoreProductRequest $request, ProductService $productService)
     {
-        // dd($request);
-        $this->__validate($request);
+        $request->validated();
         $produto = null;
         try {
             $file_name = '';
@@ -383,8 +384,8 @@ class ProdutoController extends Controller
 
             $locais = isset($request->locais) ? $request->locais : [];
 
-            $produto = DB::transaction(function () use ($request, $locais) {
-                $produto = Produto::create($request->all());
+            $produto = DB::transaction(function () use ($request, $productService, $locais) {
+                $produto = $productService->create($request->all());
 
                 if($request->combo == 1 && $request->produto_combo_id){
                     for($i=0; $i<sizeof($request->produto_combo_id); $i++){
@@ -592,8 +593,9 @@ private function insereEmListaDePrecos($produto){
     }
 }
 
-public function update(Request $request, $id)
+public function update(UpdateProductRequest $request, $id, ProductService $productService)
 {
+    $request->validated();
     $item = Produto::findOrFail($id);
     __validaObjetoEmpresa($item);
     try {
@@ -676,7 +678,7 @@ public function update(Request $request, $id)
             ]);
         }
 
-        $item->fill($request->all())->save();
+        $item = $productService->update($item, $request->all());
 
         if($request->variavel){
 
@@ -926,47 +928,6 @@ public function destroySelecet(Request $request)
 
     session()->flash("flash_success", "Total de itens removidos: $removidos!");
     return redirect()->route('produtos.index');
-}
-
-private function __validate(Request $request)
-{
-    $rules = [
-        'nome' => 'required',
-            // 'codigo_barras' => 'required',
-            // 'ncm' => 'required',
-        'descricao' => 'max:255',
-        'descricao_en' => 'max:255',
-        'descricao_es' => 'max:255',
-        'unidade' => 'required',
-        'cst_csosn' => 'required',
-        'cst_pis' => 'required',
-        'cst_cofins' => 'required',
-        'cst_ipi' => 'required',
-        'valor_unitario' => 'required',
-        'referencia_balanca' => [new ValidaReferenciaBalanca($request->empresa_id)],
-
-    ];
-
-    $messages = [
-        'nome.required' => 'Campo Obrigatório',
-        'codigo_barras.required' => 'Campo Obrigatório',
-        'ncm.required' => 'Campo Obrigatório',
-        'cest.required' => 'Campo Obrigatório',
-        'unidade.required' => 'Campo Obrigatório',
-        'perc_icms.required' => 'Campo Obrigatório',
-        'perc_pis.required' => 'Campo Obrigatório',
-        'perc_cofins.required' => 'Campo Obrigatório',
-        'perc_ipi.required' => 'Campo Obrigatório',
-        'cst_csosn.required' => 'Campo Obrigatório',
-        'cst_pis.required' => 'Campo Obrigatório',
-        'cst_cofins.required' => 'Campo Obrigatório',
-        'cst_ipi.required' => 'Campo Obrigatório',
-        'valor_unitario.required' => 'Campo Obrigatório',
-        'descricao.max' => 'Máximo de 255 caracteres',
-        'descricao_es.max' => 'Máximo de 255 caracteres',
-        'descricao_en.max' => 'Máximo de 255 caracteres',
-    ];
-    $this->validate($request, $rules, $messages);
 }
 
 public function import()

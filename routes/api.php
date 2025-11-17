@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\ProductController as ApiProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +44,8 @@ Route::middleware(['valid'])->group(function () {
         Route::post('/gerarNfe', 'NFeController@gerarNfe');
     });
 });
+
+Route::apiResource('products', ApiProductController::class);
 
 Route::middleware(['validNfce'])->group(function () {
     Route::group(['prefix' => 'nfce'], function () {
