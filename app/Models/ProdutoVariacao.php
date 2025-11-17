@@ -33,15 +33,15 @@ class ProdutoVariacao extends Model
         return $this->hasOne(Estoque::class, 'produto_variacao_id');
     }
 
-    public function movimentacaoProduto()
-    {
-        return $this->hasOne(MovimentacaoProduto::class, 'produto_variacao_id');
-    }
+	    public function movimentacaoProduto()
+	    {
+	        return $this->hasOne(MovimentacaoProduto::class, 'produto_variacao_id');
+	    }
 
-    public function unidadesRastreaveis()
-    {
-        return $this->hasMany(ProdutoUnico::class, 'produto_variacao_id');
-    }
+	    public function unidadesRastreaveis()
+	    {
+	        return $this->hasMany(ImeiUnit::class, 'produto_variacao_id');
+	    }
 
     public function getImgAttribute()
     {

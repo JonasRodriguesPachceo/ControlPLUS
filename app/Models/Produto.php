@@ -154,12 +154,12 @@ class Produto extends Model
 
 	// Unidades físicas rastreadas (IMEI/série) ligadas ao produto.
 	public function unidadesRastreaveis(){
-		return $this->hasMany(ProdutoUnico::class, 'produto_id');
+		return $this->hasMany(ImeiUnit::class, 'produto_id');
 	}
 
 	// Preferimos vincular as unidades à variação quando a grade estiver ativa.
 	public function unidadesPorVariacao(){
-		return $this->hasManyThrough(ProdutoUnico::class, ProdutoVariacao::class, 'produto_id', 'produto_variacao_id');
+		return $this->hasManyThrough(ImeiUnit::class, ProdutoVariacao::class, 'produto_id', 'produto_variacao_id');
 	}
 
 	public function itensDoCombo(){
