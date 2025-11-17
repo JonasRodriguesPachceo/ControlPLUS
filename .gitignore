@@ -31,6 +31,7 @@ composer.phar
 .env.development
 .env.production
 .env.testing
+.bash*
 
 # Laravel Homestead
 Homestead.yaml
