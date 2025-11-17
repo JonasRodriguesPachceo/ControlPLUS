@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        UID: 1000         # uid do rob
-        GID: 1001         # gid do grupo dockershared
+        UID: 1000
+        GID: 33
     image: controlplus-app
     env_file: .env
     depends_on:

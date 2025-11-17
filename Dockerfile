@@ -1,7 +1,7 @@
 FROM php:8.2-fpm
 
 ARG UID=1000
-ARG GID=1001
+ARG GID=33
 
 # Sistema + extensões PHP + Node 18
 RUN apt-get update && apt-get install -y \

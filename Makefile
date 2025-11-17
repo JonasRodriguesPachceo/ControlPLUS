@@ -10,6 +10,9 @@ COMPOSER_CMD ?= install
 NPM_CMD      ?= install
 ARTISAN_CMD  ?= list
 
+DB_WAIT_RETRIES ?= 20      # máximo de tentativas
+DB_WAIT_SECONDS ?= 3       # segundos entre tentativas
+
 # Variáveis obrigatórias no .env para subir o ambiente utilizadas pelo check-env
 REQUIRED_ENV = \
 	APP_ENV \
@@ -44,6 +47,22 @@ check-env:
 	echo ".env OK: todas as variáveis obrigatórias foram encontradas."
 
 
+wait-db:
+	@echo "Aguardando banco de dados ficar pronto..."
+	@$(COMPOSE) exec $(DB_SERVICE) sh -c '\
+		i=0; \
+		while ! mysqladmin ping -h"localhost" --silent; do \
+			i=$$((i+1)); \
+			if [ $$i -ge $(DB_WAIT_RETRIES) ]; then \
+				echo "ERRO: MySQL não subiu após $(DB_WAIT_RETRIES) tentativas."; \
+				exit 1; \
+			fi; \
+			echo "   tentativa $$i: aguardando MySQL..."; \
+			sleep $(DB_WAIT_SECONDS); \
+		done; \
+	'
+	@echo "✅ Banco de dados pronto."
+
 .PHONY: up down restart logs build install fresh-install \
 	composer npm artisan migrate rollback seed fresh key \
 	tinker bash dbbash perms
@@ -71,12 +90,11 @@ first-build: check-env
 	$(COMPOSE) exec $(APP_SERVICE) npm install
 	$(MAKE) perms
 	$(COMPOSE) exec $(APP_SERVICE) php artisan key:generate
-	$(COMPOSE) exec $(APP_SERVICE) php artisan migrate --seed
+	$(MAKE) migrate-seed
+
 
 # Reset total (derruba tudo, recria containers e roda install)
-fresh-install:
-	$(COMPOSE) down -v
-	$(MAKE) install
+fresh-install: $(COMPOSE) down -v $(MAKE) install
 
 composer:
 	$(COMPOSE) exec $(APP_SERVICE) composer $(COMPOSER_CMD)
@@ -86,6 +104,9 @@ npm:
 
 artisan:
 	$(COMPOSE) exec $(APP_SERVICE) php artisan $(ARTISAN_CMD)
+
+migrate-seed: wait-db
+	$(COMPOSE) exec $(APP_SERVICE) php artisan migrate --seed
 
 migrate:
 	$(COMPOSE) exec $(APP_SERVICE) php artisan migrate
