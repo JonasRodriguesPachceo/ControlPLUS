@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Produto;
 use App\Models\ProdutoVariacao;
 use App\Models\StockMove;
+use App\Events\StockMoved;
 use DomainException;
 use Illuminate\Support\Facades\DB;
 
@@ -64,6 +65,8 @@ class StockEntryService
                     'new_status' => $imeiUnit->status,
                 ]);
             }
+
+            event(new StockMoved($stockMove, $imeis));
 
             return $stockMove->load(['items.imeiUnit', 'imeiUnits']);
         });

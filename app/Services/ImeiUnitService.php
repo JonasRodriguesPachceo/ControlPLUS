@@ -7,6 +7,8 @@ namespace App\Services;
 use App\Models\ImeiUnit;
 use App\Models\Produto;
 use App\Models\ProdutoVariacao;
+use App\Events\IMEICreated;
+use App\Events\IMEIStatusChanged;
 use DomainException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
@@ -39,6 +41,7 @@ class ImeiUnitService
             $payload = $this->normalizePayload($product, $variant, $data);
 
             $imeiUnit = ImeiUnit::create($payload);
+            event(new IMEICreated($imeiUnit));
 
             return $imeiUnit;
         });
@@ -81,7 +84,7 @@ class ImeiUnitService
             throw new DomainException('Cannot move sold IMEI back to available directly.');
         }
 
-        $imeiUnit->status = $newStatus;
+            $imeiUnit->status = $newStatus;
 
         if ($newStatus === self::STATUS_SOLD && $imeiUnit->sold_at === null) {
             $imeiUnit->sold_at = now();
@@ -93,6 +96,8 @@ class ImeiUnitService
 
         $imeiUnit->last_moved_at = now();
         $imeiUnit->save();
+
+        event(new IMEIStatusChanged($imeiUnit, $current, $newStatus, $meta));
 
         return $imeiUnit;
     }

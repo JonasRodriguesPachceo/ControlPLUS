@@ -38,12 +38,17 @@ class ImeiUnit extends Model
         'locked_at',
         'sold_at',
         'last_moved_at',
+        'label_barcode_value',
+        'label_qr_value',
+        'label_version',
+        'label_last_generated_at',
     ];
 
     protected $casts = [
         'locked_at' => 'datetime',
         'sold_at' => 'datetime',
         'last_moved_at' => 'datetime',
+        'label_last_generated_at' => 'datetime',
     ];
 
     public function produto(): BelongsTo
