@@ -9,6 +9,7 @@ use App\Models\LabelPrintJobItem;
 use App\Services\ImeiLabelService;
 use App\Services\Labels\LabelPrintQueueService;
 use App\Services\Printing\LabelPrintSpoolService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -34,46 +35,57 @@ class ProcessLabelPrintJob implements ShouldQueue
         LabelPrintSpoolService $spoolService
     ): void
     {
-        if ($this->labelPrintJob->status === LabelPrintJob::STATUS_PENDING) {
-            $this->labelPrintJob->update([
-                'status' => LabelPrintJob::STATUS_PROCESSING,
-                'processed_at' => now(),
-            ]);
+        $lock = Cache::lock("label_print_job:{$this->labelPrintJob->id}:lock", 10);
+
+        if (! $lock->get()) {
+            return;
         }
 
-        $items = $this->labelPrintJob->items()
-            ->where('status', LabelPrintJobItem::STATUS_PENDING)
-            ->with('imeiUnit')
-            ->get();
-
-        foreach ($items as $item) {
-            try {
-                $queueService->markItemProcessing($item);
-                $imei = $item->imeiUnit()->with(['produto', 'variacao', 'localizacao'])->first();
-                $label = $labelService->generateFormattedForImei($imei);
-
-                $payload = [
-                    'job_id' => $this->labelPrintJob->id,
-                    'item_id' => $item->id,
-                    'empresa_id' => $this->labelPrintJob->empresa_id,
-                    'filial_id' => $this->labelPrintJob->filial_id,
-                    'imei_unit_id' => $imei->id,
-                    'label' => $label,
-                ];
-
-                $spoolService->queueFromLabelPayload($item, $payload);
-
-                $queueService->markItemDone($item);
-            } catch (\Throwable $e) {
-                Log::error('Label print item failed', [
-                    'job_id' => $this->labelPrintJob->id,
-                    'item_id' => $item->id,
-                    'error' => $e->getMessage(),
+        try {
+            if ($this->labelPrintJob->status === LabelPrintJob::STATUS_PENDING) {
+                $this->labelPrintJob->update([
+                    'status' => LabelPrintJob::STATUS_PROCESSING,
+                    'processed_at' => now(),
                 ]);
-                $queueService->markItemFailed($item, $e->getMessage());
             }
-        }
 
-        $queueService->refreshJobStatus($this->labelPrintJob);
+            $items = $this->labelPrintJob->items()
+                ->where('status', LabelPrintJobItem::STATUS_PENDING)
+                ->with('imeiUnit')
+                ->get();
+
+            foreach ($items as $item) {
+                try {
+                    $queueService->markItemProcessing($item);
+                    $imei = $item->imeiUnit()->with(['produto', 'variacao', 'localizacao'])->first();
+                    $label = $labelService->generateFormattedForImei($imei);
+
+                    $payload = [
+                        'job_id' => $this->labelPrintJob->id,
+                        'item_id' => $item->id,
+                        'empresa_id' => $this->labelPrintJob->empresa_id,
+                        'filial_id' => $this->labelPrintJob->filial_id,
+                        'imei_unit_id' => $imei->id,
+                        'label' => $label,
+                    ];
+
+                    $spoolService->queueFromLabelPayload($item, $payload);
+
+                    $queueService->markItemDone($item);
+                } catch (\Throwable $e) {
+                    Log::error('Label print item failed', [
+                        'job_id' => $this->labelPrintJob->id,
+                        'item_id' => $item->id,
+                        'imei_unit_id' => $item->imei_unit_id,
+                        'error' => $e->getMessage(),
+                    ]);
+                    $queueService->markItemFailed($item, $e->getMessage());
+                }
+            }
+
+            $queueService->refreshJobStatus($this->labelPrintJob);
+        } finally {
+            optional($lock)->release();
+        }
     }
 }

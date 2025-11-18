@@ -8,4 +8,7 @@ return [
         'dummy' => \App\Services\Printing\Drivers\DummyLabelPrinterDriver::class,
         'http' => \App\Services\Printing\Drivers\HttpLabelPrinterDriver::class,
     ],
+    'spool' => [
+        'max_attempts' => env('PRINTING_SPOOL_MAX_ATTEMPTS', 3),
+    ],
 ];

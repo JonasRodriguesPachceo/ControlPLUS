@@ -22,7 +22,7 @@ class HttpLabelPrinterDriver implements LabelPrinterDriverInterface
             throw new RuntimeException('Endpoint de impressão HTTP não configurado.');
         }
 
-        $request = Http::withHeaders($headers)->timeout(10);
+        $request = Http::withHeaders($headers)->timeout(5);
 
         $response = $request->$method($endpoint, [
             'printer' => [

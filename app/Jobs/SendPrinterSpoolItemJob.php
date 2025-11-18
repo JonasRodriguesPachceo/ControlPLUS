@@ -19,6 +19,9 @@ class SendPrinterSpoolItemJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    public $tries = 3;
+    public $backoff = 30;
+
     public function __construct(public PrinterSpoolItem $spoolItem)
     {
         $this->onQueue('printing');

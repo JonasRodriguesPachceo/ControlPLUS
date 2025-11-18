@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services\Printing;
 
-use App\Contracts\Printing\LabelPrinterDriverInterface;
 use App\Jobs\SendPrinterSpoolItemJob;
 use App\Models\LabelPrintJobItem;
 use App\Models\Printer;
 use App\Models\PrinterSpoolItem;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -52,6 +52,16 @@ class LabelPrintSpoolService
             return;
         }
 
+        $maxAttempts = (int) config('printing.spool.max_attempts', 3);
+        if ($spoolItem->attempts >= $maxAttempts) {
+            return;
+        }
+
+        $lock = Cache::lock("printer_spool_item:{$spoolItem->id}:lock", 10);
+        if (! $lock->get()) {
+            return;
+        }
+
         $spoolItem->update([
             'status' => PrinterSpoolItem::STATUS_SENDING,
             'last_attempt_at' => now(),
@@ -74,6 +84,8 @@ class LabelPrintSpoolService
                 'last_error' => $e->getMessage(),
             ]);
         }
+
+        optional($lock)->release();
     }
 
     public function requeueFailed(PrinterSpoolItem $spoolItem): PrinterSpoolItem
