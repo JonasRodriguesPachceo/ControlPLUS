@@ -14,32 +14,52 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('produto_unicos', function (Blueprint $table): void {
-            $table->foreignId('warehouse_id')
-                ->nullable()
-                ->after('localizacao_id')
-                ->constrained('localizacaos');
+            if (!Schema::hasColumn('produto_unicos', 'warehouse_id')) {
+                $table->foreignId('warehouse_id')
+                    ->nullable()
+                    ->after('localizacao_id')
+                    ->constrained('localizacaos');
+            }
 
-            $table->string('status', 30)
-                ->default('available')
-                ->after('serial_number');
-            $table->string('origin_type', 50)
-                ->nullable()
-                ->after('status');
-            $table->unsignedBigInteger('origin_id')
-                ->nullable()
-                ->after('origin_type');
+            if (!Schema::hasColumn('produto_unicos', 'status')) {
+                $table->string('status', 30)
+                    ->default('available')
+                    ->after('serial_number');
+            }
 
-            $table->timestamp('locked_at')
-                ->nullable()
-                ->after('origin_id');
-            $table->timestamp('sold_at')
-                ->nullable()
-                ->after('locked_at');
-            $table->timestamp('last_moved_at')
-                ->nullable()
-                ->after('sold_at');
+            if (!Schema::hasColumn('produto_unicos', 'origin_type')) {
+                $table->string('origin_type', 50)
+                    ->nullable()
+                    ->after('status');
+            }
 
-            $table->softDeletes();
+            if (!Schema::hasColumn('produto_unicos', 'origin_id')) {
+                $table->unsignedBigInteger('origin_id')
+                    ->nullable()
+                    ->after('origin_type');
+            }
+
+            if (!Schema::hasColumn('produto_unicos', 'locked_at')) {
+                $table->timestamp('locked_at')
+                    ->nullable()
+                    ->after('origin_id');
+            }
+
+            if (!Schema::hasColumn('produto_unicos', 'sold_at')) {
+                $table->timestamp('sold_at')
+                    ->nullable()
+                    ->after('locked_at');
+            }
+
+            if (!Schema::hasColumn('produto_unicos', 'last_moved_at')) {
+                $table->timestamp('last_moved_at')
+                    ->nullable()
+                    ->after('sold_at');
+            }
+
+            if (!Schema::hasColumn('produto_unicos', 'deleted_at')) {
+                $table->softDeletes();
+            }
 
             $table->index('status');
             $table->index('warehouse_id');

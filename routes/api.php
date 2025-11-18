@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\ProductController as ApiProductController;
+use App\Http\Controllers\API\StockEntryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +47,7 @@ Route::middleware(['valid'])->group(function () {
 });
 
 Route::apiResource('products', ApiProductController::class);
+Route::post('stock/entries', [StockEntryController::class, 'store']);
 
 Route::middleware(['validNfce'])->group(function () {
     Route::group(['prefix' => 'nfce'], function () {

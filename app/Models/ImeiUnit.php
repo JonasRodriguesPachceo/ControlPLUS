@@ -65,4 +65,16 @@ class ImeiUnit extends Model
     {
         return $this->belongsTo(Localizacao::class, 'warehouse_id');
     }
+
+    public function stockMoveItems()
+    {
+        return $this->hasMany(StockMoveImei::class, 'imei_unit_id');
+    }
+
+    public function stockMoves()
+    {
+        return $this->belongsToMany(StockMove::class, 'stock_move_imeis', 'imei_unit_id', 'stock_move_id')
+            ->withPivot(['quantity', 'previous_status', 'new_status'])
+            ->withTimestamps();
+    }
 }
