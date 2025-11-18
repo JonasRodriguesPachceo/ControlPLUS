@@ -34,4 +34,9 @@ class LabelPrintJobItem extends Model
     {
         return $this->belongsTo(ImeiUnit::class, 'imei_unit_id');
     }
+
+    public function spoolItem()
+    {
+        return $this->hasOne(PrinterSpoolItem::class, 'label_print_job_item_id');
+    }
 }

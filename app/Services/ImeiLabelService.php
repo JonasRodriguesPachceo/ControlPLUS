@@ -5,12 +5,19 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\ImeiUnit;
+use App\Services\Labels\LabelTemplateFormatterService;
+use App\Services\Labels\LabelTemplateResolverService;
 
 class ImeiLabelService
 {
+    public function __construct(
+        private readonly LabelTemplateResolverService $templateResolver,
+        private readonly LabelTemplateFormatterService $templateFormatter
+    ) {
+    }
+
     /**
-     * Gera payload de etiqueta (barcode + QR) para uma unidade IMEI/Série.
-     * Não gera imagem; apenas dados para consumo por PDF/impressão em fases futuras.
+     * Gera payload base de etiqueta (barcode + QR) para uma unidade IMEI/Série.
      */
     public function generateForImeiUnit(ImeiUnit $imeiUnit): array
     {
@@ -54,5 +61,13 @@ class ImeiLabelService
             'warehouse_id' => $imeiUnit->warehouse_id,
             'url' => rtrim(config('app.url'), '/') . '/imei/' . $imeiUnit->id,
         ]);
+    }
+
+    public function generateFormattedForImei(ImeiUnit $imeiUnit): array
+    {
+        $baseData = $this->generateForImeiUnit($imeiUnit);
+        $template = $this->templateResolver->resolveForImei($imeiUnit, 'imei_label');
+
+        return $this->templateFormatter->formatForImei($imeiUnit, $baseData, $template);
     }
 }

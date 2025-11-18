@@ -61,14 +61,14 @@ class ImeiUnit extends Model
         return $this->belongsTo(ProdutoVariacao::class, 'produto_variacao_id');
     }
 
-    public function localizacao(): BelongsTo
-    {
-        return $this->belongsTo(Localizacao::class, 'localizacao_id');
-    }
-
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Localizacao::class, 'warehouse_id');
+    }
+
+    public function localizacao(): BelongsTo
+    {
+        return $this->belongsTo(Localizacao::class, 'localizacao_id');
     }
 
     public function stockMoveItems()

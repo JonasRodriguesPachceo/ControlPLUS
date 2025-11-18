@@ -28,6 +28,7 @@ class LabelPrintQueueService
                 'filial_id' => null,
                 'status' => LabelPrintJob::STATUS_PENDING,
                 'type' => 'imei_label',
+                'source' => $collection->count() > 1 ? 'entry' : 'reprint',
                 'requested_by' => $user?->id,
                 'requested_at' => now(),
             ]);

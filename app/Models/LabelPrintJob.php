@@ -23,6 +23,7 @@ class LabelPrintJob extends Model
         'filial_id',
         'status',
         'type',
+        'source',
         'requested_by',
         'requested_at',
         'processed_at',

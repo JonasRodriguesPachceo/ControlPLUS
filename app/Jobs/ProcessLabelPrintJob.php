@@ -8,6 +8,7 @@ use App\Models\LabelPrintJob;
 use App\Models\LabelPrintJobItem;
 use App\Services\ImeiLabelService;
 use App\Services\Labels\LabelPrintQueueService;
+use App\Services\Printing\LabelPrintSpoolService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -27,7 +28,11 @@ class ProcessLabelPrintJob implements ShouldQueue
         $this->onQueue('printing');
     }
 
-    public function handle(ImeiLabelService $labelService, LabelPrintQueueService $queueService): void
+    public function handle(
+        ImeiLabelService $labelService,
+        LabelPrintQueueService $queueService,
+        LabelPrintSpoolService $spoolService
+    ): void
     {
         if ($this->labelPrintJob->status === LabelPrintJob::STATUS_PENDING) {
             $this->labelPrintJob->update([
@@ -36,13 +41,16 @@ class ProcessLabelPrintJob implements ShouldQueue
             ]);
         }
 
-        $items = $this->labelPrintJob->items()->where('status', LabelPrintJobItem::STATUS_PENDING)->with('imeiUnit')->get();
+        $items = $this->labelPrintJob->items()
+            ->where('status', LabelPrintJobItem::STATUS_PENDING)
+            ->with('imeiUnit')
+            ->get();
 
         foreach ($items as $item) {
             try {
                 $queueService->markItemProcessing($item);
-                $imei = $item->imeiUnit()->with(['produto', 'variacao', 'warehouse'])->first();
-                $label = $labelService->generateForImeiUnit($imei);
+                $imei = $item->imeiUnit()->with(['produto', 'variacao', 'localizacao'])->first();
+                $label = $labelService->generateFormattedForImei($imei);
 
                 $payload = [
                     'job_id' => $this->labelPrintJob->id,
@@ -53,8 +61,7 @@ class ProcessLabelPrintJob implements ShouldQueue
                     'label' => $label,
                 ];
 
-                // TODO: Substituir por spool/driver físico na fase futura.
-                Log::info('Label print payload generated', $payload);
+                $spoolService->queueFromLabelPayload($item, $payload);
 
                 $queueService->markItemDone($item);
             } catch (\Throwable $e) {
