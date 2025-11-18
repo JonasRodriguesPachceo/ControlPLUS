@@ -6,6 +6,7 @@ use App\Http\Controllers\API\ProductController as ApiProductController;
 use App\Http\Controllers\API\StockEntryController;
 use App\Http\Controllers\API\StockTransferController;
 use App\Http\Controllers\API\SaleImeisController;
+use App\Http\Controllers\LabelPrintController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +56,7 @@ Route::post('stock/transfers/in', [StockTransferController::class, 'transferIn']
 Route::post('sales/{sale}/confirm-imeis', [SaleImeisController::class, 'confirm']);
 Route::post('sales/{sale}/return', [SaleImeisController::class, 'returnSale']);
 Route::post('sales/{sale}/cancel', [SaleImeisController::class, 'cancel']);
+Route::post('labels/imei/{imeiUnit}/reprint', [LabelPrintController::class, 'reprintImeiLabel']);
 
 Route::middleware(['validNfce'])->group(function () {
     Route::group(['prefix' => 'nfce'], function () {

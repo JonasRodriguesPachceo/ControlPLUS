@@ -8,16 +8,22 @@ use App\Models\Produto;
 use App\Models\ProdutoVariacao;
 use App\Models\StockMove;
 use App\Events\StockMoved;
+use App\Services\Labels\LabelPrintQueueService;
 use DomainException;
 use Illuminate\Support\Facades\DB;
 
 class StockEntryService
 {
     private ImeiUnitService $imeiUnitService;
+    private LabelPrintQueueService $labelPrintQueueService;
 
-    public function __construct(ImeiUnitService $imeiUnitService)
+    public function __construct(
+        ImeiUnitService $imeiUnitService,
+        LabelPrintQueueService $labelPrintQueueService
+    )
     {
         $this->imeiUnitService = $imeiUnitService;
+        $this->labelPrintQueueService = $labelPrintQueueService;
     }
 
     /**
@@ -26,7 +32,7 @@ class StockEntryService
      */
     public function createEntry(array $data): StockMove
     {
-        return DB::transaction(function () use ($data): StockMove {
+        [$stockMove, $imeis] = DB::transaction(function () use ($data): array {
             [$product, $variant] = $this->resolveProduct($data);
 
             $this->assertProductSupportsTracking($product);
@@ -68,8 +74,12 @@ class StockEntryService
 
             event(new StockMoved($stockMove, $imeis));
 
-            return $stockMove->load(['items.imeiUnit', 'imeiUnits']);
+            return [$stockMove->load(['items.imeiUnit', 'imeiUnits']), $imeis];
         });
+
+        $this->labelPrintQueueService->enqueueForImeis($imeis, auth()->user());
+
+        return $stockMove;
     }
 
     private function resolveProduct(array $data): array

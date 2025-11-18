@@ -82,4 +82,9 @@ class ImeiUnit extends Model
             ->withPivot(['quantity', 'previous_status', 'new_status'])
             ->withTimestamps();
     }
+
+    public function labelPrintItems()
+    {
+        return $this->hasMany(LabelPrintJobItem::class, 'imei_unit_id');
+    }
 }
