@@ -19,11 +19,7 @@ class HomeController extends Controller
 {
 
     public function __construct(){
-    if (php_sapi_name() !== 'cli') {
-        if (php_sapi_name() !== 'cli') {
-            session_start();
-        }
-    }
+        session_start();
     }
 
     private function _validaHash($config){

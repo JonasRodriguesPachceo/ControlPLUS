@@ -1,6 +1,0 @@
-# Esta pasta deve existir no repositório.
-# O Laravel gera arquivos de cache aqui.
-# NÃO versionar nenhum arquivo além deste .gitignore.
-
-*
-!.gitignore

@@ -22,9 +22,7 @@ class PagamentoController extends Controller
     public function __construct(UploadUtil $util)
     {
         $this->util = $util;
-        if (php_sapi_name() !== 'cli') {
-            session_start();
-        }
+        session_start();
     }
 
     public function index(Request $request){

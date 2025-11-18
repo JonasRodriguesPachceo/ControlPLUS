@@ -2,17 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\ProductController as ApiProductController;
-use App\Http\Controllers\API\StockEntryController;
-use App\Http\Controllers\API\StockTransferController;
-use App\Http\Controllers\API\SaleImeisController;
-use App\Http\Controllers\LabelPrintController;
-use App\Http\Controllers\API\LabelPrintJobController;
-use App\Http\Controllers\API\LabelPrintJobItemController;
-use App\Http\Controllers\API\PrinterSpoolController;
-use App\Http\Controllers\API\Printing\PrinterController;
-use App\Http\Controllers\API\Reports\LabelPrintingReportController;
-use App\Http\Controllers\API\LabelTemplateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,33 +43,6 @@ Route::middleware(['valid'])->group(function () {
         Route::post('/gerarNfe', 'NFeController@gerarNfe');
     });
 });
-
-Route::apiResource('products', ApiProductController::class);
-Route::post('stock/entries', [StockEntryController::class, 'store']);
-Route::post('stock/transfers/out', [StockTransferController::class, 'transferOut']);
-Route::post('stock/transfers/in', [StockTransferController::class, 'transferIn']);
-Route::post('sales/{sale}/confirm-imeis', [SaleImeisController::class, 'confirm']);
-Route::post('sales/{sale}/return', [SaleImeisController::class, 'returnSale']);
-Route::post('sales/{sale}/cancel', [SaleImeisController::class, 'cancel']);
-Route::post('labels/imei/{imeiUnit}/reprint', [LabelPrintController::class, 'reprintImeiLabel']);
-Route::get('labels/print-jobs', [LabelPrintJobController::class, 'index']);
-Route::get('labels/print-jobs/{job}', [LabelPrintJobController::class, 'show']);
-Route::post('labels/print-jobs/{job}/retry', [LabelPrintJobController::class, 'retry']);
-Route::get('labels/print-jobs/{job}/items', [LabelPrintJobItemController::class, 'index']);
-Route::get('printing/spool-items', [PrinterSpoolController::class, 'index']);
-Route::get('printing/spool-items/{spoolItem}', [PrinterSpoolController::class, 'show']);
-Route::post('printing/spool-items/{spoolItem}/retry', [PrinterSpoolController::class, 'retry']);
-Route::get('labels/templates', [LabelTemplateController::class, 'index']);
-Route::post('labels/templates/{template}/set-default', [LabelTemplateController::class, 'setDefault']);
-Route::get('printing/printers', [PrinterController::class, 'index']);
-Route::post('printing/printers', [PrinterController::class, 'store']);
-Route::get('printing/printers/{printer}', [PrinterController::class, 'show']);
-Route::put('printing/printers/{printer}', [PrinterController::class, 'update']);
-Route::patch('printing/printers/{printer}', [PrinterController::class, 'update']);
-Route::delete('printing/printers/{printer}', [PrinterController::class, 'destroy']);
-Route::get('reports/labels/printing/summary-by-day', [LabelPrintingReportController::class, 'summaryByDay']);
-Route::get('reports/labels/printing/summary-by-printer', [LabelPrintingReportController::class, 'summaryByPrinter']);
-Route::get('reports/labels/printing/user-reprints', [LabelPrintingReportController::class, 'userReprints']);
 
 Route::middleware(['validNfce'])->group(function () {
     Route::group(['prefix' => 'nfce'], function () {

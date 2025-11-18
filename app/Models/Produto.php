@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,16 +9,11 @@ class Produto extends Model
 {
 	use HasFactory;
 
-	public const TRACKING_TYPE_NONE = 'none';
-	public const TRACKING_TYPE_SERIAL = 'serial';
-	public const TRACKING_TYPE_IMEI = 'imei';
-	public const TRACKING_TYPE_VARIANT = 'variant';
-
 	protected $fillable = [
 		'empresa_id', 'nome', 'codigo_barras', 'ncm', 'cest', 'unidade', 'perc_icms', 'perc_pis',
 		'perc_cofins', 'perc_ipi', 'cst_csosn', 'cst_pis', 'cst_cofins', 'cst_ipi', 'valor_unitario',
 		'origem', 'perc_red_bc', 'cfop_estadual', 'cfop_outro_estado', 'cEnq', 'pST',
-		'categoria_id', 'padrao_id', 'gerenciar_estoque', 'tracking_type', 'has_variants', 'is_refurbished', 'imagem', 'codigo_beneficio_fiscal',
+		'categoria_id', 'padrao_id', 'gerenciar_estoque', 'imagem', 'codigo_beneficio_fiscal',
 		'valor_compra', 'referencia', 'adRemICMSRet', 'pBio', 'tipo_servico', 'indImport', 'cUFOrig',
 		'pOrig', 'codigo_anp', 'perc_glp', 'perc_gnn', 'perc_gni', 'valor_partida', 'unidade_tributavel',
 		'quantidade_tributavel', 'status', 'cardapio', 'descricao', 'descricao_en', 'descricao_es',
@@ -38,11 +31,6 @@ class Produto extends Model
 		'balanca_pdv', 'mercado_livre_modelo', 'valor_minimo_venda', 'exportar_balanca', 'referencia_xml', 'tipo_dimensao', 
 		'espessura', '_id_import', 'observacao', 'observacao2', 'observacao3', 'observacao4', 'tipo_producao',
 		'numero_sequencial', 'valor_prazo', 'ifood_id'
-	];
-
-	protected $casts = [
-		'has_variants' => 'boolean',
-		'is_refurbished' => 'boolean',
 	];
 
 	protected $appends = [ 'imgApp' ];
@@ -150,16 +138,6 @@ class Produto extends Model
 
 	public function variacoes(){
 		return $this->hasMany(ProdutoVariacao::class, 'produto_id');
-	}
-
-	// Unidades físicas rastreadas (IMEI/série) ligadas ao produto.
-	public function unidadesRastreaveis(){
-		return $this->hasMany(ImeiUnit::class, 'produto_id');
-	}
-
-	// Preferimos vincular as unidades à variação quando a grade estiver ativa.
-	public function unidadesPorVariacao(){
-		return $this->hasManyThrough(ImeiUnit::class, ProdutoVariacao::class, 'produto_id', 'produto_variacao_id');
 	}
 
 	public function itensDoCombo(){

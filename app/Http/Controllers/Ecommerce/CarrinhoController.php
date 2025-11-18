@@ -18,9 +18,7 @@ class CarrinhoController extends Controller
 {
 
     public function __construct(CorreioUtil $util){
-        if (php_sapi_name() !== 'cli') {
-            session_start();
-        }
+        session_start();
         $this->util = $util;
     }
 

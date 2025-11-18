@@ -18,25 +18,6 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        \App\Events\IMEICreated::class => [
-            \App\Listeners\LogImeiCreated::class,
-            \App\Listeners\GenerateImeiLabelOnCreated::class,
-        ],
-        \App\Events\IMEIStatusChanged::class => [
-            \App\Listeners\LogImeiStatusChanged::class,
-        ],
-        \App\Events\StockMoved::class => [
-            \App\Listeners\LogStockMove::class,
-        ],
-        \App\Events\SaleFinalized::class => [
-            \App\Listeners\LogSaleEvent::class,
-        ],
-        \App\Events\SaleReturned::class => [
-            \App\Listeners\LogSaleEvent::class,
-        ],
-        \App\Events\SaleCanceled::class => [
-            \App\Listeners\LogSaleEvent::class,
-        ],
     ];
 
     /**

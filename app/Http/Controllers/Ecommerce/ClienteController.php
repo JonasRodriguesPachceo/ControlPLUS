@@ -15,9 +15,7 @@ use Illuminate\Support\Str;
 class ClienteController extends Controller
 {
     public function __construct(){
-        if (php_sapi_name() !== 'cli') {
-            session_start();
-        }
+        session_start();
     }
 
     public function cadastro(Request $request){

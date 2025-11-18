@@ -18,15 +18,6 @@ class ItemPreVenda extends Model
         return $this->belongsTo(Produto::class, 'produto_id');
     }
 
-    public function produtoVariacao(){
-        return $this->belongsTo(ProdutoVariacao::class, 'variacao_id');
-    }
-
-    public function imeiUnits()
-    {
-        return $this->belongsToMany(ImeiUnit::class, 'pre_venda_item_imeis', 'item_pre_venda_id', 'imei_unit_id')->withTimestamps();
-    }
-
     public function descricao(){
         if($this->variacao_id == null){
             return $this->produto->nome;
