@@ -126,6 +126,13 @@
                 </div>
 
                 <div class="col-md-2">
+                    {!!Form::select('tracking_type', 'Tipo de Rastreamento', \App\Models\Produto::trackingOptions())
+                    ->attrs(['class' => 'form-select'])
+                    ->value(old('tracking_type', isset($item) ? $item->tracking_type : \App\Models\Produto::TRACKING_NONE))
+                    !!}
+                </div>
+
+                <div class="col-md-2">
                     {!!Form::select('gerenciar_estoque', 'Gerenciar estoque', ['0' => 'Não', '1' => 'Sim'])
                     ->attrs(['class' => 'form-select'])
                     ->value(isset($item) ? $item->gerenciar_estoque : ($configGeral ? $configGeral->gerenciar_estoque : ''))

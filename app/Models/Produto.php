@@ -9,6 +9,11 @@ class Produto extends Model
 {
 	use HasFactory;
 
+	public const TRACKING_NONE = 0;
+	public const TRACKING_SERIAL = 1;
+	public const TRACKING_IMEI = 2;
+	public const TRACKING_GRADE = 3;
+
 	protected $fillable = [
 		'empresa_id', 'nome', 'codigo_barras', 'ncm', 'cest', 'unidade', 'perc_icms', 'perc_pis',
 		'perc_cofins', 'perc_ipi', 'cst_csosn', 'cst_pis', 'cst_cofins', 'cst_ipi', 'valor_unitario',
@@ -27,10 +32,14 @@ class Produto extends Model
 		'texto_nuvem_shop', 'modBCST', 'pMVAST', 'pICMSST', 'redBCST', 'reserva', 'percentual_lucro', 'codigo_barras2', 
 		'codigo_barras3', 'sub_categoria_id', 'valor_atacado', 'quantidade_atacado', 'oferta_delivery',
 		'woocommerce_id', 'woocommerce_slug', 'woocommerce_link', 'woocommerce_valor', 'woocommerce_type',
-		'woocommerce_status', 'woocommerce_descricao', 'woocommerce_stock_status', 'categorias_woocommerce', 'tipo_unico', 
+		'woocommerce_status', 'woocommerce_descricao', 'woocommerce_stock_status', 'categorias_woocommerce', 'tipo_unico', 'tracking_type', 
 		'balanca_pdv', 'mercado_livre_modelo', 'valor_minimo_venda', 'exportar_balanca', 'referencia_xml', 'tipo_dimensao', 
 		'espessura', '_id_import', 'observacao', 'observacao2', 'observacao3', 'observacao4', 'tipo_producao',
 		'numero_sequencial', 'valor_prazo', 'ifood_id'
+	];
+
+	protected $casts = [
+		'tracking_type' => 'integer',
 	];
 
 	protected $appends = [ 'imgApp' ];
@@ -443,6 +452,16 @@ class Produto extends Model
 			'75' => '75 - Operação de Aquisição por Substituição Tributária',
 			'98' => '98 - Outras Operações de Entrada',
 			'99' => '99 - Outras Operações',
+		];
+	}
+
+	public static function trackingOptions()
+	{
+		return [
+			self::TRACKING_NONE => 'Sem controle',
+			self::TRACKING_SERIAL => 'Nº de Série',
+			self::TRACKING_IMEI => 'IMEI',
+			self::TRACKING_GRADE => 'Grade (cor/tamanho)',
 		];
 	}
 

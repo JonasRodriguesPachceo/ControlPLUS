@@ -943,6 +943,7 @@ private function __validate(Request $request)
         'cst_cofins' => 'required',
         'cst_ipi' => 'required',
         'valor_unitario' => 'required',
+        'tracking_type' => 'required|integer|in:0,1,2,3',
         'referencia_balanca' => [new ValidaReferenciaBalanca($request->empresa_id)],
 
     ];
