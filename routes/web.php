@@ -567,6 +567,7 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::get('inventarios-definir-estoque/{id}', 'InventarioController@definirEstoque')->name('inventarios.definir-estoque');
 
     Route::resource('estoque', 'EstoqueController');
+    Route::get('stock-entries/create', 'StockEntryController@create')->name('stock-entries.create');
     Route::get('estoque-localizacao-define/{id}', 'EstoqueLocalizacaoController@define')->name('estoque-localizacao.define');
     Route::put('estoque-localizacao-store/{id}', 'EstoqueLocalizacaoController@store')->name('estoque-localizacao.store');
     Route::resource('categoria-produtos', 'CategoriaProdutoController');

@@ -9,6 +9,7 @@
 composer.phar
 
 
+
 # Laravel storage & cache
 /storage/*.key
 /storage/app/*
@@ -19,7 +20,7 @@ composer.phar
 /storage/logs/*
 .npm/
 .composer/
-
+psysh_history
 # Bootstrap cache: versionar só a pasta, não os arquivos gerados
 /bootstrap/cache/*
 !/bootstrap/cache/.gitignore

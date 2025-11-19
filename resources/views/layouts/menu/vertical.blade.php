@@ -423,6 +423,11 @@
                             <a href="{{ route('estoque.index') }}">Estoque</a>
                         </li>
                         @endcan
+                        @can('estoque_create')
+                        <li>
+                            <a href="{{ route('stock-entries.create') }}">Entrada IMEI/Serial</a>
+                        </li>
+                        @endcan
 
                         @can('inventario_view')
                         <li>
