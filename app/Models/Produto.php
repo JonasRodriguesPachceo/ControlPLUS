@@ -12,8 +12,6 @@ class Produto extends Model
 	public const TRACKING_NONE = 0;
 	public const TRACKING_SERIAL = 1;
 	public const TRACKING_IMEI = 2;
-	public const TRACKING_GRADE = 3;
-
 	protected $fillable = [
 		'empresa_id', 'nome', 'codigo_barras', 'ncm', 'cest', 'unidade', 'perc_icms', 'perc_pis',
 		'perc_cofins', 'perc_ipi', 'cst_csosn', 'cst_pis', 'cst_cofins', 'cst_ipi', 'valor_unitario',
@@ -461,7 +459,6 @@ class Produto extends Model
 			self::TRACKING_NONE => 'Sem controle',
 			self::TRACKING_SERIAL => 'Nº de Série',
 			self::TRACKING_IMEI => 'IMEI',
-			self::TRACKING_GRADE => 'Grade (cor/tamanho)',
 		];
 	}
 

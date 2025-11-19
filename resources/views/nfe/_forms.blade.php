@@ -374,7 +374,7 @@
                                     @include('woocommerce_pedidos.partials.itens', ['prod' => $prod, 'cfop_estadual' => $item->cliente->cidade->uf])
                                     @else
 
-                                    <tr class="dynamic-form">
+                                    <tr class="dynamic-form" @isset($isCompra)data-initial-tracking="{{ $prod->produto->tracking_type }}" data-initial-product="{{ $prod->produto_id }}"@endisset>
                                         <td class="sticky-col first-col">
                                             <input type="hidden" class="_key" name="_key[]" value="{{ $key }}">
                                             <div class="dimensoes-hidden dh_{{ $key }}">
@@ -485,7 +485,13 @@
                                             <input class="form-control ignore" value="{{ $prod->infAdProd }}" maxlength="200" type="text" name="infAdProd[]">
                                             <div style="width: 300px"></div>
                                         </td>
-                                        <td width="30">
+                                        <td width="200" class="text-center">
+                                            @isset($isCompra)
+                                            <button type="button" class="btn btn-outline-secondary btn-sm mb-1 btn-manage-imei @if(!in_array($prod->produto->tracking_type, [\App\Models\Produto::TRACKING_SERIAL, \App\Models\Produto::TRACKING_IMEI])) d-none @endif" data-line="{{ $key }}">
+                                                <i class="ri-qr-code-line me-1"></i> IMEIs/Seriais
+                                                <span class="badge bg-secondary ms-1 count-badge">0</span>
+                                            </button>
+                                            @endisset
                                             <button class="btn btn-danger btn-remove-tr">
                                                 <i class="ri-delete-bin-line"></i>
                                             </button>
@@ -500,7 +506,7 @@
                                     @endforeach
 
                                     @else
-                                    <tr class="dynamic-form">
+                                    <tr class="dynamic-form" @isset($isCompra)data-initial-tracking="0" data-initial-product=""@endisset>
                                         <td class="sticky-col first-col">
                                             <input type="hidden" class="_key" name="_key[]" value="0">
                                             <div class="dimensoes-hidden">
@@ -591,7 +597,13 @@
                                             <input class="form-control ignore" maxlength="200" type="text" name="infAdProd[]">
                                             <div style="width: 300px"></div>
                                         </td>
-                                        <td width="30">
+                                        <td width="200" class="text-center">
+                                            @isset($isCompra)
+                                            <button type="button" class="btn btn-outline-secondary btn-sm mb-1 btn-manage-imei d-none" data-line="0">
+                                                <i class="ri-qr-code-line me-1"></i> IMEIs/Seriais
+                                                <span class="badge bg-secondary ms-1 count-badge">0</span>
+                                            </button>
+                                            @endisset
                                             <button class="btn btn-danger btn-remove-tr">
                                                 <i class="ri-delete-bin-line"></i>
                                             </button>
