@@ -5,86 +5,101 @@ $(function () {
     let activeRowIndex = null;
 
     const trackingLabels = window.stockEntryConfig?.trackingLabels || {
-        0: 'Sem controle',
-        1: 'Nº de Série',
-        2: 'IMEI',
-        3: 'Grade (cor/tamanho)',
+        0: "Sem controle",
+        1: "Nº de Série",
+        2: "IMEI",
+        3: "Grade (cor/tamanho)",
     };
 
-    const $itemsTable = $('#items-table tbody');
-    const $imeiModal = $('#modal-imei');
-    const $imeiTable = $('#imei-table tbody');
+    const $itemsTable = $("#items-table tbody");
+    const $imeiModal = $("#modal-imei");
+    const $imeiTable = $("#imei-table tbody");
 
     addItemRow();
 
-    $('#btn-add-item').on('click', function () {
+    $("#btn-add-item").on("click", function () {
         addItemRow();
     });
 
-    $('#btn-submit-entry').on('click', function () {
+    $("#btn-submit-entry").on("click", function () {
         submitEntry();
     });
 
-    $('#modal-imei-add-row').on('click', function () {
-        appendImeiRow('');
+    $("#modal-imei-add-row").on("click", function () {
+        appendImeiRow("");
     });
 
-    $('#btn-save-imei').on('click', function () {
+    $("#btn-save-imei").on("click", function () {
         persistImeiModal();
     });
 
-    $imeiTable.on('click', '.btn-remove-imei', function () {
-        $(this).closest('tr').remove();
-        if ($imeiTable.find('tr').length === 0) {
-            appendImeiRow('');
+    $imeiTable.on("click", ".btn-remove-imei", function () {
+        $(this).closest("tr").remove();
+        if ($imeiTable.find("tr").length === 0) {
+            appendImeiRow("");
         }
     });
 
-    $itemsTable.on('click', '.btn-remove-item', function () {
-        const index = $(this).data('index');
+    $itemsTable.on("click", ".btn-remove-item", function () {
+        const index = $(this).data("index");
         delete itemsState[index];
-        $(this).closest('tr').remove();
-        if ($itemsTable.find('tr').length === 0) {
+        $(this).closest("tr").remove();
+        if ($itemsTable.find("tr").length === 0) {
             addItemRow();
         }
     });
 
-    $itemsTable.on('click', '.btn-manage-imei', function () {
-        const index = $(this).data('index');
+    $itemsTable.on("click", ".btn-manage-imei", function () {
+        const index = $(this).data("index");
         openImeiModal(index);
     });
 
-    $itemsTable.on('change', '.quantity-input', function () {
-        const index = $(this).data('index');
+    $itemsTable.on("change", ".quantity-input", function () {
+        const index = $(this).data("index");
         const quantity = parseInt($(this).val(), 10) || 0;
         if (!itemsState[index]) return;
-        const btn = getRow(index).find('.btn-manage-imei');
-        if (requiresImei(itemsState[index].tracking_type) && itemsState[index].imeis.length !== quantity) {
-            btn.removeClass('btn-outline-secondary').addClass('btn-outline-warning');
+        const btn = getRow(index).find(".btn-manage-imei");
+        if (
+            requiresImei(itemsState[index].tracking_type) &&
+            itemsState[index].imeis.length !== quantity
+        ) {
+            btn.removeClass("btn-outline-secondary").addClass(
+                "btn-outline-warning"
+            );
         } else {
-            btn.removeClass('btn-outline-warning').addClass('btn-outline-secondary');
+            btn.removeClass("btn-outline-warning").addClass(
+                "btn-outline-secondary"
+            );
         }
         updateImeiBadge(index);
     });
 
-    $itemsTable.on('select2:select', '.produto-select', function () {
-        const index = $(this).data('index');
+    $itemsTable.on("select2:select", ".produto-select", function () {
+        const index = $(this).data("index");
         const productId = $(this).val();
         fetchProductData(index, productId);
     });
 
-    $itemsTable.on('select2:clear', '.produto-select', function () {
-        const index = $(this).data('index');
-        itemsState[index] = { imeis: [], tracking_type: null, product_id: null };
+    $itemsTable.on("select2:clear", ".produto-select", function () {
+        const index = $(this).data("index");
+        itemsState[index] = {
+            imeis: [],
+            tracking_type: null,
+            product_id: null,
+        };
         const row = getRow(index);
-        row.find('.btn-manage-imei').addClass('d-none');
-        row.find('.tracking-label').text('');
-        row.find('.count-badge').text('0');
+        row.find(".btn-manage-imei").addClass("d-none");
+        row.find(".tracking-label").text("");
+        row.find(".count-badge").text("0");
     });
 
     function addItemRow() {
         const index = rowIndex++;
-        itemsState[index] = { imeis: [], tracking_type: null, product_id: null };
+        itemsState[index] = {
+            imeis: [],
+            tracking_type: null,
+            product_id: null,
+        };
 
         const row = `
             <tr data-index="${index}">
@@ -111,21 +126,21 @@ $(function () {
     }
 
     function initProdutoSelect(index) {
-        const $select = getRow(index).find('.produto-select');
+        const $select = getRow(index).find(".produto-select");
         $select.select2({
             minimumInputLength: 2,
-            language: 'pt-BR',
-            placeholder: 'Digite para buscar o produto',
-            width: '100%',
+            language: "pt-BR",
+            placeholder: "Digite para buscar o produto",
+            width: "100%",
             ajax: {
                 cache: true,
-                url: path_url + 'api/produtos',
-                dataType: 'json',
+                url: path_url + "api/produtos",
+                dataType: "json",
                 data: function (params) {
                     return {
                         pesquisa: params.term,
-                        empresa_id: $('#empresa_id').val(),
-                        usuario_id: $('#usuario_id').val()
+                        empresa_id: $("#empresa_id").val(),
+                        usuario_id: $("#usuario_id").val(),
                     };
                 },
                 processResults: function (response) {
@@ -133,7 +148,7 @@ $(function () {
                     $.each(response, function (_, item) {
                         const option = {
                             id: item.id,
-                            text: item.nome
+                            text: item.nome,
                         };
                         if (item.codigo_variacao) {
                             option.codigo_variacao = item.codigo_variacao;
@@ -141,17 +156,17 @@ $(function () {
                         results.push(option);
                     });
                     return { results };
-                }
+                },
             },
-            allowClear: true
+            allowClear: true,
         });
     }
 
     function fetchProductData(index, productId) {
         if (!productId) return;
-        $.get(path_url + 'api/produtos/find', {
+        $.get(path_url + "api/produtos/find", {
             produto_id: productId,
-            usuario_id: $('#usuario_id').val()
+            usuario_id: $("#usuario_id").val(),
         })
             .done(function (product) {
                 const trackingType = parseInt(product.tracking_type ?? 0, 10);
@@ -161,21 +176,29 @@ $(function () {
                 itemsState[index].tracking_type = trackingType;
 
                 const requires = requiresImei(trackingType);
-                const manageBtn = row.find('.btn-manage-imei');
-                row.find('.tracking-label').text(trackingLabels[trackingType] || '');
+                const manageBtn = row.find(".btn-manage-imei");
+                row.find(".tracking-label").text(
+                    trackingLabels[trackingType] || ""
+                );
 
                 if (requires) {
-                    manageBtn.removeClass('d-none');
+                    manageBtn.removeClass("d-none");
                 } else {
-                    manageBtn.addClass('d-none');
+                    manageBtn.addClass("d-none");
                     itemsState[index].imeis = [];
-                    manageBtn.removeClass('btn-outline-warning').addClass('btn-outline-secondary');
+                    manageBtn
+                        .removeClass("btn-outline-warning")
+                        .addClass("btn-outline-secondary");
                 }
 
                 updateImeiBadge(index);
             })
             .fail(function () {
-                swal('Erro', 'Não foi possível carregar o produto selecionado.', 'error');
+                swal(
+                    "Erro",
+                    "Não foi possível carregar o produto selecionado.",
+                    "error"
+                );
             });
     }
 
@@ -186,29 +209,36 @@ $(function () {
     function openImeiModal(index) {
         const state = itemsState[index];
         if (!state || !requiresImei(state.tracking_type)) {
-            swal('Atenção', 'Este item não requer controle por IMEI/Serial.', 'info');
+            swal(
+                "Atenção",
+                "Este item não requer controle por IMEI/Serial.",
+                "info"
+            );
             return;
         }
 
         activeRowIndex = index;
         $imeiTable.empty();
 
-        const quantity = parseInt(getRow(index).find('.quantity-input').val(), 10) || 1;
+        const quantity =
+            parseInt(getRow(index).find(".quantity-input").val(), 10) || 1;
         const currentImeis = state.imeis || [];
         const totalRows = Math.max(quantity, currentImeis.length || 1);
 
         for (let i = 0; i < totalRows; i++) {
-            appendImeiRow(currentImeis[i] || '');
+            appendImeiRow(currentImeis[i] || "");
         }
 
-        $imeiModal.modal('show');
+        $imeiModal.modal("show");
     }
 
     function appendImeiRow(value) {
         const row = `
             <tr>
                 <td>
-                    <input type="text" class="form-control imei-value" value="${value || ''}" placeholder="Informe o código">
+                    <input type="text" class="form-control imei-value" value="${
+                        value || ""
+                    }" placeholder="Informe o código">
                 </td>
                 <td class="text-center">
                     <button type="button" class="btn btn-outline-danger btn-sm btn-remove-imei">
@@ -222,11 +252,11 @@ $(function () {
 
     function persistImeiModal() {
         if (activeRowIndex === null) {
-            $imeiModal.modal('hide');
+            $imeiModal.modal("hide");
             return;
         }
 
-        const inputs = $imeiTable.find('.imei-value');
+        const inputs = $imeiTable.find(".imei-value");
         const imeis = [];
         const seen = new Set();
 
@@ -238,7 +268,11 @@ $(function () {
             }
             if (seen.has(value)) {
                 hasError = true;
-                swal('Atenção', 'Existem IMEIs/Seriais duplicados no formulário.', 'warning');
+                swal(
+                    "Atenção",
+                    "Existem IMEIs/Seriais duplicados no formulário.",
+                    "warning"
+                );
                 return false;
             }
             seen.add(value);
@@ -251,23 +285,27 @@ $(function () {
 
         itemsState[activeRowIndex].imeis = imeis;
         updateImeiBadge(activeRowIndex);
-        $imeiModal.modal('hide');
+        $imeiModal.modal("hide");
         activeRowIndex = null;
     }
 
     function updateImeiBadge(index) {
         const row = getRow(index);
-        const badge = row.find('.count-badge');
+        const badge = row.find(".count-badge");
         const state = itemsState[index];
         const count = state?.imeis?.length || 0;
         badge.text(count);
 
-        const quantity = parseInt(row.find('.quantity-input').val(), 10) || 0;
-        const btn = row.find('.btn-manage-imei');
+        const quantity = parseInt(row.find(".quantity-input").val(), 10) || 0;
+        const btn = row.find(".btn-manage-imei");
         if (requiresImei(state?.tracking_type) && count !== quantity) {
-            btn.removeClass('btn-outline-secondary').addClass('btn-outline-warning');
+            btn.removeClass("btn-outline-secondary").addClass(
+                "btn-outline-warning"
+            );
         } else {
-            btn.removeClass('btn-outline-warning').addClass('btn-outline-secondary');
+            btn.removeClass("btn-outline-warning").addClass(
+                "btn-outline-secondary"
+            );
         }
     }
 
@@ -276,52 +314,78 @@ $(function () {
     }
 
     function submitEntry() {
-        const branchId = $('#branch_id').val();
-        const companyId = $('#empresa_id').val() || $('#company_fallback_id').val();
+        const branchId = $("#branch_id").val();
+        const companyId =
+            $("#empresa_id").val() || $("#company_fallback_id").val();
 
         if (!branchId) {
-            swal('Atenção', 'Selecione o local/filial para a entrada.', 'warning');
+            swal(
+                "Atenção",
+                "Selecione o local/filial para a entrada.",
+                "warning"
+            );
             return;
         }
 
         const payload = {
             company_id: companyId,
             branch_id: branchId,
-            items: []
+            items: [],
         };
 
         if (!payload.company_id) {
-            swal('Atenção', 'Não foi possível identificar a empresa ativa.', 'warning');
+            swal(
+                "Atenção",
+                "Não foi possível identificar a empresa ativa.",
+                "warning"
+            );
             return;
         }
 
         let hasError = false;
-        $itemsTable.find('tr').each(function (idx) {
-            const index = $(this).data('index');
-            const productId = $(this).find('.produto-select').val();
-            const quantity = parseInt($(this).find('.quantity-input').val(), 10);
+        $itemsTable.find("tr").each(function (idx) {
+            const index = $(this).data("index");
+            const productId = $(this).find(".produto-select").val();
+            const quantity = parseInt(
+                $(this).find(".quantity-input").val(),
+                10
+            );
             const state = itemsState[index];
 
             if (!productId) {
-                swal('Atenção', `Selecione o produto na linha ${idx + 1}.`, 'warning');
+                swal(
+                    "Atenção",
+                    `Selecione o produto na linha ${idx + 1}.`,
+                    "warning"
+                );
                 hasError = true;
                 return false;
             }
 
             if (!quantity || quantity < 1) {
-                swal('Atenção', `Informe uma quantidade válida na linha ${idx + 1}.`, 'warning');
+                swal(
+                    "Atenção",
+                    `Informe uma quantidade válida na linha ${idx + 1}.`,
+                    "warning"
+                );
                 hasError = true;
                 return false;
             }
 
             const item = {
                 product_id: productId,
-                quantity: quantity
+                quantity: quantity,
             };
 
             if (state && requiresImei(state.tracking_type)) {
                 if (!state.imeis || state.imeis.length !== quantity) {
-                    swal('Atenção', `A linha ${idx + 1} precisa ter ${quantity} IMEIs/Seriais cadastrados.`, 'warning');
+                    swal(
+                        "Atenção",
+                        `A linha ${
+                            idx + 1
+                        } precisa ter ${quantity} IMEIs/Seriais cadastrados.`,
+                        "warning"
+                    );
                     hasError = true;
                     return false;
                 }
@@ -336,38 +400,48 @@ $(function () {
         }
 
         if (payload.items.length === 0) {
-            swal('Atenção', 'Informe ao menos um item para a entrada.', 'warning');
+            swal(
+                "Atenção",
+                "Informe ao menos um item para a entrada.",
+                "warning"
+            );
             return;
         }
 
-        $('#btn-submit-entry').prop('disabled', true);
+        $("#btn-submit-entry").prop("disabled", true);
 
         $.ajax({
-            url: path_url + 'api/stock-entries',
-            method: 'POST',
-            contentType: 'application/json',
+            url: path_url + "api/stock-entries",
+            method: "POST",
+            contentType: "application/json",
             data: JSON.stringify(payload),
             headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
         })
             .done(function (response) {
-                swal('Sucesso', response.message || 'Entrada registrada com sucesso.', 'success');
+                swal(
+                    "Sucesso",
+                    response.message || "Entrada registrada com sucesso.",
+                    "success"
+                );
                 resetForm();
             })
             .fail(function (xhr) {
                 const errors = xhr.responseJSON?.errors;
-                let message = xhr.responseJSON?.message || 'Não foi possível registrar a entrada.';
+                let message =
+                    xhr.responseJSON?.message ||
+                    "Não foi possível registrar a entrada.";
                 if (errors) {
                     const firstKey = Object.keys(errors)[0];
                     if (errors[firstKey] && errors[firstKey].length > 0) {
                         message = errors[firstKey][0];
                     }
                 }
-                swal('Erro', message, 'error');
+                swal("Erro", message, "error");
             })
             .always(function () {
-                $('#btn-submit-entry').prop('disabled', false);
+                $("#btn-submit-entry").prop("disabled", false);
             });
     }
 

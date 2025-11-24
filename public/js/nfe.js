@@ -96,12 +96,11 @@ $("#inp-produto_id").select2({
         data: function (params) {
             let empresa_id = $('#empresa_id').val()
 
-            let local_id = null
-            if($('#inp-local_id').length){
-                let local_id = $('#inp-local_id').val()
-                if(!local_id){
-                    swal("Alerta", "Selecione primeiramente o local", "warning")
-                    return;
+            let local_id = $('#inp-local_id').length ? $('#inp-local_id').val() : null;
+            if(!local_id && this.$element){
+                const rowLocal = this.$element.closest('td').find('.local-item-select').val();
+                if(rowLocal){
+                    local_id = rowLocal;
                 }
             }
             console.clear();
@@ -111,7 +110,7 @@ $("#inp-produto_id").select2({
                 empresa_id: empresa_id,
                 usuario_id: $('#usuario_id').val(),
                 lista_id: $('#lista_id').val(),
-                local_id: $('#inp-local_id').length ? $('#inp-local_id').val() : null
+                local_id: local_id
             };
                 // console.log(query)
                 return query;
@@ -173,7 +172,14 @@ $("#inp-produto_id").select2({
                 };
             },
         },
-    });
+});
+
+$(document).on('change', '.local-item-select', function () {
+    const value = $(this).val();
+    if (value && $('#inp-local_id').val() !== value) {
+        $('#inp-local_id').val(value).trigger('change');
+    }
+});
 
 $('.btn-add-tr-nfe').on("click", function () {
     console.clear()
@@ -231,12 +237,19 @@ $('.btn-add-tr-nfe').on("click", function () {
                     data: function (params) {
                         let empresa_id = $('#empresa_id').val()
                         console.clear();
+                        let local_id = $('#inp-local_id').length ? $('#inp-local_id').val() : null;
+                        if(!local_id && this.$element){
+                            const rowLocal = this.$element.closest('td').find('.local-item-select').val();
+                            if(rowLocal){
+                                local_id = rowLocal;
+                            }
+                        }
                         var query = {
                             pesquisa: params.term,
                             empresa_id: empresa_id,
                             lista_id: $('#lista_id').val(),
                             usuario_id: $('#usuario_id').val(),
-                            local_id: $('#inp-local_id').length ? $('#inp-local_id').val() : null
+                            local_id: local_id
                         };
                         return query;
                     },

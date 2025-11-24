@@ -13,6 +13,7 @@ $(function () {
     const $productsTable = $(".table-produtos tbody");
     const $form = $("#form-nfe");
     const $saveButton = $(".btn-salvar-nfe");
+    const localItemSelector = ".local-item-select";
 
     window.handlePurchaseProductSelection = function (row, product) {
         const key = getRowKey(row);
@@ -310,7 +311,7 @@ $(function () {
     }
 
     function buildPayload() {
-        const branchId = $("#inp-local_id").val();
+        let branchId = $("#inp-local_id").val();
         const companyId = $("#empresa_id").val();
 
         if (!companyId) {
@@ -321,15 +322,6 @@ $(function () {
             );
             return null;
         }
-        if (!branchId) {
-            swal(
-                "Atenção",
-                "Selecione o local/filial para continuar.",
-                "warning"
-            );
-            return null;
-        }
-
         const payload = {
             company_id: companyId,
             branch_id: branchId,
@@ -400,6 +392,22 @@ $(function () {
             });
         });
 
+        if (payload.items.length > 0) {
+            if (!payload.branch_id) {
+                payload.branch_id = getFirstItemBranch();
+            }
+            // Corrigir a verificação de branch_id aqui abaixo, parace haver duas verificacoes sem necessidade
+
+            // if (!payload.branch_id) {
+            //     swal(
+            //         "Atenção",
+            //         "Selecione o local/filial para continuar.",
+            //         "warning"
+            //     );
+            //     return null;
+            // }
+        }
+
         if (hasError) {
             return null;
         }
@@ -413,5 +421,17 @@ $(function () {
         } else {
             $saveButton.prop("disabled", false);
         }
+    }
+
+    function getFirstItemBranch() {
+        let branch = null;
+        $productsTable.find(localItemSelector).each(function () {
+            const value = $(this).val();
+            if (value) {
+                branch = value;
+                return false;
+            }
+        });
+        return branch;
     }
 });

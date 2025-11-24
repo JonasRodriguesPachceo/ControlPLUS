@@ -10,7 +10,7 @@ class StockEntryController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:estoque_create', ['only' => ['store', 'create']]);
+        $this->middleware('permission:estoque_create', ['only' => ['create']]);
     }
 
     public function create()
@@ -18,7 +18,7 @@ class StockEntryController extends Controller
         $empresaWrapper = Auth::user()->empresa;
         $company = $empresaWrapper ? $empresaWrapper->empresa : null;
         $branches = __getLocaisAtivoUsuario();
-
+        dump($branches);
         return view('stock_entries.create', [
             'company' => $company,
             'companyId' => $company?->id,

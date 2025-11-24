@@ -477,8 +477,15 @@ class NfeController extends Controller
                 $caixa = __isCaixaAberto();
 
                 $local_id = $caixa->local_id;
-                if(isset($request->local_id)){
+                if(isset($request->local_id) && $request->local_id){
                     $local_id = $request->local_id;
+                }elseif(isset($request->local_item_id) && is_array($request->local_item_id)){
+                    foreach($request->local_item_id as $localItem){
+                        if($localItem){
+                            $local_id = $localItem;
+                            break;
+                        }
+                    }
                 }
                 $valor_produto =  number_format($request->valor_produtos, 2);
 
@@ -612,14 +619,19 @@ class NfeController extends Controller
                         ]);
                     }
 
+                    $currentLocalId = $local_id;
+                    if(isset($request->local_item_id[$i]) && $request->local_item_id[$i]){
+                        $currentLocalId = $request->local_item_id[$i];
+                    }
+
                     if ($product->gerenciar_estoque && $request->orcamento == 0) {
                         if (isset($request->is_compra)) {
 
                             $this->util->incrementaEstoque($product->id, __convert_value_bd($request->quantidade[$i]), 
-                                $variacao_id, $local_id);
+                                $variacao_id, $currentLocalId);
                         } else {
                             $this->util->reduzEstoque($product->id, __convert_value_bd($request->quantidade[$i]), 
-                                $variacao_id, $local_id);
+                                $variacao_id, $currentLocalId);
                         }
                     }
 
