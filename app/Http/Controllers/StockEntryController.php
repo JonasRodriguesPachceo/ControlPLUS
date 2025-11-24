@@ -18,7 +18,6 @@ class StockEntryController extends Controller
         $empresaWrapper = Auth::user()->empresa;
         $company = $empresaWrapper ? $empresaWrapper->empresa : null;
         $branches = __getLocaisAtivoUsuario();
-        dump($branches);
         return view('stock_entries.create', [
             'company' => $company,
             'companyId' => $company?->id,
