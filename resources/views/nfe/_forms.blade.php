@@ -4,7 +4,7 @@
     }
 @endphp
 
-@if (__countLocalAtivo() > 1 && __escolheLocalidade())
+@if (__countLocalAtivo() > 1)
     <div class="row mb-2">
         <div class="col-md-3">
             <label for="">Local</label>
@@ -17,6 +17,11 @@
         </select>
     </div>
 </div>
+@else
+    @php $localDefault = __getLocalAtivo(); @endphp
+    @if($localDefault)
+        <input type="hidden" id="inp-local_id" name="local_id" value="{{ $localDefault->id }}">
+    @endif
 @endif
 
 <div class="row">
@@ -388,8 +393,9 @@
                                                             <a onclick="alterarDimensoesItem('{{ $prod->id }}', '{{ $key }}')"
                                                                 href="#!">Alterar dimensões</a>
                                                         @endif
-                                                        @isset($isCompra)
-                                                            <div class="mt-2 d-flex flex-wrap align-items-start gap-2 manage-imei-local">
+                                                        @if (isset($isCompra))
+                                                            <div
+                                                                class="mt-2 d-flex flex-wrap align-items-start gap-2 manage-imei-local">
                                                                 <button type="button"
                                                                     class="btn btn-outline-secondary btn-sm btn-manage-imei @if (
                                                                         !in_array($prod->produto->tracking_type, [
@@ -397,7 +403,7 @@
                                                                             \App\Models\Produto::TRACKING_IMEI,
                                                                         ])) d-none @endif"
                                                                     data-line="{{ $key }}">
-                                                                    <i class="ri-qr-code-line me-1">IMEIs/Seriaisss</i>
+                                                                    <i class="ri-qr-code-line me-1"></i> IMEIs/Seriais
                                                                     <span class="badge bg-secondary ms-1 count-badge">0</span>
                                                                 </button>
                                                                 <div class="flex-grow-1" style="min-width: 220px;">
@@ -405,14 +411,28 @@
                                                                         name="local_item_id[]">
                                                                         <option value="">Selecione a Filial/Local</option>
                                                                         @foreach (__getLocaisAtivoUsuario() as $local)
-                                                                            <option value="{{ $local->id }}">{{ $local->descricao }}
+                                                                            <option value="{{ $local->id }}">
+                                                                                {{ $local->descricao }}
                                                                             </option>
                                                                         @endforeach
                                                                         {{-- O problema está nesta linha acima --}}
                                                                     </select>
                                                                 </div>
                                                             </div>
-                                                        @endisset
+                                                        @else
+                                                            <div class="mt-2">
+                                                                <button type="button"
+                                                                    class="btn btn-outline-secondary btn-sm btn-manage-imei @if (
+                                                                        !in_array($prod->produto->tracking_type, [
+                                                                            \App\Models\Produto::TRACKING_SERIAL,
+                                                                            \App\Models\Produto::TRACKING_IMEI,
+                                                                        ])) d-none @endif"
+                                                                    data-line="{{ $key }}">
+                                                                    <i class="ri-qr-code-line me-1"></i> Selecionar IMEIs/Seriais
+                                                                    <span class="badge bg-secondary ms-1 count-badge">0</span>
+                                                                </button>
+                                                            </div>
+                                                        @endif
                                                     </td>
                                                     <td width="80">
                                                         <input style="width: 150px" value="{{ __qtd($prod->quantidade) }}"
@@ -538,8 +558,7 @@
                                             ])
                                         @endforeach
                                     @else
-                                        <tr class="dynamic-form"
-                                            @isset($isCompra)data-initial-tracking="0" data-initial-product=""@endisset>
+                                        <tr class="dynamic-form" data-initial-tracking="0" data-initial-product="">
                                             <td class="sticky-col first-col">
                                                 <input type="hidden" class="_key" name="_key[]" value="0">
                                                 <div class="dimensoes-hidden">
@@ -550,7 +569,7 @@
                                                 </select>
                                                 <div style="width: 400px;"></div>
                                                 <input name="variacao_id[]" type="hidden" value="">
-                                                @isset($isCompra)
+                                                @if (isset($isCompra))
                                                     <div class="mt-2 d-flex flex-wrap align-items-start gap-2 manage-imei-local">
                                                         <button type="button"
                                                             class="btn btn-outline-secondary btn-sm btn-manage-imei d-none"
@@ -569,7 +588,16 @@
                                                             </select>
                                                         </div>
                                                     </div>
-                                                @endisset
+                                                @else
+                                                    <div class="mt-2">
+                                                        <button type="button"
+                                                            class="btn btn-outline-secondary btn-sm btn-manage-imei d-none"
+                                                            data-line="0">
+                                                            <i class="ri-qr-code-line me-1"></i> Selecionar IMEIs/Seriais
+                                                            <span class="badge bg-secondary ms-1 count-badge">0</span>
+                                                        </button>
+                                                    </div>
+                                                @endif
                                             </td>
                                             <td width="120">
                                                 <input style="width: 120px" class="form-control qtd next" type="tel"
@@ -679,13 +707,16 @@
                         <br>
                         <button type="button" class="btn btn-dark btn-add-tr-nfe px-2">
                             <i class="ri-add-fill"></i>
-                            Adicionar Produto
+                            Adicionar produtoo
                         </button>
                     </div>
                     <div class="mt-3">
                         <h5>Total de Produtos: <strong class="total_prod">R$</strong></h5>
                     </div>
                     <input type="hidden" class="total_prod" name="valor_produtos" id="" value="">
+                    @if (!isset($isCompra))
+                        <input type="hidden" id="sale_imeis_payload" name="sale_imeis_payload">
+                    @endif
 
                 </div>
             </div>

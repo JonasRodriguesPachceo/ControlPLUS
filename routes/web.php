@@ -565,8 +565,9 @@ Route::middleware(['authh', 'validaEmpresa'])->group(function () {
         Route::delete('inventarios-destroy-item/{id}', 'InventarioController@destroyItem')->name('inventarios.destroy-item');
         Route::get('inventarios-definir-estoque/{id}', 'InventarioController@definirEstoque')->name('inventarios.definir-estoque');
 
-        Route::resource('estoque', 'EstoqueController');
-        Route::get('stock-entries/create', 'StockEntryController@create')->name('stock-entries.create');
+    Route::resource('estoque', 'EstoqueController');
+    Route::get('stock-entries/create', 'StockEntryController@create')->name('stock-entries.create');
+    Route::get('imei-tracking', 'ImeiTrackingController@index')->name('imei-tracking.index');
         Route::get('estoque-localizacao-define/{id}', 'EstoqueLocalizacaoController@define')->name('estoque-localizacao.define');
         Route::put('estoque-localizacao-store/{id}', 'EstoqueLocalizacaoController@store')->name('estoque-localizacao.store');
         Route::resource('categoria-produtos', 'CategoriaProdutoController');

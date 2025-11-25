@@ -428,6 +428,11 @@
                             <a href="{{ route('stock-entries.create') }}">Entrada IMEI/Serial</a>
                         </li>
                         @endcan
+                        @can('estoque_view')
+                        <li>
+                            <a href="{{ route('imei-tracking.index') }}">Rastreamento IMEI</a>
+                        </li>
+                        @endcan
 
                         @can('inventario_view')
                         <li>

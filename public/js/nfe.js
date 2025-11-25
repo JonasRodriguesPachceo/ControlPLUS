@@ -524,6 +524,9 @@ $(document).on("change", ".produto_id", function () {
             if (typeof window.handlePurchaseProductSelection === 'function') {
                 window.handlePurchaseProductSelection($qtd.closest('tr'), e);
             }
+            if (typeof window.handleSaleProductSelection === 'function') {
+                window.handleSaleProductSelection($qtd.closest('tr'), e);
+            }
             if(e.variacao_modelo_id && !codigo_variacao){
                 buscarVariacoes(product_id)
             }

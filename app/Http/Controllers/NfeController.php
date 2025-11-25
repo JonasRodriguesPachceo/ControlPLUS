@@ -50,6 +50,7 @@ use App\Utils\EmailUtil;
 use Mail;
 use Illuminate\Support\Str;
 use App\Utils\SiegUtil;
+use App\Services\StockSaleService;
 use App\Models\ItemProducao;
 
 class NfeController extends Controller
@@ -435,10 +436,17 @@ class NfeController extends Controller
         return 0;
     }
 
-    public function store(Request $request)
+    public function store(Request $request, StockSaleService $stockSaleService)
     {
         // dd($request->all());
         try {
+            $saleImeis = [];
+            if (!$request->is_compra && $request->sale_imeis_payload) {
+                $decoded = json_decode($request->sale_imeis_payload, true);
+                if (is_array($decoded)) {
+                    $saleImeis = $decoded;
+                }
+            }
             $retornoCredito = $this->validaCreditoCliente($request);
             if($retornoCredito != 0){
 
@@ -766,6 +774,10 @@ class NfeController extends Controller
 
                 return $nfe;
             });
+
+            if(empty($request->is_compra) && !empty($saleImeis)){
+                $stockSaleService->handleSale($nfe, $saleImeis);
+            }
 session()->flash("flash_success", "Venda cadastrada!");
 } catch (\Exception $e) {
     // echo $e->getMessage() . '<br>' . $e->getLine();

@@ -65,6 +65,8 @@
 @include('modals._dimensao_item_nfe')
 @isset($isCompra)
 @include('stock_entries.partials.modal-imei')
+@else
+@include('stock_entries.partials.modal-imei-select')
 @endisset
 
 @section('js')
@@ -81,6 +83,8 @@
 <script src="/js/nfe.js"></script>
 @isset($isCompra)
 <script src="/js/compras_imei.js"></script>
+@else
+<script src="/js/vendas_imei.js"></script>
 @endisset
 @isset($isCompra)
 <script src="/js/novo_fornecedor.js"></script>

@@ -148,7 +148,9 @@ Route::group(['prefix' => 'produtos-ecommerce'], function () {
     Route::get('/switch-categoria', 'ProdutoEcommerceController@switchCategoria');
 });
 
-Route::post('/stock-entries', [\App\Http\Controllers\API\StockEntryController::class, 'store']);
+Route::get('/imei-units/available', [\App\Http\Controllers\API\ImeiUnitController::class, 'available']);
+
+Route::post('/stock-entries', [\App\Http\Controllers\StockEntryController::class, 'store']);
 
 Route::get('/paymentStatus/{id}', 'PaymentController@status');
 Route::get('/payment-status-asaas', 'PaymentController@statusAsaas');

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ImeiUnit;
 
 class Nfe extends Model
 {
@@ -119,6 +120,11 @@ class Nfe extends Model
     public function ordemServico()
     {
         return $this->hasOne(OrdemServico::class, 'nfe_id');
+    }
+
+    public function imeiUnits()
+    {
+        return $this->belongsToMany(ImeiUnit::class, 'nfe_imei_units');
     }
 
     public function itens()

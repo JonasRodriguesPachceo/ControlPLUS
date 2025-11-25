@@ -42,4 +42,9 @@ class ImeiUnit extends Model
     {
         return $this->belongsToMany(StockMove::class, 'stock_move_imei', 'imei_unit_id', 'stock_move_id')->withTimestamps();
     }
+
+    public function sales()
+    {
+        return $this->belongsToMany(Nfe::class, 'nfe_imei_units');
+    }
 }
