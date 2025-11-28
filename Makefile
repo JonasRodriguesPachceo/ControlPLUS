@@ -12,6 +12,7 @@ DB_WAIT_SECONDS ?= 2
 REQUIRED_ENV = \
 	APP_ENV \
 	APP_URL \
+    APP_KEY \
 	DB_CONNECTION \
 	DB_HOST \
 	DB_PORT \
@@ -70,6 +71,9 @@ check-env:
 	missing=""; \
 	for var in $(REQUIRED_ENV); do \
 		if ! grep -q "^$$var=" .env; then \
+			if [ "$$var" = "APP_KEY" ]; then \
+				echo "ERRO: APP_KEY deve existir no .env (pode estar vazia: APP_KEY=, ou conter uma chave válida)."; \
+			fi; \
 			missing="$$missing $$var"; \
 		fi; \
 	done; \
@@ -79,6 +83,7 @@ check-env:
 		exit 1; \
 	fi; \
 	echo ".env OK."
+
 
 # Espera real pelo MySQL
 wait-db:
