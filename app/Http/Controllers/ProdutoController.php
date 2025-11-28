@@ -456,7 +456,7 @@ class ProdutoController extends Controller
                             'imagem' => $file_name
                         ];
                         $variacao = ProdutoVariacao::create($dataVariacao);
-
+                        dd($variacao);
                         if ($request->estoque_variacao[$i] && sizeof($locais) <= 1) {
                             $qtd = __convert_value_bd($request->estoque_variacao[$i]);
                             $this->utilEstoque->incrementaEstoque($produto->id, $qtd, $variacao->id);
@@ -746,7 +746,7 @@ class ProdutoController extends Controller
                             $file_name = $this->util->uploadImageArray($imagem, '/produtos');
                         }
                         $dataVariacao['imagem'] = $file_name;
-
+                        dd($variacao);
                         $variacao->fill($dataVariacao)->save();
                         $variacaoDelete[] = $request->variacao_id[$i];
                     } else {
