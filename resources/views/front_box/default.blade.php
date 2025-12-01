@@ -9,7 +9,6 @@
 
         <title>{{$title}}</title>
 
-        <link rel="shortcut icon" href="/logo-sm.png">
         <link href="/assets/vendor/fullcalendar/main.min.css" rel="stylesheet" type="text/css" />
         <link href="/assets/vendor/daterangepicker/daterangepicker.css">
         <link href="/assets/vendor/select2/css/select2.min.css" rel="stylesheet" type="text/css" />

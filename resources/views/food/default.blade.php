@@ -9,8 +9,6 @@
     <meta property="og:title" content="{{ $config->nome }}">
     <meta property="og:description" content="{{ $config->descricao }}">
 
-    <link rel="shortcut icon" href="{{ $config->logo_img }}" />
-
     <style type="text/css">
         :root{ --main: {{ $config->cor_principal }} !important; }
     </style>
