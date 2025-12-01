@@ -333,7 +333,7 @@
                         @endif
                         <div class="table-responsive">
                             <table class="table table-dynamic table-produtos" style="width: 2800px">
-                                <thead>
+                                <thead class="table-dark">
                                     <tr>
                                         <th class="sticky-col first-col">Produto</th>
                                         <th>Quantidade</th>
@@ -1011,7 +1011,7 @@
                         </div>
                         <div class="table-responsive">
                             <table class="table table-dynamic table-fatura" style="width: 800px">
-                                <thead>
+                                <thead class="table-dark">
                                     <tr>
                                         <th>Tipo de Pagamento</th>
                                         <th>Data Vencimento</th>

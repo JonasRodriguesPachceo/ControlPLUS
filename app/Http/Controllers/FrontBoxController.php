@@ -12,6 +12,7 @@ use App\Models\Cliente;
 use App\Models\ListaPreco;
 use App\Models\PdvLog;
 use App\Models\Produto;
+use App\Models\Nfe;
 use App\Models\VendaSuspensa;
 use App\Models\Localizacao;
 use App\Models\TefMultiPlusCard;
@@ -193,6 +194,12 @@ class FrontBoxController extends Controller
      */
     public function create(Request $request)
     {
+
+        $ua = $request->header('User-Agent');
+
+        if (preg_match('/Android|iPhone|iPad|iPod|Mobile/i', $ua) && file_exists(public_path('style_pdv_mobo.css'))) {
+            return redirect()->route('pdv-mobo.index');
+        }
         if (!__isCaixaAberto()) {
             session()->flash("flash_warning", "Abrir caixa antes de continuar!");
             return redirect()->route('caixa.create');
@@ -239,12 +246,30 @@ class FrontBoxController extends Controller
         $item = null;
         $itenSuspensa = [];
         $isVendaSuspensa = 0;
+        $isOrcamento = 0;
         $title = 'Nova Venda - PDV';
 
         if(isset($request->venda_suspensa)){
             $item = VendaSuspensa::findOrfail($request->venda_suspensa);
             $isVendaSuspensa = 1;
             $title = 'Venda Suspensa';
+            foreach($item->itens as $i){
+                $itenSuspensa[] = [
+                    '_id' => rand(1, 10000000000),
+                    'produto_id' => $i->produto_id,
+                    'produto_nome' => $i->produto->nome,
+                    'valor_unitario' => $i->valor_unitario,
+                    'sub_total' => $i->sub_total,
+                    'quantidade' => $i->quantidade,
+                ];
+            }
+        }
+
+        if(isset($request->orcamento)){
+            $item = Nfe::findOrfail($request->orcamento);
+
+            $isOrcamento = 1;
+            $title = 'Orçamento';
             foreach($item->itens as $i){
                 $itenSuspensa[] = [
                     '_id' => rand(1, 10000000000),
@@ -337,7 +362,7 @@ class FrontBoxController extends Controller
         return view($view, compact('categorias', 'abertura', 
             'funcionarios', 'caixa', 'config', 'tiposPagamento', 'item', 'isVendaSuspensa', 'title', 
             'configTef', 'marcas', 'produtos', 'local_id', 'empresa', 'user', 'clientes', 'itenSuspensa', 'listasPreco', 
-            'clientePadrao'));
+            'clientePadrao', 'isOrcamento'));
     }
 
     /**
@@ -649,7 +674,7 @@ class FrontBoxController extends Controller
         $config = __objetoParaEmissao($config, $item->local_id);
         
         $usuario = UsuarioEmpresa::find(get_id_user());
-        $cupom = new CupomNaoFiscal($item, $config, 0);
+        // $cupom = new CupomNaoFiscal($item, $config, 0);
 
         $logo = null;
         if($config->logo && file_exists(public_path('/uploads/logos/') . $config->logo)){
@@ -684,7 +709,7 @@ class FrontBoxController extends Controller
         $domPdf->setPaper([0,0,244,$height]);
         $pdf = $domPdf->render();
 
-        $domPdf->stream("Doc. Auxiliar $id.pdf", array("Attachment" => false));
+        $domPdf->stream("Doc. Auxiliar $item->numero_sequencial.pdf", array("Attachment" => false));
     }
 
     public function imprimirNaoFiscalHtml($id)

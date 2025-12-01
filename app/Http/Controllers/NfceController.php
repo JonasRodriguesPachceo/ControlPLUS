@@ -825,7 +825,7 @@ private function preparaXmls($destino){
                     'fatura' => $fatura,
                     'file' => $file,
                     'natureza' => (string)$xml->NFe->infNFe->ide->natOp[0],
-                    'observacao' => (string)$xml->NFe->infNFe->infAdic ? $xml->NFe->infNFe->infAdic->infCpl[0] : '',
+                    'observacao' => (string)$xml->NFe->infNFe->infAdic ? (string)$xml->NFe->infNFe->infAdic->infCpl[0] : '',
                     'tipo_pagamento' => (string)$xml->NFe->infNFe->pag->detPag->tPag,
                     'finNFe' => (string)$xml->NFe->infNFe->ide->finNFe,
                     'data_emissao'
@@ -992,6 +992,7 @@ private function salvarVenda($venda, $local_id){
     $empresa = Empresa::findOrFail(request()->empresa_id);
     $empresa = __objetoParaEmissao($empresa, $local_id);
     // dd($venda);
+
     $dataVenda = [
         'estado' => 'aprovado',
         'empresa_id' => request()->empresa_id,
@@ -1011,17 +1012,26 @@ private function salvarVenda($venda, $local_id){
 
     $nfe = Nfce::where('empresa_id', request()->empresa_id)
     ->where('chave', $venda->chave)->first();
+
     if($nfe == null){
-        $nfe = Nfce::create($dataVenda);
-        $nfe->data_emissao = $venda->data;
-        $nfe->created_at = $venda->data;
-        $nfe->save();
+
+        try{
+            // dd($dataVenda);
+            $nfe = Nfce::create($dataVenda);
+
+            $nfe->data_emissao = $venda->data;
+            $nfe->created_at = $venda->data;
+            $nfe->save();
+        }catch(\Exception $e){
+            dd($dataVenda);
+        }
     }else{
         $nfe->data_emissao = $venda->data;
         $nfe->created_at = $venda->data;
         $nfe->save();
         return 0;
     }
+    
 
     $nfe->data_emissao = $venda->data;
     $nfe->save();

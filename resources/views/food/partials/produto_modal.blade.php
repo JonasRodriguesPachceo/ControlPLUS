@@ -10,10 +10,13 @@
 						<div class="bread">
 							<a href="{{ route('food.index', ['link='.$config->loja_id]) }}"><i class="lni lni-home"></i></a>
 							@if($item->categoria)
+							@if($item->categoria->hash_delivery)
+							
 							<span>/</span>
 							<a href="{{ route('food.produtos-categoria', [$item->categoria->hash_delivery, 'link='.$config->loja_id]) }}">Categorias</a>
 							<span>/</span>
 							<a href="{{ route('food.produtos-categoria', [$item->categoria->hash_delivery, 'link='.$config->loja_id]) }}">{{ $item->categoria->nome }}</a>
+							@endif
 							@endif
 						</div>
 					</div>
@@ -283,20 +286,20 @@
 										<div class="row">
 											<div class="col-md-6">
 												<button type="button" style="margin-top:20px;" class="botao-cancelar pull-right" data-dismiss="modal">
-												<i class="lni lni-close"></i>Cancelar</button>
+													<i class="lni lni-close"></i>Cancelar</button>
+												</div>
 											</div>
 										</div>
+										
 									</div>
-									
-								</div>
-							</form>
+								</form>
 
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 
-	<div class="fillrelacionados visible-xs visible-sm"></div>
-</div>
+		<div class="fillrelacionados visible-xs visible-sm"></div>
+	</div>

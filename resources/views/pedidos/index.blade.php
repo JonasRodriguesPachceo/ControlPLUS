@@ -92,7 +92,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
+                    <div class="row g-2">
 
                         <div class="col-md-2">
                             {!!Form::text('comanda', 'Número comanda')

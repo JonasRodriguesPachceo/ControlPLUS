@@ -67,6 +67,11 @@
                         <i class="ri-file-edit-fill"></i>
                         Reajuste em Grupo
                     </a>
+
+                    <a href="{{ route('produtos.alterar-valor-estoque') }}" class="btn btn-secondary pull-right">
+                        <i class="ri-price-tag-3-line"></i>
+                        Alterar Valor ou Estoque
+                    </a>
                     @endif
 
                     <a href="{{ route('produtos.upload-imagens') }}" class="btn btn-light pull-right">
@@ -82,16 +87,22 @@
                     @endif
                 </div>
                 <hr class="mt-3">
+
                 <div class="col-lg-12">
+
+                    <button class="btn btn-dark btn-toggle-filtros">
+                        <i class="ri-filter-2-line"></i> Filtros
+                    </button> 
+
                     {!!Form::open()->fill(request()->all())
-                    ->get()
+                    ->get()->attrs(['class' => 'filtros-container'])
                     !!}
                     <div class="row mt-3 g-1">
                         <div class="col-md-2">
                             {!!Form::text('nome', 'Pesquisar por nome')
                             !!}
                         </div>
-                        
+
                         <div class="col-md-3 col-xl-2">
                             {!!Form::tel('codigo_barras', 'Pesquisar código de barras')
                             !!}
@@ -169,7 +180,7 @@
                     </div>
                     {!!Form::close()!!}
                 </div>
-                
+
                 @if($tipoExibe == 'tabela')
                 @include('produtos.partials.tabela')
                 @else

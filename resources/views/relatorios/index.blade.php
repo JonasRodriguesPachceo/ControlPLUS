@@ -20,13 +20,22 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
+
                             <div class="col-md-6 col-12">
+                                {!!Form::date('start_date', 'Data inicial de cadastro')
+                                !!}
+                            </div>
+                            <div class="col-md-6 col-12">
+                                {!!Form::date('end_date', 'Data final de cadastro')
+                                !!}
+                            </div>
+                            <div class="col-md-6 col-12 mt-2">
                                 {!!Form::select('estoque', 'Estoque',
                                 ['' => 'Selecione', '1' => 'Positivo', '-1' => 'Negativo', '-2' => 'Menor que estoque mínimo'])
                                 ->attrs(['class' => 'form-select'])
                                 !!}
                             </div>
-                            <div class="col-md-6 col-12">
+                            <div class="col-md-6 col-12 mt-2">
                                 {!!Form::select('tipo', 'Tipo',
                                 ['' => 'Selecione', '1' => 'Mais vendidos', '-1' => 'Menos vendidos', '2' => 'Mais comprados', '-2' => 'Menos comprados'])
                                 ->attrs(['class' => 'form-select'])

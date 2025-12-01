@@ -91,6 +91,15 @@
                                             <a title="Apontar" class="btn btn-dark btn-sm" href="{{ route('inventarios.apontar', [$item->id]) }}">
                                                 <i class="ri-barcode-box-line"></i>
                                             </a>
+
+                                            <a title="Imprimir" class="btn btn-light btn-sm" href="{{ route('inventarios.imprimir', [$item->id]) }}">
+                                                <i class="ri-printer-line"></i>
+                                            </a>
+
+                                            <a class="btn btn-primary btn-sm" href="{{ route('inventarios.duplicar', [$item->id]) }}" title="Duplicar inventário">
+                                                <i class="ri-file-copy-line"></i>
+                                            </a>
+
                                         </form>
                                     </td>
                                 </tr>

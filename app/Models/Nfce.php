@@ -80,7 +80,7 @@ class Nfce extends Model
         return $this->hasMany(ItemNfce::class, 'nfce_id')->with('produto');
     }
 
-    public function trocas()
+    public function troca()
     {
         return $this->hasMany(Troca::class, 'nfce_id');
     }
@@ -142,6 +142,26 @@ class Nfce extends Model
         ];
     }
 
+    public static function tiposPagamentoMobo()
+    {
+        return [
+            '01' => 'Dinheiro',
+            '02' => 'Cheque',
+            '03' => 'Cartão de Crédito',
+            '04' => 'Cartão de Débito',
+            '05' => 'Crédito Loja',
+            '06' => 'Crediário',
+            '10' => 'Vale Alimentação',
+            '11' => 'Vale Refeição',
+            '12' => 'Vale Presente',
+            '13' => 'Vale Combustível',
+            '14' => 'Duplicata Mercantil',
+            '15' => 'Boleto Bancário',
+            '16' => 'Depósito Bancário',
+            '17' => 'Pix',
+        ];
+    }
+
     public static function bandeiras()
     {
         return [
@@ -160,6 +180,9 @@ class Nfce extends Model
 
     public static function getTipoPagamento($tipo)
     {
+        if($tipo == '00'){
+            return 'Vale crédito';
+        }
         if (isset(Nfce::tiposPagamento()[$tipo])) {
             return Nfce::tiposPagamento()[$tipo];
         } else {

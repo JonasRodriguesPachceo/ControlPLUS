@@ -12,6 +12,7 @@ use App\Models\ItemNfe;
 use App\Models\ItemNfce;
 use App\Models\ContaReceber;
 use App\Models\Fornecedor;
+use App\Models\CreditoCliente;
 use App\Models\TributacaoCliente;
 use App\Models\ListaPrecoUsuario;
 use Illuminate\Http\Request;
@@ -538,10 +539,24 @@ class ClienteController extends Controller
         return $msgErro;
     }
 
+    public function alterarStatusCredito(Request $request)
+    {
+        $credito = CreditoCliente::find($request->id);
+
+        if (!$credito) {
+            return response()->json(['status' => false, 'msg' => 'Crédito não encontrado']);
+        }
+
+        $credito->status = false;
+        $credito->save();
+
+        return response()->json($credito, 200);
+    }
+
+
     public function cashBack($id){
         $item = Cliente::findOrFail($id);
         return view('clientes.cash_back', compact('item'));
-
     }
 
     public function destroySelecet(Request $request)

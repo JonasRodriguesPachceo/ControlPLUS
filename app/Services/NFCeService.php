@@ -261,6 +261,11 @@ class NFCeService
 			if($i->produto->numero_sequencial){
 				$stdProd->cProd = $i->produto->numero_sequencial;
 			}
+
+			if($i->produto->referencia){
+				$stdProd->cProd = $i->produto->referencia;
+			}
+			
 			$stdProd->xProd = $i->descricao();
 			$stdProd->NCM = preg_replace('/[^0-9]/', '', $i->ncm);
 			$ibpt = Ibpt::getItemIbpt($emitente->cidade->uf, preg_replace('/[^0-9]/', '', $i->ncm));

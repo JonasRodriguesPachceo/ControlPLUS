@@ -22,6 +22,7 @@ class ProdutoDeliveryController extends Controller
         ->where('status', 1)
         ->where('categoria_id', null)
         ->paginate(__itensPagina());
+        
         return view('delivery.categorias.index', compact('data'));
     }
 

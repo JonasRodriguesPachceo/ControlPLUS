@@ -57,9 +57,17 @@ class RelatorioController extends Controller
         $marca_id = $request->marca_id;
         $categoria_id = $request->categoria_id;
         $local_id = $request->local_id;
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
 
         $data = Produto::select('produtos.*')
         ->where('empresa_id', $request->empresa_id)
+        ->when(!empty($start_date), function ($query) use ($start_date) {
+            return $query->whereDate('produtos.created_at', '>=', $start_date);
+        })
+        ->when(!empty($end_date), function ($query) use ($end_date) {
+            return $query->whereDate('produtos.created_at', '<=', $end_date);
+        })
         ->when($estoque != '', function ($query) use ($estoque) {
             if ($estoque == 1) {
                 return $query->join('estoques', 'estoques.produto_id', '=', 'produtos.id')

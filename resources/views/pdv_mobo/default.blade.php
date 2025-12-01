@@ -14,7 +14,8 @@
         <link href="/assets/css/app.css" rel="stylesheet" type="text/css" id="app-style" />
         <link href="/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" type="text/css" href="/assets/css/toastr.min.css">
-        <link rel="stylesheet" type="text/css" href="/css/style_pdv_mobo.css">
+        <link rel="stylesheet" type="text/css" href="/style_pdv_mobo.css">
+        <link rel="stylesheet" type="text/css" href="/css/pdv_mobo_dark.css">
 
         @yield('css')
 
@@ -60,8 +61,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"></script>
         <script src='/js/jquery.bootstrap-duallistbox.min.js'></script>
 
-        <script src="/assets/js/app.js"></script>
-        <script type="text/javascript" src="/js/main.js"></script>
 
         <script src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js'></script>  
         @yield('js')

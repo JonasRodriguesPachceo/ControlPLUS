@@ -90,6 +90,10 @@ class Cliente extends Model
         return $this->hasMany(CashBackCliente::class, 'cliente_id')->orderBy('id', 'desc');
     }
 
+    public function creditosCliente(){
+        return $this->hasMany(CreditoCliente::class, 'cliente_id')->orderBy('id', 'desc');
+    }
+
     public static function getClienteDelivery($hash){
         return Cliente::where('uid', $hash)->first();
     }

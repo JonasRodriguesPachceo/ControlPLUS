@@ -30,6 +30,7 @@
         <link href="/bs5-tour/css/bs5-intro-tour.css" rel="stylesheet"/>
 
         <link rel='stylesheet' href='/css/bootstrap-duallistbox.min.css'/>
+        <link rel='stylesheet' href='/css/custom.css'/>
         <style type="text/css">
             :root {
                 --leftbar-bg: url("{{ __tipoSmallHeader() }}");
@@ -276,6 +277,12 @@
                         @can('pdv_create')
                         <li class="d-none d-sm-inline-block">
                             <a title="PDV" class="nav-link" href="{{ route('frontbox.create')}}">
+                                <i class="ri-shopping-basket-2-fill fs-22"></i>
+                            </a>
+                        </li>
+
+                        <li class="d-block d-md-none">
+                            <a title="PDV" class="nav-link" href="{{ route('pdv-mobo.index')}}">
                                 <i class="ri-shopping-basket-2-fill fs-22"></i>
                             </a>
                         </li>

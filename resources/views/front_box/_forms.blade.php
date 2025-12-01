@@ -1,28 +1,5 @@
 @section('css')
-<style>
-    .active {
-        background: rgb(85, 114, 245) !important;
-        color: #fff !important;
-    }
-
-    #salvar_venda:hover {
-        cursor: pointer;
-    }
-
-    .btn-cat{
-        height: 30px;
-        display: block;
-        min-width: 200px;
-    }
-
-    .qrcode{
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        width: 50%;
-    }
-
-</style>
+<link rel="stylesheet" type="text/css" href="/css/pdv.css">
 @endsection
 
 <input type="hidden" id="abertura" value="{{ $abertura }}" name="">
@@ -41,6 +18,11 @@
 @if($isVendaSuspensa)
 <input type="hidden" value="{{ $item->id }}" name="venda_suspensa_id">
 @endif
+
+@if(isset($isOrcamento) && $isOrcamento)
+<input type="hidden" value="{{ $item->id }}" name="orcamento_id">
+@endif
+
 @isset($acrescimo)
 <input type="hidden" value="{{ $acrescimo }}" id="acrescimo_pedido">
 @endif
@@ -57,14 +39,6 @@
 @endif
 @endif
 @endif
-
-<!-- @if(isset($config))
-<input type="hidden" id="inp-abrir_modal_cartao" value="{{ $config != null ? $config->abrir_modal_cartao : 0 }}">
-<input type="hidden" id="inp-senha_manipula_valor" value="{{ $config != null ? $config->senha_manipula_valor : '' }}">
-@else
-<input type="hidden" id="inp-abrir_modal_cartao" value="0">
-<input type="hidden" id="inp-senha_manipula_valor" value="">
-@endif -->
 
 @isset($agendamento)
 <input name="agendamento_id" value="{{ $agendamento->id }}" class="d-none">
@@ -120,22 +94,21 @@
                 </div>
             </div>
         </div>
-        <div class="card" style="height: 750px">
+        <div class="card" style="height: 757px">
 
             <hr>
             <h5 class="text-center">Categorias</h5>
             <div class="card categorias m-1" data-simplebar data-simplebar-lg style="height: 60px;">
-                <div class="d-flex g m-2">
+                <div class="d-flex g m-1">
 
                     <button type="button" id="cat_todos" onclick="todos()" class="btn btn-cat">Todos</button>
                     @foreach ($categorias as $cat)
                     <button type="button" class="btn btn_cat_{{ $cat->id }} btn-cat" onclick="selectCat('{{ $cat->id }}')">{{$cat->nome}}</button>
                     @endforeach
-
                 </div>
             </div>
             <h4 class="text-center mt-3">Produtos</h4>
-            <div class="card-body lista_produtos m-1" data-simplebar data-simplebar-lg style="max-height: 522px;">
+            <div class="card-body lista_produtos m-1" data-simplebar data-simplebar-lg style="max-height: 532px;">
                 <div class="row cards-categorias">
                 </div>
             </div>
@@ -195,7 +168,7 @@
             <div class="card m-1">
                 <div data-bs-target="#navbar-example2" class="scrollspy-example" style="height: 440px">
                     <table class="table table-striped dt-responsive nowrap table-itens">
-                        <thead>
+                        <thead class="table-dark">
                             <tr>
                                 <th></th>
                                 <th>Produto</th>
@@ -357,7 +330,7 @@
                     <h4 class="">Finalização da Venda</h4>
                 </div> -->
             </div>
-            <div class="row">
+            <div class="row m-1">
                 <div class="col-lg-3 col-md-4">
                     <div class="card widget-icon-box ">
                         <div class="card-body">
@@ -396,12 +369,12 @@
                 <div class="col-lg-3 col-md-4">
                     <div class="card widget-icon-box ">
                         <div class="card-body">
-                            <div class="row">
+                            <div class="row mt-1">
                                 <div class="col-6">
                                     <div class="row">
                                         <h5 class="text-center">SUPRIMENTO</h5>
                                     </div>
-                                    <div class="avatar-sm m-1">
+                                    <div class="avatar-sm m-1 mt-2">
                                         <button type="button" style="margin-left: 35px" data-bs-toggle="modal" data-bs-target="#suprimento_caixa" class="avatar-title text-bg-info rounded rounded-3 fs-3 widget-icon-box-avatar">
                                             <i class="ri-add-box-line"></i>
                                         </button>
@@ -411,7 +384,7 @@
                                     <div class="row">
                                         <h5 class="text-center">SANGRIA</h5>
                                     </div>
-                                    <div class="avatar-sm m-1">
+                                    <div class="avatar-sm m-1 mt-2">
                                         <button type="button" style="margin-left: 35px" data-bs-toggle="modal" data-bs-target="#sangria_caixa" class="avatar-title text-bg-danger rounded rounded-3 fs-3 widget-icon-box-avatar">
                                             <i class="ri-checkbox-indeterminate-line"></i>
                                         </button>
@@ -513,13 +486,19 @@
                                 </div>
                                 @if(!isset($item))
                                 <div class="col-md-12 col-xl-6 col-12">
-                                    <button type="button" class="btn btn-sm btn-light w-100 btn-vendas-suspensas mt-1" data-bs-toggle="modal" data-bs-target="#vendas_suspensas"><i class="ri-time-fill "></i> Vendas suspensas</button>
+                                    <button type="button" class="btn btn-sm btn-light w-100 btn-vendas-suspensas mt-1" data-bs-toggle="modal" data-bs-target="#vendas_suspensas"><i class="ri-time-fill"></i> Vendas suspensas</button>
                                 </div>
                                 @endif
 
                                 <div class="col-md-12 col-xl-6 col-12">
                                     <button type="button" class="btn btn-sm btn-light w-100 mt-1" onclick="modalFrete()"><i class="ri-truck-line"></i> Frete <strong class="valor-frete">R$ {{ isset($item) ? __moeda($item->valor_frete) : '0,00' }}</strong></button>
                                 </div>
+
+                                @if(!isset($item))
+                                <div class="col-md-12 col-xl-6 col-12">
+                                    <button type="button" class="btn btn-sm btn-secondary w-100 btn-orcamentos mt-1" data-bs-toggle="modal" data-bs-target="#orcamentos"><i class="ri-list-settings-fill"></i> Orçamentos</button>
+                                </div>
+                                @endif
 
                                 <div class="col-md-12 col-xl-6 col-12">
                                     <button type="button" class="btn btn-sm btn-dark w-100 mt-1 btn-fatura-padrao d-none">
@@ -541,7 +520,7 @@
                                     Sair do PDV
                                 </a>
 
-                                @if($isVendaSuspensa == 0)
+                                @if($isVendaSuspensa == 0 && $isOrcamento == 0)
                                 <button type="button" id="btn-suspender" class="btn btn-light btn-sm w-50 mt-2" style="margin-top: -20px">
                                     <i class="ri-timer-line"></i>
                                     Suspender Venda
@@ -553,14 +532,14 @@
                                 </a>
                                 @endif
 
-                                @if(isset($item) && $isVendaSuspensa == 0)
+                                @if(isset($item) && $isVendaSuspensa == 0 && $isOrcamento == 0)
                                 <button type="button" class="btn btn-success w-100 mt-4" disabled id="editar_venda">
-                                    <i class="ri-checkbox-line"></i>
+                                    <i class="ri-checkbox-circle-line"></i>
                                     Editar venda
                                 </button>
                                 @else
                                 <button type="button" class="btn btn-success w-100 mt-4" disabled id="salvar_venda">
-                                    <i class="ri-checkbox-line"></i>
+                                    <i class="ri-checkbox-circle-line"></i>
                                     Finalizar venda
                                 </button>
                                 @endif
@@ -584,6 +563,7 @@
 @include('modals._variacao', ['not_submit' => true])
 @include('modals._lista_precos')
 @include('modals._vendas_suspensas')
+@include('front_box.partials._modal_orcamentos')
 @include('modals._tef_consulta')
 @include('modals._valor_credito')
 @include('modals._modal_pix')

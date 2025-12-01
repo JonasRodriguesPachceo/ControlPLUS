@@ -10,6 +10,10 @@ use App\ServicesIA\FinancePrevisaoService;
 
 class FinanceiroDashboardController extends Controller
 {
+    public function __construct(){
+        $this->middleware('permission:caixa_view', ['only' => ['show', 'index']]);
+    }
+
     public function index(Request $request){
 
         $queryPagar = ContaPagar::query();
@@ -69,6 +73,7 @@ class FinanceiroDashboardController extends Controller
     private function inadimplentes()
     {
         $registros = ContaReceber::where('empresa_id', request()->empresa_id)
+        ->where('cliente_id', '!=', null)
         ->where('status', 0)
         ->whereDate('data_vencimento', '<', now())
         ->with('cliente:id,razao_social,cpf_cnpj')

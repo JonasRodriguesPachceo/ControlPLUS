@@ -394,7 +394,7 @@
 
             <li class="side-nav-item" id="step7">
                 <a data-bs-toggle="collapse" href="#sidebarExtendedProd" aria-expanded="false" aria-controls="sidebarExtendedUI" class="side-nav-link">
-                    <i class="ri-product-hunt-fill"></i>
+                    <i class="ri-box-2-line"></i>
                     <span> Produtos </span>
                     <span class="menu-arrow"></span>
                 </a>
@@ -503,7 +503,7 @@
                     <span class="menu-arrow"></span>
                 </a>
                 <div class="collapse" id="sidebarAtendimento">
-                    <ul class="side-nav-third-level">
+                    <ul class="side-nav-second-level">
                         <li>
                             <a href="{{ route('atendimentos.index') }}">Dias de Atendimento</a>
                         </li>
@@ -914,7 +914,7 @@
                         @can('devolucao_view')
                         <li>
                             <a href="{{ route('devolucao.index')}}" data-toggle="fullscreen" class="dropdown-item">
-                                Lista
+                                Lista devolução XML
                             </a>
                         </li>
                         @endcan
@@ -922,8 +922,14 @@
                         @can('devolucao_create')
                         <li>
                             <a href="{{ route('devolucao.xml')}}" data-toggle="fullscreen" class="dropdown-item">
-                                Nova devolução
+                                Nova devolução XML
                             </a>
+                        </li>
+                        @endcan
+
+                        @can('troca_view')
+                        <li>
+                            <a href="{{ route('trocas.index')}}" data-toggle="fullscreen" class="dropdown-item">Trocas/Devolução</a>
                         </li>
                         @endcan
 
@@ -957,11 +963,7 @@
                         </li>
                         @endcan
 
-                        @can('troca_view')
-                        <li>
-                            <a href="{{ route('trocas.index')}}" data-toggle="fullscreen" class="dropdown-item">Trocas</a>
-                        </li>
-                        @endcan
+                        
                         @if(env("PDVCOMANDA") == 1)
                         @can('pdv_create')
                         <li>

@@ -394,6 +394,7 @@
                                                 <option @if($prod->cst_csosn == $key) selected @endif value="{{$key}}">{{$c}}</option>
                                                 @endforeach
                                             </select>
+                                            <div style="width: 400px"></div>
                                         </td>
                                         <td width="250">
                                             <select name="cst_pis[]" class="form-control select2">
@@ -401,6 +402,7 @@
                                                 <option @if($prod->cst_pis == $key) selected @endif value="{{$key}}">{{$c}}</option>
                                                 @endforeach
                                             </select>
+                                            <div style="width: 250px"></div>
                                         </td>
                                         <td width="250">
                                             <select name="cst_cofins[]" class="form-control select2">
@@ -408,13 +410,15 @@
                                                 <option @if($prod->cst_cofins == $key) selected @endif value="{{$key}}">{{$c}}</option>
                                                 @endforeach
                                             </select>
+                                            <div style="width: 250px"></div>
                                         </td>
                                         <td width="250">
-                                            <select style="width: 300px" name="cst_ipi[]" class="form-control select2">
+                                            <select name="cst_ipi[]" class="form-control select2">
                                                 @foreach(App\Models\Produto::listaCST_IPI() as $key => $c)
                                                 <option @if($prod->cst_ipi == $key) selected @endif value="{{$key}}">{{$c}}</option>
                                                 @endforeach
                                             </select>
+                                            <div style="width: 250px"></div>
                                         </td>
                                         <td width="120">
                                             <input style="width: 120px" value="{{ __moeda($prod->vbc_icms) }}" class="form-control moeda" type="tel" name="vbc_icms[]">

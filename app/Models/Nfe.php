@@ -52,6 +52,13 @@ class Nfe extends Model
         return $this->belongsTo(Funcionario::class, 'funcionario_id');
     }
 
+    public function vendedor()
+    {
+        $funcionario = Funcionario::find($this->funcionario_id);
+        if ($funcionario != null) return $funcionario->nome;
+        else return '--';
+    }
+
     public function caixa()
     {
         return $this->belongsTo(Caixa::class, 'caixa_id');
@@ -150,6 +157,11 @@ class Nfe extends Model
     public function contasReceber()
     {
         return $this->hasMany(ContaReceber::class, 'nfe_id');
+    }
+
+    public function troca()
+    {
+        return $this->hasMany(Troca::class, 'nfe_id');
     }
 
     public static function lastNumero($empresa)

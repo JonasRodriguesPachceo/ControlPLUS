@@ -747,11 +747,11 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>
+                                <h5>
                                     <div class="form-check form-switch">
                                         <input type="checkbox" class="form-check-input" id="inp-petroleo" @isset($item) @if($item->codigo_anp != '') checked @endif @endif> <strong>Derivado do petróleo</strong>
                                     </div>
-                                </h4>
+                                </h5>
                             </div>
                             <div class="card-body div-petroleo d-none m-card" style="margin-top: -40px">
 
@@ -836,7 +836,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>
+                                <h5>
                                     @isset($cardapio)
                                     @if($cardapio == 1)
                                     <input type="hidden" name="redirect_cardapio" value="1">
@@ -845,7 +845,7 @@
                                     <div class="form-check form-switch form-checkbox-danger">
                                         <input type="checkbox" name="cardapio" class="form-check-input" id="inp-cardapio" @isset($item) @if($item->cardapio) checked @endif @endif @isset($cardapio) @if($cardapio == 1) checked @endif @endif ><strong>Cardápio</strong>
                                     </div>
-                                </h4>
+                                </h5>
                             </div>
                             <div class="card-body div-cardapio d-none m-card" style="margin-top: -40px">
 
@@ -929,7 +929,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>
+                                <h5>
                                     @isset($delivery)
                                     @if($delivery == 1)
                                     <input type="hidden" name="redirect_delivery" value="1">
@@ -938,7 +938,7 @@
                                     <div class="form-check form-switch form-checkbox-success">
                                         <input type="checkbox" name="delivery" class="form-check-input" id="inp-delivery" @isset($item) @if($item->delivery) checked @endif @endif @isset($delivery) @if($delivery == 1) checked @endif @endif ><strong>Delivery/MarketPlace</strong>
                                     </div>
-                                </h4>
+                                </h5>
                             </div>
 
                             <div class="card-body div-delivery d-none m-card" style="margin-top: -40px">
@@ -980,7 +980,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>
+                                <h5>
                                     @isset($nuvemshop)
                                     @if($nuvemshop == 1)
                                     <input type="hidden" name="redirect_nuvemshop" value="1">
@@ -989,7 +989,7 @@
                                     <div class="form-check form-switch form-checkbox-info">
                                         <input type="checkbox" name="nuvemshop" class="form-check-input" id="inp-nuvemshop" @isset($item) @if($item->nuvem_shop_id != null) checked @endif @endif @isset($nuvemshop) @if($nuvemshop == 1) checked @endif @endif ><strong>Nuvem Shop</strong>
                                     </div>
-                                </h4>
+                                </h5>
                             </div>
                             <div class="card-body div-nuvemshop d-none m-card" style="margin-top: -40px">
 
@@ -1054,7 +1054,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>
+                                <h5>
                                     @isset($mercadolivre)
                                     @if($mercadolivre == 1)
                                     <input type="hidden" name="redirect_mercadolivre" value="1">
@@ -1063,7 +1063,7 @@
                                     <div class="form-check form-switch form-checkbox-warning">
                                         <input type="checkbox" name="mercadolivre" class="form-check-input" id="inp-mercadolivre" @isset($item) @if($item->mercado_livre_id != null) checked @endif @endif @isset($mercadolivre) @if($mercadolivre == 1) checked @endif @endif ><strong>Mercado livre</strong>
                                     </div>
-                                </h4>
+                                </h5>
                             </div>
 
                             <div class="card-body div-mercadolivre d-none m-card" style="margin-top: -40px">
@@ -1137,7 +1137,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>
+                                <h5>
                                     @isset($ecommerce)
                                     @if($ecommerce == 1)
                                     <input type="hidden" name="redirect_ecommerce" value="1">
@@ -1146,7 +1146,7 @@
                                     <div class="form-check form-switch form-checkbox-info">
                                         <input type="checkbox" name="ecommerce" class="form-check-input" id="inp-ecommerce" @isset($item) @if($item->ecommerce) checked @endif @endif @isset($ecommerce) @if($ecommerce == 1) checked @endif @endif ><strong>Ecommerce</strong>
                                     </div>
-                                </h4>
+                                </h5>
                             </div>
 
                             <div class="card-body div-ecommerce d-none m-card" style="margin-top: -40px">
@@ -1195,7 +1195,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>
+                                <h5>
                                     @isset($reserva)
                                     @if($reserva == 1)
                                     <input type="" name="redirect_reserva" value="1">
@@ -1204,7 +1204,7 @@
                                     <div class="form-check form-switch form-checkbox-light">
                                         <input type="checkbox" name="reserva" class="form-check-input" id="inp-reserva" @isset($item) @if($item->reserva) checked @endif @endif @isset($reserva) @if($reserva == 1) checked @endif @endif ><strong>Reserva</strong>
                                     </div>
-                                </h4>
+                                </h5>
                             </div>
 
                         </div>
@@ -1217,7 +1217,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>
+                                <h5>
                                     @isset($woocommerce)
                                     @if($woocommerce == 1)
                                     <input type="hidden" name="redirect_woocommerce" value="1">
@@ -1226,7 +1226,7 @@
                                     <div class="form-check form-switch form-checkbox-dark">
                                         <input type="checkbox" name="woocommerce" class="form-check-input" id="inp-woocommerce" @isset($item) @if($item->woocommerce) checked @endif @endif @isset($woocommerce) @if($woocommerce == 1) checked @endif @endif ><strong>Woocommerce</strong>
                                     </div>
-                                </h4>
+                                </h5>
                             </div>
 
                             <div class="card-body div-woocommerce d-none m-card" style="margin-top: -40px">
@@ -1313,7 +1313,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>
+                                <h5>
                                     @isset($ifood)
                                     @if($ifood == 1)
                                     <input type="hidden" name="redirect_ifood" value="1">
@@ -1322,7 +1322,7 @@
                                     <div class="form-check form-switch form-checkbox-danger">
                                         <input type="checkbox" name="ifood" class="form-check-input" id="inp-ifood" @isset($item) @if($item->ifood) checked @endif @endif @isset($ifood) @if($ifood == 1) checked @endif @endif ><strong>IFood</strong>
                                     </div>
-                                </h4>
+                                </h5>
                             </div>
 
                             <div class="card-body div-ifood d-none m-card" style="margin-top: -40px">
@@ -1362,7 +1362,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h4>
+                                <h5>
                                     @isset($vendizap)
                                     @if($vendizap == 1)
                                     <input type="hidden" name="redirect_vendizap" value="1">
@@ -1371,7 +1371,7 @@
                                     <div class="form-check form-switch form-checkbox-primary">
                                         <input type="checkbox" name="vendizap" class="form-check-input" id="inp-vendizap" @isset($item) @if($item->vendizap) checked @endif @endif @isset($vendizap) @if($vendizap == 1) checked @endif @endif ><strong>VendiZap</strong>
                                     </div>
-                                </h4>
+                                </h5>
                             </div>
 
                             <div class="card-body div-vendizap d-none m-card" style="margin-top: -40px">
@@ -1413,6 +1413,7 @@
 <hr class="mt-4">
 @if(!isset($not_submit))
 <div class="col-12" style="text-align: right;">
+    <button type="button" id="salvar-adicionar-outro" class="btn btn-primary btn-action px-5">Salvar e adicionar outro</button>
     <button type="submit" class="btn btn-success btn-action px-5">Salvar</button>
 </div>
 @endif
@@ -1432,8 +1433,16 @@
         }, 1000)
     })
 
-    $(document).on("blur", "#inp-cfop_estadual", function () {
+    $(document).on("click", "#salvar-adicionar-outro", function (e) {
+        e.preventDefault();
 
+        const form = $('#form-produto');
+        form.find('input[name="adicionar_outro"]').remove();
+        form.append(`<input type="hidden" name="adicionar_outro" value="1">`);
+        form.submit();
+    });
+
+    $(document).on("blur", "#inp-cfop_estadual", function () {
         let v = $(this).val().substring(1,4)
         $("#inp-cfop_outro_estado").val('6'+v)
         $("#inp-cfop_entrada_estadual").val('1'+v)

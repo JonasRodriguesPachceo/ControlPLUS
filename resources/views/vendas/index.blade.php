@@ -177,7 +177,7 @@
                                     @endif
 
                                     <td data-label="Usuário">{{ $item->user_name }}</td>
-                                    <td data-label="Número">{{ $item->numero ? $item->numero : '' }}</td>
+                                    <td data-label="Número">{{ $item->estado == 'aprovado' || $item->estado == 'cancelado' ? $item->numero : '--' }}</td>
 
                                     <td data-label="Número Série">
                                         <label style="width: 100px">{{ $item->numero_serie ? $item->numero_serie : '' }}</label>
@@ -188,13 +188,13 @@
                                     @if(__isPlanoFiscal())
                                     <td data-label="Estado">
                                         @if($item->estado == 'aprovado')
-                                        <span class="btn btn-success text-white btn-sm">APROVADO</span>
+                                        <span class="badge p-1 bg-success text-white">APROVADO</span>
                                         @elseif($item->estado == 'cancelado')
-                                        <span class="btn btn-danger text-white btn-sm">CANCELADO</span>
+                                        <span class="badge p-1 bg-danger text-white">CANCELADO</span>
                                         @elseif($item->estado == 'rejeitado')
-                                        <span class="btn btn-warning text-white btn-sm">REJEITADO</span>
+                                        <span class="badge p-1 bg-warning text-white">REJEITADO</span>
                                         @else
-                                        <span class="btn btn-info text-white btn-sm">NOVO</span>
+                                        <span class="badge p-1 bg-info text-white">NOVO</span>
                                         @endif
                                     </td>
 

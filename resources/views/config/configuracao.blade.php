@@ -168,8 +168,7 @@
                                     !!}
                                 </div>
                                 <div class="col-md-1">
-                                    {!!Form::tel('numero', 'Número')
-                                    ->attrs(['data-mask' => '000000'])
+                                    {!!Form::text('numero', 'Número')
                                     ->required()
                                     !!}
                                 </div>

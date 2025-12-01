@@ -665,6 +665,9 @@ class CompraController extends Controller
                         //atualizar produto
                         $product = Produto::findOrFail($request->produto_id[$i]);
                         $product->padrao_id = $request->padrao_id;
+                        if($request->padrao_item_id[$i]){
+                            $product->padrao_id = $request->padrao_item_id[$i];
+                        }
                         $product->referencia_xml = $request->cProd[$i];
                         $product->ncm = $request->ncm[$i];
                         $product->categoria_id = $request->_categoria_id[$i];
@@ -833,6 +836,10 @@ private function cadastrarProduto($request, $i, $local_id)
     if($request->padrao_id){
         $padrao = PadraoTributacaoProduto::findOrfail($request->padrao_id);
     }
+    if($request->padrao_item_id[$i]){
+        $padrao = PadraoTributacaoProduto::findOrfail($request->padrao_item_id[$i]);
+    }
+
     $numeroSequencial = $last != null ? $last->numero_sequencial : 0;
     $numeroSequencial++;
     // dd($request->all());

@@ -625,6 +625,15 @@ class FrontBoxController extends Controller
         return view('front_box.partials.vendas_suspensas', compact('data'))->render();
     }
 
+    public function orcamentos(Request $request){
+        $data = Nfe::where('empresa_id', $request->empresa_id)
+        ->where('tpNF', 1)->where('orcamento', 1)
+        ->orderBy('id', 'desc')
+        ->get();
+
+        return view('front_box.partials.orcamentos', compact('data'))->render();
+    }
+
     private function getLastNumero($empresa_id){
         $last = Nfce::where('empresa_id', $empresa_id)
         ->orderBy('numero_sequencial', 'desc')
@@ -987,8 +996,10 @@ class FrontBoxController extends Controller
                             $pedido->nfce_id = $nfce->id;
 
                             $mesa = $pedido->_mesa;
-                            $mesa->ocupada = 0;
-                            $mesa->save();
+                            if($mesa){
+                                $mesa->ocupada = 0;
+                                $mesa->save();
+                            }
 
                             $pedido->save();
                         }
@@ -1042,6 +1053,18 @@ class FrontBoxController extends Controller
                     $vendaSuspensa = VendaSuspensa::findOrfail($request->venda_suspensa_id);
                     $vendaSuspensa->itens()->delete();
                     $vendaSuspensa->delete();
+                }
+
+                if (isset($request->orcamento_id)) {
+                    $orcamento = Nfe::findOrfail($request->orcamento_id);
+
+                    $nfce->observacao .= " Referência orçamento #".$orcamento->numero_sequencial;
+                    $nfce->save();
+
+                    $orcamento->itens()->delete();
+                    $orcamento->fatura()->delete();
+                    $orcamento->delete();
+
                 }
 
                 $this->filaEnvioUtil->adicionaVendaFila($nfce);
@@ -1152,7 +1175,6 @@ public function storePdv3(Request $request){
                     'variacao_id' => $variacao_id,
                 ]);
 
-
                 if ($product->gerenciar_estoque) {
                     $this->util->reduzEstoque($product->id, __convert_value_bd($i->quantidade), $variacao_id, $caixa->local_id);
 
@@ -1246,6 +1268,13 @@ public function storePdv3(Request $request){
                 $vendaSuspensa = VendaSuspensa::findOrfail($request->venda_suspensa_id);
                 $vendaSuspensa->itens()->delete();
                 $vendaSuspensa->delete();
+            }
+
+            if (isset($request->orcamento_id)) {
+                $orcamento = Nfe::findOrfail($request->orcamento_id);
+                $orcamento->itens()->delete();
+                $orcamento->fatura()->delete();
+                $orcamento->delete();
             }
 
             $this->filaEnvioUtil->adicionaVendaFila($nfce);
@@ -1436,6 +1465,13 @@ public function updatePdv3(Request $request){
                 $vendaSuspensa = VendaSuspensa::findOrfail($request->venda_suspensa_id);
                 $vendaSuspensa->itens()->delete();
                 $vendaSuspensa->delete();
+            }
+
+            if (isset($request->orcamento_id)) {
+                $orcamento = Nfe::findOrfail($request->orcamento_id);
+                $orcamento->itens()->delete();
+                $orcamento->fatura()->delete();
+                $orcamento->delete();
             }
             return $nfce;
         });
@@ -1923,6 +1959,13 @@ public function storeNfe(Request $request)
                 $vendaSuspensa = VendaSuspensa::findOrfail($request->venda_suspensa_id);
                 $vendaSuspensa->itens()->delete();
                 $vendaSuspensa->delete();
+            }
+
+            if (isset($request->orcamento_id)) {
+                $orcamento = Nfe::findOrfail($request->orcamento_id);
+                $orcamento->itens()->delete();
+                $orcamento->fatura()->delete();
+                $orcamento->delete();
             }
 
             return $nfe;

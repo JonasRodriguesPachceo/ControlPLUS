@@ -1,8 +1,9 @@
 <div id="pagamento_multiplo" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="standard-modalLabel">Pagamento Múltiplo <strong class="total-venda-modal text-danger">@isset($item) {{__moeda($item->valor_total)}}@endif</strong></h4>
+            <div class="modal-header text-white bg-success">
+
+                <h4 class="modal-title" id="standard-modalLabel">Pagamento Múltiplo <strong class="total-venda-modal text-danger">@isset($item) {{ __moeda($item->valor_total) }}@endif</strong></h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -95,7 +96,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" disabled class="btn btn-primary btn-modal-multiplo" data-bs-dismiss="modal">Salvar</button>
+                <button type="button" class="btn btn-success btn-modal-multiplo" data-bs-dismiss="modal">
+                    <i class="ri-checkbox-circle-line"></i>
+                    Salvar
+                </button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

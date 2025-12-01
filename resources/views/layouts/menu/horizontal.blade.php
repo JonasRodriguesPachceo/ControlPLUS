@@ -625,6 +625,8 @@
 
                             @can('caixa_view')
 
+                            <a class="dropdown-item" href="{{ route('financeiro.dashboard') }}">Dashboard</a>
+
                             <div class="dropdown">
                                 <a class="dropdown-item dropdown-toggle arrow-none" href="#" id="topnav-caixa" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Caixa <div class="arrow-down"></div>

@@ -348,7 +348,6 @@ class ProdutoController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request);
         $this->__validate($request);
         $produto = null;
         try {
@@ -652,6 +651,11 @@ if (isset($request->redirect_vendizap) && $produto->vendizap_id != null) {
 
     return redirect()->route('vendizap-produtos.edit', [$produto->vendizap_id]);
 }
+
+if($request->adicionar_outro){
+    return redirect()->route('produtos.duplicar',[$produto->id]);
+}
+
 return redirect()->route('produtos.index');
 }
 
@@ -2632,6 +2636,84 @@ public function ibpt(Request $request){
     $msg = "Total de produtos cadastrados: $totalDeProdutos, total de produtos com IBPT: $contIbpt";
     session()->flash("flash_success", $msg);
     return redirect()->back();
+}
+
+public function alterarValorEstoque(){
+    $categorias = CategoriaProduto::where('empresa_id', request()->empresa_id)
+    ->orderBy('nome')
+    ->where('status', 1)->get();
+
+    $marcas = Marca::where('empresa_id', request()->empresa_id)
+    ->orderBy('nome')->get();
+
+    return view('produtos.alterar_valor_estoque', compact('categorias', 'marcas'));
+}
+
+public function buscarAjuste(Request $request){
+
+    $query = Produto::query();
+
+    if ($request->nome) {
+        $query->where('nome', 'like', "%{$request->nome}%");
+    }
+
+    if ($request->codigo_barras) {
+        $query->where('codigo_barras', $request->codigo_barras);
+    }
+
+    if ($request->categoria_id) {
+        $query->where('categoria_id', $request->categoria_id);
+    }
+
+    if ($request->marca_id) {
+        $query->where('marca_id', $request->marca_id);
+    }
+
+    $produtos = $query->where('empresa_id', $request->empresa_id)->take(50)->get();
+
+    return view('produtos.partials.tabela_ajuste', compact('produtos'));
+}
+
+public function alterarCampo(Request $request)
+{
+    $produto = Produto::find($request->id);
+
+    if (!$produto) {
+        return response()->json(['erro' => 'Produto não encontrado'], 404);
+    }
+
+    $campo = $request->campo;
+    $valor = $request->valor;
+
+    // atualizar
+    if($campo == 'valor_venda'){
+        $produto->valor_unitario = __convert_value_bd($valor);
+    }
+
+    if($campo == 'valor_compra'){
+        $produto->valor_compra = __convert_value_bd($valor);
+    }
+
+    $produto->percentual_lucro = ($produto->valor_unitario / $produto->valor_compra)*100;
+    $produto->save();
+
+    if($campo == 'quantidade_estoque'){
+        $estoque = $produto->estoque;
+        if($estoque == null){
+            $this->utilEstoque->incrementaEstoque($produto->id, $valor, null);
+            $transacao = Estoque::where('produto_id', $produto->id)->orderBy('id', 'desc')->first();
+            $tipo = 'incremento';
+            $codigo_transacao = $transacao->id;
+            $tipo_transacao = 'alteracao_estoque';
+            $this->utilEstoque->movimentacaoProduto($produto->id, $valor, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, null);  
+        }else{
+            $estoque->quantidade = $valor;
+            $estoque->save();
+        }
+    }
+
+
+    return response()->json(['sucesso' => true]);
 }
 
 }

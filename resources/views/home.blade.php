@@ -34,11 +34,12 @@
 
                     <div class="col-12 col-lg-4">
                         <div class="row">
-                            <div class="card shadow-sm border-0" style="border-radius: 16px;">
-                                <div class="card-header text-white" style="background: #EEF2FF url('/imgs/home_card.png') no-repeat right 20px center / 100px; border-top-left-radius: 16px; border-top-right-radius: 16px;">
-                                    <div class="fw-bold fs-5 text-muted">Seja Bem Vindo!
+                            <div class="card shadow-sm border-0" style="border-radius: 8px;">
+                                <div class="card-header text-white" style="background: #303256; border-radius: 8px;">
+                                    <div class="fw-bold fs-5 text-white" style="padding-top: 10px">
+                                        Seja Bem Vindo!
                                     </div>
-                                    <small class="text-muted">Área Administrativa</small>
+                                    <small class="text-white">Área Administrativa</small>
                                 </div>
 
                                 <div class="card-body">
@@ -145,7 +146,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row g-3 mt-2">
+                        <div class="row g-3 mt-1">
 
                             @if(sizeof($produtosMaisVendidosMensal) > 0)
                             <div class="col-xl-6 col-12 col-md-12">
@@ -205,16 +206,16 @@
 
             @if(in_array('Cards por período', $homeComponentes) || $configGeral == null)
             <div class="row p-2">
-                <div class="col-md-4 col-lg-2 col-12">
-                    {!!Form::select('periodo', 'Período', [
-                    '1' => 'Hoje', 
-                    '7' => 'Semana',
-                    '30' => 'Mês',
-                    '365' => 'Ano'
-                    ])->value(7)
-                    ->attrs(['class' => 'form-select'])
-                    !!}
+
+                <div class="range-container">
+                    <div class="range-filter">
+                        <button class="range-btn active" data-periodo="1">Hoje</button>
+                        <button class="range-btn" data-periodo="7">Esta semana</button>
+                        <button class="range-btn" data-periodo="30">Este mês</button>
+                        <button class="range-btn" data-periodo="365">Este ano</button>
+                    </div>
                 </div>
+
 
                 @if(__countLocalAtivo() > 1)
                 <div class="col-md-2">
@@ -681,11 +682,11 @@
             $('.valor-apagar').text("R$ " + convertFloatToMoeda(data.aPagar))
 
             if(saldo > 0){
-               $('.saldo-contas').addClass('text-success') 
-           }else if(saldo < 0){
-               $('.saldo-contas').addClass('text-danger') 
-           }
-       })
+             $('.saldo-contas').addClass('text-success') 
+         }else if(saldo < 0){
+             $('.saldo-contas').addClass('text-danger') 
+         }
+     })
         .fail((err) => {
             console.log(err)
         })
@@ -699,8 +700,20 @@
         dadosCards()
     })
 
+    var periodo = 1
+
+    $('.range-btn').on('click', function () {
+
+        $('.range-btn').removeClass('active');
+        $(this).addClass('active');
+
+        periodo = $(this).data('periodo');
+        dadosCards()
+        console.log("Período selecionado:", periodo);
+    });
+
     function dadosCards(){
-        let periodo = $("#inp-periodo").val()
+
         let local_id = $('#inp-local_id').val()
         let empresa_id = $('#empresa_id').val()
         let usuario_id = $('#usuario_id').val()

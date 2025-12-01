@@ -306,6 +306,11 @@ class NFeService{
 			if($i->produto->numero_sequencial){
 				$stdProd->cProd = $i->produto->numero_sequencial;
 			}
+
+			if($i->produto->referencia){
+				$stdProd->cProd = $i->produto->referencia;
+			}
+
 			$stdProd->xProd = $this->retiraAcentos($i->descricao());
 			$stdProd->NCM = preg_replace('/[^0-9]/', '', $i->ncm);
 
@@ -571,7 +576,9 @@ class NFeService{
 					}
 				}
 
-				if($stdIde->finNFe == 4){
+				$usaICMSST = __usaICMSST($emitente, $i->cst_csosn, $stdProd->CFOP);
+
+				if($stdIde->finNFe == 4 && $usaICMSST){
 					if($i->modBCST){
 						$stdICMS->modBCST = $i->modBCST;
 					}
@@ -597,6 +604,7 @@ class NFeService{
 						$somavFCPST += $stdICMS->vFCPST = $i->vFCPST;
 					}
 				}
+
 				if(isset($stdICMS->vICMSST)){
 					$somaVICMSST += $stdICMS->vICMSST;
 				}

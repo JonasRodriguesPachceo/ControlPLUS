@@ -203,6 +203,7 @@ Route::group(['prefix' => 'planos'], function () {
 
 Route::group(['prefix' => 'vendas'], function () {
     Route::get('/pesquisa', 'VendaController@pesquisa');
+    Route::get('/filtro-troca', 'VendaController@filtroTroca');
 });
 
 Route::group(['prefix' => 'orcamentos'], function () {
@@ -359,6 +360,7 @@ Route::group(['prefix' => 'frenteCaixa'], function () {
     Route::put('/update/{id}', 'FrontBoxController@update');
     Route::get('/buscaFuncionario/{id}', 'FrontBoxController@buscaFuncionario');
     Route::get('/venda-suspensas', 'FrontBoxController@vendasSuspensas');
+    Route::get('/orcamentos', 'FrontBoxController@orcamentos');
     Route::get('/gerar-fatura', 'FrontBoxController@gerarFatura');
     Route::get('/gerar-fatura-pdv', 'FrontBoxController@gerarFaturaPdv');
     Route::get('/gerar-fatura-pdv2', 'FrontBoxController@gerarFaturaPdv2');
@@ -686,6 +688,21 @@ Route::middleware(['authDelivery'])->group(function () {
 Route::post('/nfse-webhook', 'NfseWebHookController@index');
 Route::post('/vendizap-webhook', 'VendizapWebHookController@index');
 
+Route::group(['prefix' => 'pdv-mobo'], function () {
+    Route::post('/store', 'PdvMoboController@store');
+    Route::post('/suspender', 'PdvMoboController@suspender');
+    Route::get('/vendas-suspensa', 'PdvMoboController@vendasSuspensa');
+    Route::get('/vendas-diaria', 'PdvMoboController@vendasDiaria');
+    Route::get('/produtos-categoria', 'PdvMoboController@produtosCategoria');
+    Route::get('/produtos-codigo-barras', 'PdvMoboController@produtosCodigoBarras');
+    Route::get('/comandas', 'PdvMoboController@comandas');
+
+    Route::post('/update-comanda', 'PdvMoboController@updateComanda');
+    Route::get('/sabores-tamanhos', 'PdvMoboController@saboresTamanhos');
+
+    Route::post('/store-nfe', 'PdvMoboController@storeNfe');
+});
+
 Route::group(['prefix' => 'pdv'], function () {
     Route::post('/login', 'PDV\\LoginController@login');
     Route::post('/produtos', 'PDV\\ProdutoController@produtos');
@@ -707,7 +724,6 @@ Route::group(['prefix' => 'pdv'], function () {
     Route::get('/lista-preco', 'PDV\\ProdutoController@listaPreco');
     Route::get('/empresa-ativa', 'PDV\\LoginController@empresaAtiva');
     Route::get('/locais-usuario', 'PDV\\VendaController@locaisUsuario');
-
 });
 
 Route::middleware(['validaApiToken'])->group(function () {

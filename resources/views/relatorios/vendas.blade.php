@@ -7,8 +7,8 @@
             <th>#</th>
             <th>Cliente</th>
             <th>Data</th>
-            <th>Valor</th>
             <th>Tipo</th>
+            <th>Valor</th>
             @if(__countLocalAtivo() > 1)
             <th>Local</th>
             @endif

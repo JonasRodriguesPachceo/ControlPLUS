@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Pedido;
 use Dompdf\Dompdf;
 use NFePHP\DA\NFe\Danfce;
+use App\Models\VendaSuspensa;
 
 class FrontboxController extends Controller
 {
@@ -229,6 +230,12 @@ class FrontboxController extends Controller
                     ->update([ 'estado' => 'finalizado' ]);
                     $pedido->save();
 
+                }
+
+                if ($request->venda_suspensa_id) {
+                    $vendaSuspensa = VendaSuspensa::findOrfail($request->venda_suspensa_id);
+                    $vendaSuspensa->itens()->delete();
+                    $vendaSuspensa->delete();
                 }
 
                 return $nfce;

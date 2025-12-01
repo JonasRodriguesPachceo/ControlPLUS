@@ -273,6 +273,11 @@ class NfeController extends Controller
             }
         }
 
+        if($item->troca){
+            session()->flash("flash_warning", "Não é possível editar venda com uma troca!");
+            return redirect()->back();
+        }
+
         __validaObjetoEmpresa($item);
         $transportadoras = Transportadora::where('empresa_id', request()->empresa_id)->get();
         $cidades = Cidade::all();
@@ -920,7 +925,12 @@ if (isset($request->is_compra)) {
             return redirect()->route('nfe.set-codigo-unico', $nfe->id);
         }
     }
-    return redirect()->route('nfe.index');
+
+    if(sizeof($nfe->fatura) > 0){
+        return redirect()->route('nfe.index')->with('url_carne', route('nfe.imprimir-carne', $nfe->id));
+    }else{
+        return redirect()->route('nfe.index');
+    }
 }
 }
 
@@ -1949,6 +1959,21 @@ public function importZipStoreFiles(Request $request){
         session()->flash("flash_error", 'Algo deu errado: '. $e->getMessage());
         return redirect()->route('nfe.index');
     }
+}
+
+public function imprimirCarne($id){
+    $item = Nfe::findOrFail($id);
+    $config = Empresa::findOrFail(request()->empresa_id);
+
+    $p = view('nfe.carne', compact('config', 'item'));
+    $domPdf = new Dompdf(["enable_remote" => true]);
+    $domPdf->loadHtml($p);
+    $pdf = ob_get_clean();
+
+    $domPdf->setPaper("A4");
+    $domPdf->render();
+    $domPdf->stream("Carnê de venda.pdf", array("Attachment" => false));
+
 }
 
 private function salvarVenda($venda, $cliente, $local_id){

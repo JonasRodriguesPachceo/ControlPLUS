@@ -27,7 +27,6 @@ class HomeController extends Controller
         ->where('empresa_id', $config->empresa_id)
         ->orderBy('nome', 'asc')
         ->where('hash_delivery', null)
-        ->where('status', 1)
         ->get();
 
         foreach($categorias as $c){
@@ -46,7 +45,7 @@ class HomeController extends Controller
         }
 
         $produtos = Produto::where('empresa_id', $config->empresa_id)
-        ->where('status', 1)
+        // ->where('status', 1)
         ->where('delivery', 1)
         ->where('hash_delivery', null)
         ->get();
@@ -57,7 +56,7 @@ class HomeController extends Controller
         }
 
         $servicos = Servico::where('empresa_id', $config->empresa_id)
-        ->where('status', 1)
+        // ->where('status', 1)
         ->where('marketplace', 1)
         ->where('hash_delivery', null)
         ->get();

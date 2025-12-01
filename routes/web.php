@@ -303,6 +303,8 @@ Route::get('contador-empresa-mdfe-zip', 'ContadorAdminMDFeController@downloadZip
     // rotas do contador fim
 
 Route::get('nfe/imprimir/{id}', 'NfeController@imprimir')->name('nfe.imprimir');
+Route::get('nfe-imprimir-carne/{id}', 'NfeController@imprimirCarne')->name('nfe.imprimir-carne');
+
 Route::get('nfe/set-codigo-unico/{id}', 'NfeController@setCodigoUnico')->name('nfe.set-codigo-unico');
 Route::post('nfe/setar-codigo-unico', 'NfeController@setarCodigoUnico')->name('nfe.setar-codigo-unico');
 Route::get('nfe-danfe-temporaria/{id}', 'NfeController@danfeTemporaria')->name('nfe.danfe-temporaria');
@@ -658,6 +660,8 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::get('/clientes-remove-image/{id}', 'ClienteController@removeImagem')->name('clientes.remove-image');
     Route::get('clientes-modal/{id}', 'ClienteController@modal');
 
+    Route::post('clientes-creditos/alterar-status', 'ClienteController@alterarStatusCredito')->name('clientes.alterar-status-credito');
+
     Route::resource('fornecedores', 'FornecedorController');
     Route::delete('fornecedores-destroy-select', 'FornecedorController@destroySelecet')->name('fornecedores.destroy-select');
 
@@ -675,6 +679,9 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::post('produtos-vincular-imagens', 'ProdutoController@vincularImagens')->name('produtos.vincular-imagens');
     Route::get('produtos-vincula-imagens', 'ProdutoController@vinculaImagens')->name('produtos.vincula-imagens');
     Route::get('produtos-ibpt', 'ProdutoController@ibpt')->name('produtos.ibpt');
+    Route::get('produtos-alterar-valor-estoque', 'ProdutoController@alterarValorEstoque')->name('produtos.alterar-valor-estoque');
+    Route::get('produtos-buscar-ajuste', 'ProdutoController@buscarAjuste')->name('produtos.buscar-ajuste');
+    Route::post('/produtos/alterar-campo', 'ProdutoController@alterarCampo')->name('produtos.alterar-campo');
 
     Route::resource('transportadoras', 'TransportadoraController');
     Route::delete('transportadoras-destroy-select', 'TransportadoraController@destroySelecet')->name('transportadoras.destroy-select');
@@ -689,6 +696,15 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::get('inventarios-comparar-estoque/{id}', 'InventarioController@compararEstoque')->name('inventarios.comparar-estoque');
     Route::delete('inventarios-destroy-item/{id}', 'InventarioController@destroyItem')->name('inventarios.destroy-item');
     Route::get('inventarios-definir-estoque/{id}', 'InventarioController@definirEstoque')->name('inventarios.definir-estoque');
+    Route::get('inventarios-imprimir/{id}', 'InventarioController@imprimir')->name('inventarios.imprimir');
+    Route::get('inventarios-apontar-impresso/{id}', 'InventarioController@apontarImpresso')->name('inventarios.apontar-impresso');
+    Route::post('/inventario/atualizar-item', 'InventarioController@atualizarItem')->name('inventario.atualizar-item');
+    Route::post('/inventario-acerto', 'InventarioController@acerto')->name('inventario.acerto');
+    Route::get('inventarios-duplicar/{id}', 'InventarioController@duplicar')->name('inventarios.duplicar');
+    Route::get('inventarios-renderizar/{id}', 'InventarioController@renderizar')->name('inventarios.renderizar');
+    Route::post('/inventarios-add-produto', 'InventarioController@addProduto')->name('inventarios.add-produto');
+
+    Route::post('/inventarios-delete-item', 'InventarioController@deleteItem')->name('inventarios.delete-item');
 
     Route::resource('estoque', 'EstoqueController');
     Route::get('estoque-retirada', 'EstoqueController@retirada')->name('estoque.retirada');
