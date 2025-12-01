@@ -21,9 +21,9 @@ return new class extends Migration
             $table->boolean('gerenciar_estoque')->default(0);
             $table->boolean('agrupar_itens')->default(0);
             $table->text('notificacoes');
-            $table->decimal('margem_combo', 5,2)->default(50);
-            $table->decimal('percentual_desconto_orcamento', 5,2)->nullable();
-            $table->decimal('percentual_lucro_produto', 10,2)->default(0);
+            $table->decimal('margem_combo', 5, 2)->default(50);
+            $table->decimal('percentual_desconto_orcamento', 5, 2)->nullable();
+            $table->decimal('percentual_lucro_produto', 10, 2)->default(0);
 
             $table->text('tipos_pagamento_pdv');
             $table->string('senha_manipula_valor', 20)->nullable();
@@ -67,12 +67,12 @@ return new class extends Migration
             $table->boolean('limitar_credito_cliente')->default(0);
             $table->boolean('corrigir_numeracao_fiscal')->default(1);
             $table->string('documento_pdv', 4)->default('nfce');
-            
+
             $table->integer('numero_inicial_comanda')->nullable();
             $table->integer('numero_final_comanda')->nullable();
             $table->text('home_componentes');
             $table->string('token_whatsapp', 120)->nullable();
-            $table->string('small_header_user', 50)->default('small-4.jpg');
+            $table->string('small_header_user', 50)->default('small-4.png');
 
             $table->text('mensagem_wpp_link');
             $table->boolean('status_wpp_link')->default(0);
@@ -87,21 +87,21 @@ return new class extends Migration
             $table->string('tipo_ordem_servico', 50)->default('normal'); // normal, assistencia técinica, oficina
 
             // alter table config_gerals add column tipo_ordem_servico varchar(50) default 'normal';
-            
+
             // alter table config_gerals add column produtos_exibe_tabela boolean default 1;
             // alter table config_gerals add column clientes_exibe_tabela boolean default 1;
             // alter table config_gerals add column itens_por_pagina integer default 30;
-            
+
             // alter table config_gerals add column mensagem_wpp_link text;
             // alter table config_gerals add column status_wpp_link boolean default 0;
             // alter table config_gerals add column enviar_danfe_wpp_link boolean default 0;
             // alter table config_gerals add column enviar_xml_wpp_link boolean default 0;
             // alter table config_gerals add column enviar_pedido_a4_wpp_link boolean default 0;
 
-            // alter table config_gerals add column small_header_user varchar(50) default 'small-4.jpg';
+            // alter table config_gerals add column small_header_user varchar(50) default 'small-4.png';
             // alter table config_gerals add column home_componentes varchar(300) default '[]';
             // alter table config_gerals modify column home_componentes text;
-            
+
             // alter table config_gerals add column corrigir_numeracao_fiscal boolean default 1;
 
             // alter table config_gerals add column numero_inicial_comanda integer default null;

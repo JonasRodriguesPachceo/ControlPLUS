@@ -165,7 +165,7 @@ cursor: pointer;
 }
 
 .vender-bt {
-	padding-right: 20px !important; 
+	padding-right: 20px !important;
 }
 
 .vender-bt i {
@@ -1293,6 +1293,7 @@ input[type=number] {
 		transform: rotate(0deg);
 	}
 }
+
 @keyframes rotating {
 	from {
 		-ms-transform: rotate(360deg);
@@ -1720,7 +1721,7 @@ box-shadow: 3px 3px 3px rgba(0,0,0,.1);
 .pagination a:focus i,
 .pagination a:hover i {
 	color: #fff !important;
-}  
+}
 
 .pagination i {
 	color: #333;
@@ -2139,7 +2140,7 @@ opacity: .8;*/
 	width: 100%;
 }
 
-.body-cidade .categoria .produto .detalhes i, 
+.body-cidade .categoria .produto .detalhes i,
 .body-cidade .categoria .estabelecimento .detalhes i {
 	color: #f68634;
 }
@@ -2228,7 +2229,7 @@ background: rgba(0,0,0,.05);
 }
 
 .cidade-box {
-	margin: auto auto 2px auto; 
+	margin: auto auto 2px auto;
 	width: 100%;
 	max-width: 400px;
 }
@@ -2916,7 +2917,7 @@ background: rgba(0,0,0,.05);
 		margin: -40px 0 0 0;
 	}
 
-	.floatbar {	
+	.floatbar {
 		display: flex !important;
 	}
 

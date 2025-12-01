@@ -1358,7 +1358,7 @@ CREATE TABLE `config_gerals` (
   `numero_final_comanda` int DEFAULT NULL,
   `home_componentes` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `token_whatsapp` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `small_header_user` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'small-4.jpg',
+  `small_header_user` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'small-4.png',
   `mensagem_wpp_link` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `status_wpp_link` tinyint(1) NOT NULL DEFAULT '0',
   `enviar_danfe_wpp_link` tinyint(1) NOT NULL DEFAULT '0',

@@ -620,7 +620,7 @@ alter table produtos add column perc_ibs_uf decimal(10,2) default 0;
 alter table produtos add column perc_ibs_mun decimal(10,2) default 0;
 alter table produtos add column perc_cbs decimal(10,2) default 0;
 alter table produtos add column perc_dif decimal(10,2) default 0;
-alter table config_gerals add column small_header_user varchar(50) default 'small-4.jpg';
+alter table config_gerals add column small_header_user varchar(50) default 'small-4.png';
 alter table configuracao_supers add column email_aviso_novo_cadastro varchar(120) default null;
 alter table produtos add column tipo_item_sped varchar(2) default null;
 alter table item_conta_empresas add column cliente_id integer default null;

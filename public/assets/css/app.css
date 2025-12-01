@@ -14621,7 +14621,7 @@ html[data-bs-theme=dark] .logo.logo-dark {
 
 .leftbar-user {
   background: var(--leftbar-bg) center center;
-  /*background: url("../images/small/small-4.jpg") center center;*/
+  /*background: url("../images/small/small-4.png") center center;*/
   display: none;
   position: relative;
 }
@@ -17864,7 +17864,7 @@ body.auth-fluid-pages[data-sidenav-size=condensed] {
   -webkit-box-align: stretch;
       -ms-flex-align: stretch;
           align-items: stretch;
-  background: url("../images/bg-auth.jpg") center;
+  background: url("../images/bg-auth.png") center;
   background-size: cover;
 }
 .auth-fluid .auth-fluid-form-box {

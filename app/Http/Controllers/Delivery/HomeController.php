@@ -18,83 +18,86 @@ use Illuminate\Support\Str;
 class HomeController extends Controller
 {
 
-    public function __construct(){
+    public function __construct()
+    {
         session_start();
     }
 
-    private function _validaHash($config){
+    private function _validaHash($config)
+    {
         $categorias = CategoriaProduto::where('delivery', 1)
-        ->where('empresa_id', $config->empresa_id)
-        ->orderBy('nome', 'asc')
-        ->where('hash_delivery', null)
-        ->get();
+            ->where('empresa_id', $config->empresa_id)
+            ->orderBy('nome', 'asc')
+            ->where('hash_delivery', null)
+            ->get();
 
-        foreach($categorias as $c){
+        foreach ($categorias as $c) {
             $c->hash_delivery = Str::random(50);
             $c->save();
         }
 
         $categorias = CategoriaServico::where('marketplace', 1)
-        ->where('empresa_id', $config->empresa_id)
-        ->where('hash_delivery', null)
-        ->get();
+            ->where('empresa_id', $config->empresa_id)
+            ->where('hash_delivery', null)
+            ->get();
 
-        foreach($categorias as $c){
+        foreach ($categorias as $c) {
             $c->hash_delivery = Str::random(50);
             $c->save();
         }
 
         $produtos = Produto::where('empresa_id', $config->empresa_id)
-        // ->where('status', 1)
-        ->where('delivery', 1)
-        ->where('hash_delivery', null)
-        ->get();
+            // ->where('status', 1)
+            ->where('delivery', 1)
+            ->where('hash_delivery', null)
+            ->get();
 
-        foreach($produtos as $p){
+        foreach ($produtos as $p) {
             $p->hash_delivery = Str::random(50);
             $p->save();
         }
 
         $servicos = Servico::where('empresa_id', $config->empresa_id)
-        // ->where('status', 1)
-        ->where('marketplace', 1)
-        ->where('hash_delivery', null)
-        ->get();
+            // ->where('status', 1)
+            ->where('marketplace', 1)
+            ->where('hash_delivery', null)
+            ->get();
 
-        foreach($servicos as $s){
+        foreach ($servicos as $s) {
             $s->hash_delivery = Str::random(50);
             $s->save();
         }
-
     }
 
-    private function getCategorias($empresa_id){
+    private function getCategorias($empresa_id)
+    {
         $categorias = [];
         $categoriasServico = [];
-        if(__isSegmentoProduto($empresa_id)){
+        if (__isSegmentoProduto($empresa_id)) {
             $categorias = CategoriaProduto::where('delivery', 1)
-            ->orderBy('nome', 'asc')
-            ->where('status', 1)
-            ->where('empresa_id', $empresa_id)->get();
+                ->orderBy('nome', 'asc')
+                ->where('status', 1)
+                ->where('empresa_id', $empresa_id)->get();
         }
-        if(__isSegmentoServico($empresa_id)){
+        if (__isSegmentoServico($empresa_id)) {
             $categoriasServico = CategoriaServico::where('marketplace', 1)
-            ->whereHas('servicosMarketplace')
-            ->where('empresa_id', $empresa_id)->get();
+                ->whereHas('servicosMarketplace')
+                ->where('empresa_id', $empresa_id)->get();
         }
 
-        if(sizeof($categorias) > 0 && sizeof($categoriasServico) > 0){
+        if (sizeof($categorias) > 0 && sizeof($categoriasServico) > 0) {
             $categorias = $categorias->concat($categoriasServico);
-        }elseif(sizeof($categorias) > 0){
+        } elseif (sizeof($categorias) > 0) {
             $categorias = $categorias;
-        }else{
+        } else {
             $categorias = $categoriasServico;
         }
 
         return $categorias;
     }
 
-    public function index(Request $request){
+    public function index(Request $request)
+    {
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
 
         $this->_validaHash($config);
@@ -107,15 +110,25 @@ class HomeController extends Controller
         $carrinho = $this->_getCarrinho();
 
         $banners = DestaqueMarketPlace::where('status', 1)
-        ->where('empresa_id', $config->empresa_id)->get();
+            ->where('empresa_id', $config->empresa_id)->get();
 
         $funcionamento = $this->getFuncionamento($config);
 
-        return view('food.index', compact('config', 'categorias', 'produtosEmDestaque', 'carrinho', 
-            'banners', 'categoriasEmDestaque', 'funcionamento', 'servicosEmDestaque', 'categoriasEmDestaqueServicos'));
+        return view('food.index', compact(
+            'config',
+            'categorias',
+            'produtosEmDestaque',
+            'carrinho',
+            'banners',
+            'categoriasEmDestaque',
+            'funcionamento',
+            'servicosEmDestaque',
+            'categoriasEmDestaqueServicos'
+        ));
     }
 
-    public function pesquisa(Request $request){
+    public function pesquisa(Request $request)
+    {
 
         $pesquisa = $request->pesquisa;
 
@@ -127,26 +140,34 @@ class HomeController extends Controller
         $carrinho = $this->_getCarrinho();
 
         $produtos = Produto::where('produtos.empresa_id', $config->empresa_id)
-        ->select('produtos.*')
-        ->where('produtos.status', 1)
-        ->where('produtos.delivery', 1)
-        ->when(!empty($pesquisa), function ($query) use ($pesquisa) {
-            return $query->where('produtos.nome', 'like', "%$pesquisa%");
-        })
-        ->get();
+            ->select('produtos.*')
+            ->where('produtos.status', 1)
+            ->where('produtos.delivery', 1)
+            ->when(!empty($pesquisa), function ($query) use ($pesquisa) {
+                return $query->where('produtos.nome', 'like', "%$pesquisa%");
+            })
+            ->get();
 
         $funcionamento = $this->getFuncionamento($config);
 
-        return view('food.pesquisa', compact('config', 'categorias', 'produtos', 'carrinho', 'categoriasEmDestaque', 'pesquisa', 
-            'funcionamento'));
+        return view('food.pesquisa', compact(
+            'config',
+            'categorias',
+            'produtos',
+            'carrinho',
+            'categoriasEmDestaque',
+            'pesquisa',
+            'funcionamento'
+        ));
     }
 
-    private function getCategoriasEmDestaque($produtos){
+    private function getCategoriasEmDestaque($produtos)
+    {
         $categorias = [];
-        foreach($produtos as $p){
-            if($p->categoria_id){
+        foreach ($produtos as $p) {
+            if ($p->categoria_id) {
                 $in_array = in_array($p->categoria_id, array_column($categorias, 'id'));
-                if(!$in_array){
+                if (!$in_array) {
                     array_push($categorias, $p->categoria);
                 }
             }
@@ -154,12 +175,13 @@ class HomeController extends Controller
         return $categorias;
     }
 
-    private function getCategoriasEmDestaqueServicos($servicos){
+    private function getCategoriasEmDestaqueServicos($servicos)
+    {
         $categorias = [];
-        foreach($servicos as $p){
-            if($p->categoria_id){
+        foreach ($servicos as $p) {
+            if ($p->categoria_id) {
                 $in_array = in_array($p->categoria_id, array_column($categorias, 'id'));
-                if(!$in_array){
+                if (!$in_array) {
                     array_push($categorias, $p->categoria);
                 }
             }
@@ -167,108 +189,118 @@ class HomeController extends Controller
         return $categorias;
     }
 
-    private function produtosEmDestaque($empresa_id){
+    private function produtosEmDestaque($empresa_id)
+    {
 
-        if(!__isSegmentoProduto($empresa_id)){
+        if (!__isSegmentoProduto($empresa_id)) {
             return [];
         }
         $data = Produto::where('empresa_id', $empresa_id)
-        ->where('destaque_delivery', 1)
-        ->where('status', 1)
-        ->where('delivery', 1)->get();
+            ->where('destaque_delivery', 1)
+            ->where('status', 1)
+            ->where('delivery', 1)->get();
         $produtos = [];
-        foreach($data as $item){
-            if($item->gerenciar_estoque){
+        foreach ($data as $item) {
+            if ($item->gerenciar_estoque) {
 
-                if($item->estoque && $item->estoque->quantidade > 0){
+                if ($item->estoque && $item->estoque->quantidade > 0) {
                     array_push($produtos, $item);
-                }else{
-                    if($item->combo){
+                } else {
+                    if ($item->combo) {
                         $adiciona = true;
-                        foreach($item->itensDoCombo as $c){
-                            if(!$c->produtoDoCombo->estoque || $c->produtoDoCombo->estoque->quantidade <= 0){
+                        foreach ($item->itensDoCombo as $c) {
+                            if (!$c->produtoDoCombo->estoque || $c->produtoDoCombo->estoque->quantidade <= 0) {
                                 $adiciona = false;
                             }
                         }
-                        if($adiciona){
+                        if ($adiciona) {
                             array_push($produtos, $item);
                         }
-
                     }
                 }
-            }else{
+            } else {
                 array_push($produtos, $item);
             }
         }
         return $produtos;
     }
 
-    private function servicosEmDestaque($empresa_id){
+    private function servicosEmDestaque($empresa_id)
+    {
         return Servico::where('empresa_id', $empresa_id)
-        ->where('destaque_marketplace', 1)
-        ->where('status', 1)
-        ->where('marketplace', 1)->get();
+            ->where('destaque_marketplace', 1)
+            ->where('status', 1)
+            ->where('marketplace', 1)->get();
     }
 
-    private function _getCarrinho(){
+    private function _getCarrinho()
+    {
         $data = [];
-        if(isset($_SESSION["session_cart_delivery"])){
+        if (isset($_SESSION["session_cart_delivery"])) {
             $data = CarrinhoDelivery::where('session_cart_delivery', $_SESSION["session_cart_delivery"])
-            ->first();
+                ->first();
         }
         return $data;
     }
 
-    public function ofertas(Request $request){
+    public function ofertas(Request $request)
+    {
 
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
         $categorias = $this->getCategorias($config->empresa_id);
 
         $produtos = Produto::where('empresa_id', $config->empresa_id)
-        ->where('status', 1)
-        ->where('oferta_delivery', 1)
-        ->where('delivery', 1)->get();
+            ->where('status', 1)
+            ->where('oferta_delivery', 1)
+            ->where('delivery', 1)->get();
 
         $tamanho = TamanhoPizza::where('empresa_id', $config->empresa_id)
-        ->orderBy('maximo_sabores', 'desc')->first();
+            ->orderBy('maximo_sabores', 'desc')->first();
         $maximo_sabores_pizza = 0;
-        if($tamanho != null){
+        if ($tamanho != null) {
             $maximo_sabores_pizza = $tamanho->maximo_sabores;
         }
 
         $tamanhosPizza = TamanhoPizza::where('empresa_id', $config->empresa_id)
-        ->where('status', 1)
-        ->with('produtos')
-        ->get();
+            ->where('status', 1)
+            ->with('produtos')
+            ->get();
         $funcionamento = $this->getFuncionamento($config);
 
         return view('food.ofertas', compact(
-            'config', 'categorias', 'produtos', 'maximo_sabores_pizza', 'tamanhosPizza', 'funcionamento'));
+            'config',
+            'categorias',
+            'produtos',
+            'maximo_sabores_pizza',
+            'tamanhosPizza',
+            'funcionamento'
+        ));
     }
 
-    public function produtosDaCategoria(Request $request, $hash){
+    public function produtosDaCategoria(Request $request, $hash)
+    {
 
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
         $categorias = $this->getCategorias($config->empresa_id);
 
         $categoria = CategoriaProduto::where('hash_delivery', $hash)
-        ->first();
+            ->first();
 
-        if($categoria == null){
+        if ($categoria == null) {
             abort(404);
         }
         $data = Produto::where('empresa_id', $config->empresa_id)
-        ->where('categoria_id', $categoria->id)
-        ->where('status', 1)
-        ->where('delivery', 1)->get();
+            ->where('categoria_id', $categoria->id)
+            ->where('status', 1)
+            ->where('delivery', 1)->get();
 
         $produtos = [];
-        foreach($data as $item){
-            if($item->gerenciar_estoque){
-                if($item->estoque && $item->estoque->quantidade > 0){
+        foreach ($data as $item) {
+            if ($item->gerenciar_estoque) {
+                if ($item->estoque && $item->estoque->quantidade > 0) {
                     array_push($produtos, $item);
                 }
-            }else{
+            } else {
                 array_push($produtos, $item);
             }
         }
@@ -276,62 +308,78 @@ class HomeController extends Controller
         $carrinho = $this->_getCarrinho();
 
         $tamanho = TamanhoPizza::where('empresa_id', $config->empresa_id)
-        ->orderBy('maximo_sabores', 'desc')->first();
+            ->orderBy('maximo_sabores', 'desc')->first();
         $maximo_sabores_pizza = 0;
-        if($tamanho != null){
+        if ($tamanho != null) {
             $maximo_sabores_pizza = $tamanho->maximo_sabores;
         }
 
         $tamanhosPizza = TamanhoPizza::where('empresa_id', $config->empresa_id)
-        ->where('status', 1)
-        ->with('produtos')
-        ->get();
+            ->where('status', 1)
+            ->with('produtos')
+            ->get();
 
         $funcionamento = $this->getFuncionamento($config);
 
         return view('food.produtos_categoria', compact(
-            'config', 'categorias', 'categoria', 'produtos', 'carrinho', 'maximo_sabores_pizza', 'tamanhosPizza', 'funcionamento'));
+            'config',
+            'categorias',
+            'categoria',
+            'produtos',
+            'carrinho',
+            'maximo_sabores_pizza',
+            'tamanhosPizza',
+            'funcionamento'
+        ));
     }
 
-    public function servicosDaCategoria(Request $request, $hash){
+    public function servicosDaCategoria(Request $request, $hash)
+    {
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
         $categorias = $this->getCategorias($config->empresa_id);
 
         $categoria = CategoriaServico::where('hash_delivery', $hash)->first();
-        
-        if($categoria == null){
+
+        if ($categoria == null) {
             abort(404);
         }
 
         $servicos = Servico::where('empresa_id', $config->empresa_id)
-        ->where('categoria_id', $categoria->id)
-        ->where('status', 1)
-        ->where('marketplace', 1)->get();
+            ->where('categoria_id', $categoria->id)
+            ->where('status', 1)
+            ->where('marketplace', 1)->get();
 
         $carrinho = $this->_getCarrinho();
         $funcionamento = $this->getFuncionamento($config);
 
-        return view('food.servicos_categoria', compact('config', 'categorias', 'categoria', 'servicos', 'carrinho',
-            'funcionamento'));
+        return view('food.servicos_categoria', compact(
+            'config',
+            'categorias',
+            'categoria',
+            'servicos',
+            'carrinho',
+            'funcionamento'
+        ));
     }
 
-    private function getFuncionamento($config){
+    private function getFuncionamento($config)
+    {
         $dia = date('w');
         $hora = date('H:i');
         $dia = FuncionamentoDelivery::getDia($dia);
 
         $funcionamento = FuncionamentoDelivery::where('dia', $dia)
-        ->where('empresa_id', $config->empresa_id)->first();
+            ->where('empresa_id', $config->empresa_id)->first();
 
-        if($funcionamento != null){
+        if ($funcionamento != null) {
 
             $atual = strtotime(date('Y-m-d H:i'));
             $dataHoje = date('Y-m-d');
             $inicio = strtotime($dataHoje . " " . $funcionamento->inicio);
             $fim = strtotime($dataHoje . " " . $funcionamento->fim);
-            if($atual > $inicio && $atual < $fim){
+            if ($atual > $inicio && $atual < $fim) {
                 $funcionamento->aberto = true;
-            }else{
+            } else {
                 $funcionamento->aberto = false;
             }
 
@@ -340,13 +388,14 @@ class HomeController extends Controller
         return null;
     }
 
-    public function produtoDetalhe(Request $request, $hash){
+    public function produtoDetalhe(Request $request, $hash)
+    {
 
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
 
         $produto = Produto::where('empresa_id', $config->empresa_id)
-        ->where('hash_delivery', $hash)
-        ->where('status', 1)->first();
+            ->where('hash_delivery', $hash)
+            ->where('status', 1)->first();
 
         $this->_validaHash($config);
 
@@ -359,21 +408,30 @@ class HomeController extends Controller
         $carrinho = $this->_getCarrinho();
 
         $banners = DestaqueMarketPlace::where('status', 1)
-        ->where('empresa_id', $config->empresa_id)->get();
+            ->where('empresa_id', $config->empresa_id)->get();
 
         $funcionamento = $this->getFuncionamento($config);
 
-        return view('food.index', compact('config', 'categorias', 'produtosEmDestaque', 'carrinho', 
-            'banners', 'categoriasEmDestaque', 'funcionamento', 'servicosEmDestaque', 'categoriasEmDestaqueServicos', 
-            'produto'));
-
+        return view('food.index', compact(
+            'config',
+            'categorias',
+            'produtosEmDestaque',
+            'carrinho',
+            'banners',
+            'categoriasEmDestaque',
+            'funcionamento',
+            'servicosEmDestaque',
+            'categoriasEmDestaqueServicos',
+            'produto'
+        ));
     }
 
-    public function servicoDetalhe(Request $request, $hash){
+    public function servicoDetalhe(Request $request, $hash)
+    {
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
         $servico = Servico::where('empresa_id', $config->empresa_id)
-        ->where('hash_delivery', $hash)
-        ->where('status', 1)->first();
+            ->where('hash_delivery', $hash)
+            ->where('status', 1)->first();
 
         $this->_validaHash($config);
 
@@ -386,23 +444,33 @@ class HomeController extends Controller
         $carrinho = $this->_getCarrinho();
 
         $banners = DestaqueMarketPlace::where('status', 1)
-        ->where('empresa_id', $config->empresa_id)->get();
+            ->where('empresa_id', $config->empresa_id)->get();
 
         $funcionamento = $this->getFuncionamento($config);
 
-        return view('food.index', compact('config', 'categorias', 'produtosEmDestaque', 'carrinho', 
-            'banners', 'categoriasEmDestaque', 'funcionamento', 'servicosEmDestaque', 'categoriasEmDestaqueServicos', 
-            'servico'));
+        return view('food.index', compact(
+            'config',
+            'categorias',
+            'produtosEmDestaque',
+            'carrinho',
+            'banners',
+            'categoriasEmDestaque',
+            'funcionamento',
+            'servicosEmDestaque',
+            'categoriasEmDestaqueServicos',
+            'servico'
+        ));
     }
 
-    public function pizzaDetalhe(Request $request){
+    public function pizzaDetalhe(Request $request)
+    {
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
         $tamanho = TamanhoPizza::findOrFail($request->tamanho_id);
         $valorPizza = $request->valor_pizza;
         $pizzas = [];
-        for($i=0; $i<sizeof($request->pizza); $i++){
+        for ($i = 0; $i < sizeof($request->pizza); $i++) {
             $p = Produto::where('hash_delivery', $request->pizza[$i])->first();
-            if($p == null){
+            if ($p == null) {
                 session()->flash("flash_error", "Pizza não encontrada!");
                 return redirect()->back();
             }
@@ -410,15 +478,21 @@ class HomeController extends Controller
         }
 
         $categorias = CategoriaProduto::where('delivery', 1)
-        ->orderBy('nome', 'asc')
-        ->where('status', 1)
-        ->where('empresa_id', $config->empresa_id)->get();
+            ->orderBy('nome', 'asc')
+            ->where('status', 1)
+            ->where('empresa_id', $config->empresa_id)->get();
         $carrinho = $this->_getCarrinho();
 
         $funcionamento = $this->getFuncionamento($config);
 
-        return view('food.pizza_detalhe', compact('config', 'categorias', 'pizzas', 'carrinho', 
-            'funcionamento', 'tamanho', 'valorPizza'));
+        return view('food.pizza_detalhe', compact(
+            'config',
+            'categorias',
+            'pizzas',
+            'carrinho',
+            'funcionamento',
+            'tamanho',
+            'valorPizza'
+        ));
     }
-
 }

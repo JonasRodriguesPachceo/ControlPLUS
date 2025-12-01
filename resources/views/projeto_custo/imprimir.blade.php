@@ -674,22 +674,25 @@
         * {
             font-family: "Lucida Console", "Courier New", monospace;
         }
-
     </style>
 </head>
 <header>
     <div class="headReport" style="display:flex; justify-content:  padding-top:1rem">
 
-        @if($config->logo != null)
-        <img style="margin-top: -65px; height: 80px;" src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('/uploads/logos/'. $config->logo)))}}" alt="Logo" class="mb-2">
+        @if ($config->logo != null)
+            <img style="margin-top: -65px; height: 80px;"
+                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('/uploads/logos/' . $config->logo))) }}"
+                alt="Logo" class="mb-2">
         @else
-        <img style="margin-top: -75px;" src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.png')))}}" alt="Logo" class="mb-2">
+            <img style="margin-top: -75px;"
+                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}"
+                alt="Logo" class="mb-2">
         @endif
-        
+
         <div class="row text-right">
             <div class="col-12" style="margin-top: -50px;">
                 <small class="float-right" style="color:grey; font-size: 11px;">Emissão:
-                {{ date('d/m/Y - H:i') }}</small><br>
+                    {{ date('d/m/Y - H:i') }}</small><br>
             </div>
         </div>
 
@@ -699,6 +702,7 @@
 
     </div>
 </header>
+
 <body>
     <table>
         <tr>
@@ -710,7 +714,7 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 450px;">
-                Razão social: <strong>{{$config->nome}}</strong>
+                Razão social: <strong>{{ $config->nome }}</strong>
             </td>
             <td class="b-top" style="width: 247px;">
                 Documento: <strong>{{ __setMask($config->cpf_cnpj) }}</strong>
@@ -720,27 +724,28 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 700px;">
-                Endereço: <strong>{{$config->rua}}, {{$config->numero}} - {{$config->bairro}} - {{$config->cidade->nome}} ({{$config->cidade->uf}})</strong>
+                Endereço: <strong>{{ $config->rua }}, {{ $config->numero }} - {{ $config->bairro }} -
+                    {{ $config->cidade->nome }} ({{ $config->cidade->uf }})</strong>
             </td>
         </tr>
     </table>
     <table>
         <tr>
             <td class="b-top b-bottom text-left" style="width: 300px;">
-                Complemento: <strong>{{$config->complemento}}</strong>
+                Complemento: <strong>{{ $config->complemento }}</strong>
             </td>
             <td class="b-top b-bottom text-left" style="width: 200px;">
-                CEP: <strong>{{$config->cep}}</strong>
+                CEP: <strong>{{ $config->cep }}</strong>
             </td>
             <td class="b-top b-bottom text-left" style="width: 200px;">
-                Telefone: <strong>{{$config->celular}}</strong>
+                Telefone: <strong>{{ $config->celular }}</strong>
             </td>
         </tr>
     </table>
     <table>
         <tr>
             <td class="b-bottom text-left" style="width: 700px;">
-                Email: <strong>{{$config->email}}</strong>
+                Email: <strong>{{ $config->email }}</strong>
             </td>
 
         </tr>
@@ -758,21 +763,23 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 450px;">
-                Nome: <strong>{{$item->cliente->razao_social}}</strong>
+                Nome: <strong>{{ $item->cliente->razao_social }}</strong>
             </td>
             <td class="b-top" style="width: 247px;">
-                CPF/CNPJ: <strong>{{$item->cliente->cpf_cnpj}}</strong>
+                CPF/CNPJ: <strong>{{ $item->cliente->cpf_cnpj }}</strong>
             </td>
         </tr>
     </table>
     <table>
         <tr>
             <td class="b-top text-left" style="width: 500px;">
-                Endereço: <strong>{{$item->cliente->rua}}, {{$item->cliente->numero}} - {{$item->cliente->bairro}} - {{ $item->cliente->cidade ? $item->cliente->cidade->info : '' }}</strong>
+                Endereço: <strong>{{ $item->cliente->rua }}, {{ $item->cliente->numero }} -
+                    {{ $item->cliente->bairro }} -
+                    {{ $item->cliente->cidade ? $item->cliente->cidade->info : '' }}</strong>
             </td>
 
             <td class="b-top text-left" style="width: 200px;">
-                CEP: <strong>{{$item->cliente->cep}}</strong>
+                CEP: <strong>{{ $item->cliente->cep }}</strong>
             </td>
         </tr>
     </table>
@@ -780,20 +787,20 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 300px;">
-                Complemento: <strong>{{$item->cliente->complemento }}</strong>
+                Complemento: <strong>{{ $item->cliente->complemento }}</strong>
             </td>
 
             <td class="b-top text-left" style="width: 200px;">
-                Telefone: <strong>{{$item->cliente->telefone}}</strong>
+                Telefone: <strong>{{ $item->cliente->telefone }}</strong>
             </td>
-            
+
         </tr>
     </table>
 
     <table>
         <tr>
             <td class="b-top text-left" style="width: 700px;">
-                Email: <strong>{{$item->cliente->email}}</strong>
+                Email: <strong>{{ $item->cliente->email }}</strong>
             </td>
 
         </tr>
@@ -811,7 +818,7 @@
         </tr>
     </table>
 
-    
+
     <table style="margin-top: 10px">
         <thead>
             <tr>
@@ -839,15 +846,15 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($item->planejamentos as $p)
-            <tr>
-                <th style="text-align: left;">{{ $p->codigo_material }}</th>
-                <th style="text-align: left;">{{ $p->equipamento }}</th>
-                <th style="text-align: left;">{{ $p->desenho }}</th>
-                <th style="text-align: left;">{{ $p->material }}</th>
-                <th style="text-align: left;">{{ $p->quantidade }}</th>
-                <th style="text-align: left;">{{ $p->unidade }}</th>
-            </tr>
+            @foreach ($item->planejamentos as $p)
+                <tr>
+                    <th style="text-align: left;">{{ $p->codigo_material }}</th>
+                    <th style="text-align: left;">{{ $p->equipamento }}</th>
+                    <th style="text-align: left;">{{ $p->desenho }}</th>
+                    <th style="text-align: left;">{{ $p->material }}</th>
+                    <th style="text-align: left;">{{ $p->quantidade }}</th>
+                    <th style="text-align: left;">{{ $p->unidade }}</th>
+                </tr>
             @endforeach
         </tbody>
     </table>
@@ -859,14 +866,16 @@
         <tbody>
             <tr>
                 <td class="text-left ml-3 mb-3">
-                    {{env('SITE_SUPORTE')}}
+                    {{ env('SITE_SUPORTE') }}
                 </td>
                 <td class="text-right">
 
-                    <img src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.png')))}}" alt="Logo" class="mr-3">
+                    <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}"
+                        alt="Logo" class="mr-3">
                 </td>
             </tr>
         </tbody>
     </table>
 </footer>
+
 </html>

@@ -674,22 +674,25 @@
         * {
             font-family: "Lucida Console", "Courier New", monospace;
         }
-
     </style>
 </head>
 <header>
     <div class="headReport" style="display:flex; justify-content:  padding-top:1rem">
 
-        @if($config->logo != null)
-        <img style="margin-top: -65px; height: 80px;" src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('/uploads/logos/'. $config->logo)))}}" alt="Logo" class="mb-2">
+        @if ($config->logo != null)
+            <img style="margin-top: -65px; height: 80px;"
+                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('/uploads/logos/' . $config->logo))) }}"
+                alt="Logo" class="mb-2">
         @else
-        <img style="margin-top: -75px;" src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.png')))}}" alt="Logo" class="mb-2">
+            <img style="margin-top: -75px;"
+                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}"
+                alt="Logo" class="mb-2">
         @endif
 
         <div class="row text-right">
             <div class="col-12" style="margin-top: -50px;">
                 <small class="float-right" style="color:grey; font-size: 11px;">Emissão:
-                {{ date('d/m/Y - H:i') }}</small><br>
+                    {{ date('d/m/Y - H:i') }}</small><br>
             </div>
         </div>
 
@@ -699,6 +702,7 @@
 
     </div>
 </header>
+
 <body>
     <table>
         <tr>
@@ -710,7 +714,7 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 450px;">
-                Razão social: <strong>{{$config->nome}}</strong>
+                Razão social: <strong>{{ $config->nome }}</strong>
             </td>
             <td class="b-top text-right" style="width: 247px;">
                 Documento: <strong>{{ __setMask($config->cpf_cnpj) }}</strong>
@@ -720,27 +724,28 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 700px;">
-                Endereço: <strong>{{$config->rua}}, {{$config->numero}} - {{$config->bairro}} - {{$config->cidade->nome}} ({{$config->cidade->uf}})</strong>
+                Endereço: <strong>{{ $config->rua }}, {{ $config->numero }} - {{ $config->bairro }} -
+                    {{ $config->cidade->nome }} ({{ $config->cidade->uf }})</strong>
             </td>
         </tr>
     </table>
     <table>
         <tr>
             <td class="b-top b-bottom text-left" style="width: 300px;">
-                Complemento: <strong>{{$config->complemento}}</strong>
+                Complemento: <strong>{{ $config->complemento }}</strong>
             </td>
             <td class="b-top b-bottom text-left" style="width: 200px;">
-                CEP: <strong>{{$config->cep}}</strong>
+                CEP: <strong>{{ $config->cep }}</strong>
             </td>
             <td class="b-top b-bottom text-right" style="width: 200px;">
-                Telefone: <strong>{{$config->celular}}</strong>
+                Telefone: <strong>{{ $config->celular }}</strong>
             </td>
         </tr>
     </table>
     <table>
         <tr>
             <td class="b-bottom text-left" style="width: 700px;">
-                Email: <strong>{{$config->email}}</strong>
+                Email: <strong>{{ $config->email }}</strong>
             </td>
 
         </tr>
@@ -756,10 +761,10 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 450px;">
-                Nome: <strong>{{$ordem->cliente->razao_social}}</strong>
+                Nome: <strong>{{ $ordem->cliente->razao_social }}</strong>
             </td>
             <td class="b-top text-right" style="width: 247px;">
-                CPF/CNPJ: <strong>{{$ordem->cliente->cpf_cnpj}}</strong>
+                CPF/CNPJ: <strong>{{ $ordem->cliente->cpf_cnpj }}</strong>
             </td>
         </tr>
     </table>
@@ -767,11 +772,13 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 500px;">
-                Endereço: <strong>{{$ordem->cliente->rua}}, {{$ordem->cliente->numero}} - {{$ordem->cliente->bairro}} - {{ $ordem->cliente->cidade ? $ordem->cliente->cidade->info : '' }}</strong>
+                Endereço: <strong>{{ $ordem->cliente->rua }}, {{ $ordem->cliente->numero }} -
+                    {{ $ordem->cliente->bairro }} -
+                    {{ $ordem->cliente->cidade ? $ordem->cliente->cidade->info : '' }}</strong>
             </td>
 
             <td class="b-top text-right" style="width: 200px;">
-                Telefone: <strong>{{$ordem->cliente->telefone}}</strong>
+                Telefone: <strong>{{ $ordem->cliente->telefone }}</strong>
             </td>
         </tr>
     </table>
@@ -779,72 +786,72 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 300px;">
-                Complemento: <strong>{{$ordem->cliente->complemento }}</strong>
+                Complemento: <strong>{{ $ordem->cliente->complemento }}</strong>
             </td>
 
             <td class="b-top text-left" style="width: 200px;">
-                Celular: <strong>{{$ordem->cliente->celular}}</strong>
+                Celular: <strong>{{ $ordem->cliente->celular }}</strong>
             </td>
         </tr>
     </table>
     <table>
         <tr>
             <td class="b-top text-left" style="width: 700px;">
-                Email: <strong>{{$ordem->cliente->email}}</strong>
+                Email: <strong>{{ $ordem->cliente->email }}</strong>
             </td>
 
         </tr>
     </table>
 
-    @if($ordem->veiculo)
-    <br>
-    <table>
-        <tr>
-            <td class="text-left" style="width: 700px;">
-                <strong>Dados do veiculo</strong>
-            </td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <td class="b-top text-left" style="width: 240px;">
-                Marca: <strong>{{ $ordem->veiculo->marca }}</strong>
-            </td>
-            <td class="b-top text-left" style="width: 240px;">
-                Modelo: <strong>{{ $ordem->veiculo->modelo }}</strong>
-            </td>
-            <td class="b-top text-left" style="width: 230px;">
-                Placa: <strong>{{ $ordem->veiculo->placa }}</strong>
-            </td>
-        </tr>
-    </table>
-    <br>
+    @if ($ordem->veiculo)
+        <br>
+        <table>
+            <tr>
+                <td class="text-left" style="width: 700px;">
+                    <strong>Dados do veiculo</strong>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <td class="b-top text-left" style="width: 240px;">
+                    Marca: <strong>{{ $ordem->veiculo->marca }}</strong>
+                </td>
+                <td class="b-top text-left" style="width: 240px;">
+                    Modelo: <strong>{{ $ordem->veiculo->modelo }}</strong>
+                </td>
+                <td class="b-top text-left" style="width: 230px;">
+                    Placa: <strong>{{ $ordem->veiculo->placa }}</strong>
+                </td>
+            </tr>
+        </table>
+        <br>
     @endif
 
-    @if($configGeral->tipo_ordem_servico == 'assistencia técinica')
-    <br>
-    <table>
-        <tr>
-            <td class="b-top text-left" style="width: 240px;">
-                Equipamento: <strong>{{ $ordem->equipamento }}</strong>
-            </td>
-            <td class="b-top text-center" style="width: 230px;">
-                Número de série: <strong>{{ $ordem->numero_serie }}</strong>
-            </td>
-            <td class="b-top text-right" style="width: 230px;">
-                Cor: <strong>{{ $ordem->cor }}</strong>
-            </td>
-        </tr>
-    </table>
+    @if ($configGeral->tipo_ordem_servico == 'assistencia técinica')
+        <br>
+        <table>
+            <tr>
+                <td class="b-top text-left" style="width: 240px;">
+                    Equipamento: <strong>{{ $ordem->equipamento }}</strong>
+                </td>
+                <td class="b-top text-center" style="width: 230px;">
+                    Número de série: <strong>{{ $ordem->numero_serie }}</strong>
+                </td>
+                <td class="b-top text-right" style="width: 230px;">
+                    Cor: <strong>{{ $ordem->cor }}</strong>
+                </td>
+            </tr>
+        </table>
 
-    <br>
-    <span style="font-size: 12px; font-weight: bold;">Diagnóstico do cliente</span>
-    {!! $ordem->diagnostico_cliente !!}
-    <br>
+        <br>
+        <span style="font-size: 12px; font-weight: bold;">Diagnóstico do cliente</span>
+        {!! $ordem->diagnostico_cliente !!}
+        <br>
 
-    <span style="font-size: 12px; font-weight: bold;">Diagnóstico técnico</span>
-    {!! $ordem->diagnostico_tecnico !!}
-    <br>
+        <span style="font-size: 12px; font-weight: bold;">Diagnóstico técnico</span>
+        {!! $ordem->diagnostico_tecnico !!}
+        <br>
     @endif
 
     <table>
@@ -858,7 +865,9 @@
         </tr>
     </table>
 
-    <center><p style="font-size: 13px; margin-bottom: 10px;"><strong>DESCRIÇÃO</strong></p></center>
+    <center>
+        <p style="font-size: 13px; margin-bottom: 10px;"><strong>DESCRIÇÃO</strong></p>
+    </center>
     <hr>
     {!! $ordem->descricao !!}
 
@@ -881,35 +890,35 @@
         </thead>
         <tbody>
             @forelse($ordem->servicos as $item)
-            <tr>
-                <td style="text-align: left">
-                    {{ $item->servico->nome }}
-                </td>
-                <td style="text-align: left">
-                    {{ $item->quantidade }}
-                </td>
-                <td style="text-align: left">
-                    @if($item->status)
-                    FINALIZADO
-                    @else
-                    PENDENTE
-                    @endif
-                </td>
-                <td style="text-align: left">
-                    {{ __moeda($item->subtotal) }}
-                </td>
+                <tr>
+                    <td style="text-align: left">
+                        {{ $item->servico->nome }}
+                    </td>
+                    <td style="text-align: left">
+                        {{ $item->quantidade }}
+                    </td>
+                    <td style="text-align: left">
+                        @if ($item->status)
+                            FINALIZADO
+                        @else
+                            PENDENTE
+                        @endif
+                    </td>
+                    <td style="text-align: left">
+                        {{ __moeda($item->subtotal) }}
+                    </td>
 
-            </tr>
+                </tr>
             @empty
-            <tr>
-                <td colspan="5" class="text-center">Nenhum registro</td>
-            </tr>
+                <tr>
+                    <td colspan="5" class="text-center">Nenhum registro</td>
+                </tr>
             @endforelse
         </tbody>
         <tfoot>
             <tr style="font-weight: bold;">
-                <td colspan="3"  style="text-align: left">Total</td>
-                <td  style="text-align: left">{{ __moeda($ordem->servicos->sum('subtotal')) }}</td>
+                <td colspan="3" style="text-align: left">Total</td>
+                <td style="text-align: left">{{ __moeda($ordem->servicos->sum('subtotal')) }}</td>
             </tr>
         </tfoot>
     </table>
@@ -933,31 +942,31 @@
         </thead>
         <tbody>
             @forelse($ordem->itens as $item)
-            <tr>
-                <td style="text-align: left">
-                    {{ $item->produto->nome }}
-                </td>
-                <td style="text-align: left">
-                    {{ $item->quantidade }}
-                </td>
-                <td style="text-align: left">
-                    {{ __moeda($item->subtotal/$item->quantidade) }}
-                </td>
-                <td style="text-align: left">
-                    {{ __moeda($item->subtotal) }}
-                </td>
+                <tr>
+                    <td style="text-align: left">
+                        {{ $item->produto->nome }}
+                    </td>
+                    <td style="text-align: left">
+                        {{ $item->quantidade }}
+                    </td>
+                    <td style="text-align: left">
+                        {{ __moeda($item->subtotal / $item->quantidade) }}
+                    </td>
+                    <td style="text-align: left">
+                        {{ __moeda($item->subtotal) }}
+                    </td>
 
-            </tr>
+                </tr>
             @empty
-            <tr>
-                <td colspan="5" class="text-center">Nenhum registro</td>
-            </tr>
+                <tr>
+                    <td colspan="5" class="text-center">Nenhum registro</td>
+                </tr>
             @endforelse
         </tbody>
         <tfoot>
             <tr style="font-weight: bold;">
-                <td colspan="3"  style="text-align: left">Total</td>
-                <td  style="text-align: left">{{ __moeda($ordem->itens->sum('subtotal')) }}</td>
+                <td colspan="3" style="text-align: left">Total</td>
+                <td style="text-align: left">{{ __moeda($ordem->itens->sum('subtotal')) }}</td>
             </tr>
         </tfoot>
     </table>
@@ -965,9 +974,9 @@
     <h4>VALOR TOTAL<strong style="color: #49526B"> R${{ __moeda($ordem->valor) }}</strong></h4>
 
 
-    @if($configGeral && $configGeral->mensagem_padrao_impressao_os != "")
-    <br><br>
-    {!! $configGeral->mensagem_padrao_impressao_os !!}
+    @if ($configGeral && $configGeral->mensagem_padrao_impressao_os != '')
+        <br><br>
+        {!! $configGeral->mensagem_padrao_impressao_os !!}
     @endif
 </body>
 <footer id="footer_imagem">
@@ -975,14 +984,16 @@
         <tbody>
             <tr>
                 <td class="text-left ml-3 mb-3">
-                    {{env('SITE_SUPORTE')}}
+                    {{ env('SITE_SUPORTE') }}
                 </td>
                 <td class="text-right">
 
-                    <img src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.png')))}}" alt="Logo" class="mr-3">
+                    <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}"
+                        alt="Logo" class="mr-3">
                 </td>
             </tr>
         </tbody>
     </table>
 </footer>
+
 </html>
