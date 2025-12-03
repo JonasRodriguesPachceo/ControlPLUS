@@ -59,21 +59,21 @@
                         <!-- Logo light -->
                         <a href="/" class="logo-light">
                             <span class="logo-lg">
-                                <img src="/assets/images/favicon.ico" alt="logo">
+                                <img src="/favicon.ico" alt="logo">
 
                             </span>
                             <span class="logo-sm">
-                                <img src="/assets/images/favicon.ico" alt="small logo">
+                                <img src="/favicon.ico" alt="small logo">
                             </span>
                         </a>
 
                         <!-- Logo Dark -->
                         <a href="/" class="logo-dark">
                             <span class="logo-lg">
-                                <img src="/assets/images/favicon.ico" alt="dark logo">
+                                <img src="/favicon.ico" alt="dark logo">
                             </span>
                             <span class="logo-sm">
-                                <img src="/assets/images/favicon.ico" alt="small logo">
+                                <img src="/favicon.ico" alt="small logo">
                             </span>
                         </a>
                     </div>

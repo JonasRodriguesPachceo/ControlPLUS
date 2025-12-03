@@ -5,7 +5,7 @@
             <img class="logo-painel" src="/logo.jpg" alt="logo">
         </span>
         <span class="logo-sm">
-            <img src="/assets/images/favicon.ico" alt="small logo">
+            <img src="/favicon.ico" alt="small logo">
         </span>
     </a>
 
@@ -15,7 +15,7 @@
             <img class="logo-painel" src="/logo.jpg" alt="dark logo">
         </span>
         <span class="logo-sm">
-            <img src="/assets/images/favicon.ico" alt="small logo">
+            <img src="/favicon.ico" alt="small logo">
         </span>
     </a>
 
