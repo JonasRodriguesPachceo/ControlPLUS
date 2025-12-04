@@ -20,7 +20,8 @@ class HomeController extends Controller
 
     public function __construct()
     {
-        session_start();
+        // session_start();
+        $this->middleware('web');
     }
 
     private function _validaHash($config)

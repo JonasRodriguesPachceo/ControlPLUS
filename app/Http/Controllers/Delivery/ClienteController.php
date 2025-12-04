@@ -14,27 +14,30 @@ use App\Models\FuncionamentoDelivery;
 
 class ClienteController extends Controller
 {
-    public function __construct(){
-        session_start();
+    public function __construct()
+    {
+        // session_start();
+        $this->middleware('web');
     }
 
-    private function getFuncionamento($config){
+    private function getFuncionamento($config)
+    {
         $dia = date('w');
         $hora = date('H:i');
         $dia = FuncionamentoDelivery::getDia($dia);
 
         $funcionamento = FuncionamentoDelivery::where('dia', $dia)
-        ->where('empresa_id', $config->empresa_id)->first();
+            ->where('empresa_id', $config->empresa_id)->first();
 
-        if($funcionamento != null){
+        if ($funcionamento != null) {
 
             $atual = strtotime(date('Y-m-d H:i'));
             $dataHoje = date('Y-m-d');
             $inicio = strtotime($dataHoje . " " . $funcionamento->inicio);
             $fim = strtotime($dataHoje . " " . $funcionamento->fim);
-            if($atual > $inicio && $atual < $fim){
+            if ($atual > $inicio && $atual < $fim) {
                 $funcionamento->aberto = true;
-            }else{
+            } else {
                 $funcionamento->aberto = false;
             }
             return $funcionamento;
@@ -42,18 +45,19 @@ class ClienteController extends Controller
         return null;
     }
 
-    public function auth(Request $request){
+    public function auth(Request $request)
+    {
         $carrinho = $this->_getCarrinho();
 
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
-        if($carrinho == []){
-            return redirect()->route('food.index', 'link='.$config->loja_id);
+        if ($carrinho == []) {
+            return redirect()->route('food.index', 'link=' . $config->loja_id);
         }
 
         $categorias = CategoriaProduto::where('delivery', 1)
-        ->orderBy('nome', 'asc')
-        ->where('status', 1)
-        ->where('empresa_id', $config->empresa_id)->get();
+            ->orderBy('nome', 'asc')
+            ->where('status', 1)
+            ->where('empresa_id', $config->empresa_id)->get();
         $notSearch = true;
         $notInfoHeader = 1;
 
@@ -62,55 +66,58 @@ class ClienteController extends Controller
         return view('food.auth', compact('carrinho', 'config', 'categorias', 'notSearch', 'notInfoHeader', 'funcionamento'));
     }
 
-    public function conta(Request $request){
+    public function conta(Request $request)
+    {
         $clienteLogado = $this->_getClienteLogado();
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
-        
-        if(!$clienteLogado){
+
+        if (!$clienteLogado) {
             session()->flash("flash_error", "Você não esta identificado!");
-            return redirect()->route('food.index', 'link='.$config->loja_id);
+            return redirect()->route('food.index', 'link=' . $config->loja_id);
         }
         $cliente = Cliente::where('uid', $clienteLogado)->first();
         $notSearch = true;
         $carrinho = $this->_getCarrinho();
 
         $categorias = CategoriaProduto::where('delivery', 1)
-        ->orderBy('nome', 'asc')
-        ->where('status', 1)
-        ->where('empresa_id', $config->empresa_id)->get();
+            ->orderBy('nome', 'asc')
+            ->where('status', 1)
+            ->where('empresa_id', $config->empresa_id)->get();
 
         $bairros = BairroDelivery::where('empresa_id', $config->empresa_id)
-        ->where('status', 1)->get();
+            ->where('status', 1)->get();
         $funcionamento = $this->getFuncionamento($config);
         $notInfoHeader = 1;
 
         return view('food.conta', compact('cliente', 'config', 'notSearch', 'carrinho', 'categorias', 'bairros', 'funcionamento', 'notInfoHeader'));
     }
 
-    private function _getCarrinho(){
+    private function _getCarrinho()
+    {
         $data = [];
-        if(isset($_SESSION["session_cart_delivery"])){
+        if (isset($_SESSION["session_cart_delivery"])) {
             $data = CarrinhoDelivery::where('session_cart_delivery', $_SESSION["session_cart_delivery"])
-            ->first();
+                ->first();
         }
         return $data;
     }
 
-    public function enderecoStore(Request $request){
+    public function enderecoStore(Request $request)
+    {
         $clienteLogado = $this->_getClienteLogado();
         $cli = Cliente::where('uid', $clienteLogado)->first();
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
 
-        try{
+        try {
 
-            if($cli){
+            if ($cli) {
 
                 EnderecoDelivery::where('cliente_id', $cli->id)
-                ->update(['padrao' => 0]);
+                    ->update(['padrao' => 0]);
                 $padrao = 0;
-                if($request->padrao){
-                    $padrao = 1; 
-                }else{
+                if ($request->padrao) {
+                    $padrao = 1;
+                } else {
                     $padrao = sizeof($cli->enderecos) == 0 ? 1 : 0;
                 }
 
@@ -127,27 +134,28 @@ class ClienteController extends Controller
                 ]);
                 session()->flash("flash_success", "Endereço cadastrado!");
             }
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             session()->flash("flash_error", "Algo deu errado: " . $e->getMessage());
         }
         return redirect()->back();
     }
 
-    public function enderecoUpdate(Request $request){
+    public function enderecoUpdate(Request $request)
+    {
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
         $clienteLogado = $this->_getClienteLogado();
         $cli = Cliente::where('uid', $clienteLogado)->first();
         // dd($request->all());
-        try{
+        try {
 
-            if($cli){
+            if ($cli) {
 
                 EnderecoDelivery::where('cliente_id', $cli->id)
-                ->update(['padrao' => 0]);
+                    ->update(['padrao' => 0]);
                 $padrao = 0;
-                if($request->padrao){
-                    $padrao = 1; 
-                }else{
+                if ($request->padrao) {
+                    $padrao = 1;
+                } else {
                     $padrao = sizeof($cli->enderecos) == 0 ? 1 : 0;
                 }
                 $endereco = EnderecoDelivery::findOrFail($request->endereco_id);
@@ -165,36 +173,38 @@ class ClienteController extends Controller
                 $endereco->fill($data)->save();
                 session()->flash("flash_success", "Endereço atualizado!");
             }
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             session()->flash("flash_error", "Algo deu errado: " . $e->getMessage());
         }
         return redirect()->back();
     }
 
-    private function _getClienteLogado(){
-        if(isset($_SESSION['cliente_delivery'])){
+    private function _getClienteLogado()
+    {
+        if (isset($_SESSION['cliente_delivery'])) {
             return $_SESSION['cliente_delivery'];
         }
         return null;
     }
 
-    public function logoff(Request $request){
+    public function logoff(Request $request)
+    {
         $config = MarketPlaceConfig::findOrfail($request->loja_id);
 
         $_SESSION['cliente_delivery'] = null;
         $_SESSION['session_cart_delivery'] = null;
-        return redirect()->route('food.index', 'link='.$config->loja_id);
+        return redirect()->route('food.index', 'link=' . $config->loja_id);
     }
 
-    public function removeEndereco($id){
+    public function removeEndereco($id)
+    {
         $endereco = EnderecoDelivery::findOrFail($id);
-        try{
+        try {
             $endereco->delete();
             session()->flash("flash_success", "Endereço removido!");
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             session()->flash("flash_error", "Erro ao remover endereço, provavelmente já foi utilizado em algum pedido");
         }
         return redirect()->back();
     }
-
 }
