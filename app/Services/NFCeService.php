@@ -389,6 +389,13 @@ class NFCeService
 
 			$prod = $nfe->tagprod($stdProd); // fim tag de produtos
 
+			if(isset($i->infAdProd) && $i->infAdProd){
+				$stdInfAdProd = new \stdClass();
+				$stdInfAdProd->item = $itemCont;
+				$stdInfAdProd->infAdProd = $i->infAdProd;
+				$nfe->taginfAdProd($stdInfAdProd);
+			}
+
 			$stdImposto = new \stdClass();
 			$stdImposto->item = $itemCont;
 

@@ -1,6 +1,22 @@
-<tr class="line-product">
+@php
+    $isTipoUnico = $product->tipo_unico ?? ($product->produto->tipo_unico ?? 0);
+    $codigoUnicoJson = $product->codigo_unico_json ?? '';
+    $codigoUnicoLabels = [];
+    if($codigoUnicoJson){
+        $decoded = json_decode($codigoUnicoJson, true);
+        if(is_array($decoded)){
+            foreach($decoded as $cu){
+                if(isset($cu['codigo'])){
+                    $codigoUnicoLabels[] = $cu['codigo'];
+                }
+            }
+        }
+    }
+@endphp
+<tr class="line-product" data-tipo-unico="{{ $isTipoUnico ? 1 : 0 }}" data-produto="{{ $product->nome }}">
     <input readonly type="hidden" name="key" class="form-control" value="{{ $product->key }}">
     <input class="produto_row" readonly type="hidden" name="produto_id[]" class="form-control" value="{{ $product->id }}">
+    <input type="hidden" class="codigo_unico_ids" name="codigo_unico_ids[]" value="{{ $codigoUnicoJson }}">
     <td>
         <img src="{{ $product->img }}" style="width: 30px; height: 40px; border-radius: 10px;">
         <input class="variacao_id" type="hidden" name="variacao_id[]" class="form-control" value="{{ $variacao_id }}">
@@ -11,6 +27,18 @@
         @if($product->precoComPromocao())
         <p>Promoção: <strong class="text-primary">{{ __data_pt($product->precoComPromocao()->data_inicio, 0) }}</strong> até <strong class="text-primary">{{ __data_pt($product->precoComPromocao()->data_fim, 0) }}</strong></p>
         @endif
+
+        <div class="codigo-unico-wrapper @if(!$isTipoUnico) d-none @endif mt-2">
+            @if($isTipoUnico)
+            <span class="badge bg-warning text-dark">Código único obrigatório</span>
+            <div class="codigo-unico-selected small text-primary mt-1">
+                @if(sizeof($codigoUnicoLabels) > 0)
+                    {{ implode(', ', $codigoUnicoLabels) }}
+                @endif
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-1 btn-open-codigo-unico">Selecionar códigos</button>
+            @endif
+        </div>
 
     </td>
     <td class="datatable-cell">

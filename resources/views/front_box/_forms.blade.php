@@ -1,52 +1,54 @@
 @section('css')
-<link rel="stylesheet" type="text/css" href="/css/pdv.css">
+    <link rel="stylesheet" type="text/css" href="/css/pdv.css">
 @endsection
 
 <input type="hidden" id="abertura" value="{{ $abertura }}" name="">
 <input type="hidden" id="tef_hash" value="" name="tef_hash">
 <input type="hidden" id="config_tef" value="{{ isset($configTef) && $configTef != null ? 1 : 0 }}">
 <input type="hidden" id="agrupar_itens" value="{{ $config ? $config->agrupar_itens : 0 }}" name="">
-<input type="hidden" id="definir_vendedor_pdv" value="{{ $config ? $config->definir_vendedor_pdv : 0 }}" name="">
+<input type="hidden" id="definir_vendedor_pdv" value="{{ $config ? $config->definir_vendedor_pdv : 0 }}"
+    name="">
 <input type="hidden" id="venda_id" value="{{ isset($item) ? $item->id : '' }}">
 <input type="hidden" id="lista_id" value="" name="lista_id">
+<input type="hidden" id="inp-produto_tipo_unico" value="0">
 <input type="hidden" id="alerta_sonoro" value="{{ $config ? $config->alerta_sonoro : 0 }}">
 <input type="hidden" id="local_id" value="{{ $caixa->localizacao->id }}">
 <input type="hidden" id="impressao_sem_janela_cupom" value="{{ $config ? $config->impressao_sem_janela_cupom : 0 }}">
 <input type="hidden" id="documento_pdv" value="{{ $config ? $config->documento_pdv : 'nfce' }}">
 <input type="hidden" id="NFECNPJ" value="{{ env('NFECNPJ') }}">
 
-@if($isVendaSuspensa)
-<input type="hidden" value="{{ $item->id }}" name="venda_suspensa_id">
+@if ($isVendaSuspensa)
+    <input type="hidden" value="{{ $item->id }}" name="venda_suspensa_id">
 @endif
 
-@if(isset($isOrcamento) && $isOrcamento)
-<input type="hidden" value="{{ $item->id }}" name="orcamento_id">
+@if (isset($isOrcamento) && $isOrcamento)
+    <input type="hidden" value="{{ $item->id }}" name="orcamento_id">
 @endif
 
 @isset($acrescimo)
-<input type="hidden" value="{{ $acrescimo }}" id="acrescimo_pedido">
-@endif
+    <input type="hidden" value="{{ $acrescimo }}" id="acrescimo_pedido">
+    @endif
 
-@isset($pedido)
-@isset($isDelivery)
-<input name="pedido_delivery_id" id="pedido_delivery_id" value="{{ $pedido->id }}" class="d-none">
-<input id="pedido_desconto" value="{{ $pedido->desconto ? $pedido->desconto : 0 }}" class="d-none">
-<input name="valor_entrega" id="pedido_valor_entrega" value="{{ $pedido->valor_entrega }}" class="d-none">
-@else
-<input name="pedido_id" id="pedido_id" value="{{ $pedido->id }}" class="d-none">
-@isset($pushItensPedido)
-<input name="itens_cliente" id="pedido_id" value="{{ json_encode($pushItensPedido) }}" class="d-none">
-@endif
-@endif
-@endif
+    @isset($pedido)
+        @isset($isDelivery)
+            <input name="pedido_delivery_id" id="pedido_delivery_id" value="{{ $pedido->id }}" class="d-none">
+            <input id="pedido_desconto" value="{{ $pedido->desconto ? $pedido->desconto : 0 }}" class="d-none">
+            <input name="valor_entrega" id="pedido_valor_entrega" value="{{ $pedido->valor_entrega }}" class="d-none">
+        @else
+            <input name="pedido_id" id="pedido_id" value="{{ $pedido->id }}" class="d-none">
+            @isset($pushItensPedido)
+                <input name="itens_cliente" id="pedido_id" value="{{ json_encode($pushItensPedido) }}" class="d-none">
+                @endif
+                @endif
+                @endif
 
-@isset($agendamento)
-<input name="agendamento_id" value="{{ $agendamento->id }}" class="d-none">
-@endif
+                @isset($agendamento)
+                    <input name="agendamento_id" value="{{ $agendamento->id }}" class="d-none">
+                    @endif
 
-<input type="hidden" id="inp-finalizacao_pdv" value="{{ __finalizacaoPdv() }}">
+                    <input type="hidden" id="inp-finalizacao_pdv" value="{{ __finalizacaoPdv() }}">
 
-<input type="hidden" id="estoque_view" value="@can('estoque_view') 1 @else 0 @endif">
+                    <input type="hidden" id="estoque_view" value="@can('estoque_view') 1 @else 0 @endif">
 
 <div class="row">
     <div class="col-lg-4">
@@ -103,7 +105,7 @@
 
                     <button type="button" id="cat_todos" onclick="todos()" class="btn btn-cat">Todos</button>
                     @foreach ($categorias as $cat)
-                    <button type="button" class="btn btn_cat_{{ $cat->id }} btn-cat" onclick="selectCat('{{ $cat->id }}')">{{$cat->nome}}</button>
+                    <button type="button" class="btn btn_cat_{{ $cat->id }} btn-cat" onclick="selectCat('{{ $cat->id }}')">{{ $cat->nome }}</button>
                     @endforeach
                 </div>
             </div>
@@ -122,7 +124,7 @@
                 <div class="col-6 leitor_desativado d-none">
                     Leitor Desativado
                 </div>
-                @if(__countLocalAtivo() > 1 && $caixa->localizacao)
+                @if (__countLocalAtivo() > 1 && $caixa->localizacao)
                 <div class="col-5 text-end">
                     <strong class="text-danger" style="margin-right: 5px;">{{ $caixa->localizacao->descricao }}</strong>
                 </div>
@@ -181,16 +183,43 @@
                         <tbody>
                             @if (isset($item))
                             @foreach ($item->itens as $key => $product)
-                            <tr class="line-product">
+                            @php
+                                $isTipoUnico = $product->produto->tipo_unico ?? 0;
+                                $codigoUnicoJson = $product->codigo_unico_json ?? '';
+                                $codigoUnicoLabels = [];
+                                if($codigoUnicoJson){
+                                    $decoded = json_decode($codigoUnicoJson, true);
+                                    if(is_array($decoded)){
+                                        foreach($decoded as $cu){
+                                            if(isset($cu['codigo'])){
+                                                $codigoUnicoLabels[] = $cu['codigo'];
+                                            }
+                                        }
+                                    }
+                                }
+                            @endphp
+                            <tr class="line-product" data-tipo-unico="{{ $isTipoUnico ? 1 : 0 }}" data-produto="{{ $product->produto->nome }}">
                                 <input readonly type="hidden" name="key" class="form-control" value="{{ $product->key }}">
                                 <input readonly type="hidden" name="produto_id[]" class="produto_row" value="{{ $product->produto->id }}">
                                 <input name="variacao_id[]" type="hidden" value="{{ $product->variacao_id }}">
+                                <input type="hidden" class="codigo_unico_ids" name="codigo_unico_ids[]" value="{{ $codigoUnicoJson }}">
 
                                 <td>
                                     <img src="{{ $product->produto->img }}" style="width: 30px; height: 40px; border-radius: 10px;">
                                 </td>
                                 <td>
-                                    <input style="width: 350px" readonly type="text" name="produto_nome[]" class="form-control" value="{{ $product->produto->nome }} @if($product->produtoVariacao != null) - {{ $product->produtoVariacao->descricao }} @endif">
+                                    <input style="width: 350px" readonly type="text" name="produto_nome[]" class="form-control" value="{{ $product->produto->nome }} @if ($product->produtoVariacao != null) - {{ $product->produtoVariacao->descricao }} @endif">
+                                    <div class="codigo-unico-wrapper @if (!$isTipoUnico) d-none @endif mt-2">
+                                        @if ($isTipoUnico)
+                                        <span class="badge bg-warning text-dark">Código único obrigatório</span>
+                                        <div class="codigo-unico-selected small text-primary mt-1">
+                                            @if (sizeof($codigoUnicoLabels) > 0)
+                                                {{ implode(', ', $codigoUnicoLabels) }}
+                                            @endif
+                                        </div>
+                                        <button type="button" class="btn btn-outline-primary btn-sm mt-1 btn-open-codigo-unico">Selecionar códigos</button>
+                                        @endif
+                                    </div>
                                 </td>
 
                                 <td class="datatable-cell">
@@ -224,8 +253,8 @@
                                     }
                                     @endphp
                                     <div class="inputs-adicional">
-                                        @if($product->adicionais)
-                                        @foreach($product->adicionais as $a)
+                                        @if ($product->adicionais)
+                                        @foreach ($product->adicionais as $a)
                                         <input class='add' type='hidden' value='{{ $a->adicional_id }}' />
                                         @endforeach
                                         @endif
@@ -254,7 +283,7 @@
                                         <div class="input-group-prepend">
                                             <button disabled id="btn-subtrai" class="btn btn-danger" type="button">-</button>
                                         </div>
-                                        <input readonly type="tel" name="quantidade_servico[]" class="form-control qtd-item" value="{{ number_format($servico->quantidade,0) }}">
+                                        <input readonly type="tel" name="quantidade_servico[]" class="form-control qtd-item" value="{{ number_format($servico->quantidade, 0) }}">
                                         <div class="input-group-append">
                                             <button disabled class="btn btn-success" id="btn-incrementa" type="button">+</button>
                                         </div>
@@ -275,16 +304,43 @@
 
                             @if (isset($pedido) && isset($itens))
                             @foreach ($itens as $key => $product)
-                            <tr class="line-product">
+                            @php
+                                $isTipoUnico = $product->produto->tipo_unico ?? 0;
+                                $codigoUnicoJson = $product->codigo_unico_json ?? '';
+                                $codigoUnicoLabels = [];
+                                if($codigoUnicoJson){
+                                    $decoded = json_decode($codigoUnicoJson, true);
+                                    if(is_array($decoded)){
+                                        foreach($decoded as $cu){
+                                            if(isset($cu['codigo'])){
+                                                $codigoUnicoLabels[] = $cu['codigo'];
+                                            }
+                                        }
+                                    }
+                                }
+                            @endphp
+                            <tr class="line-product" data-tipo-unico="{{ $isTipoUnico ? 1 : 0 }}" data-produto="{{ $product->produto->nome }}">
                                 <input readonly type="hidden" name="key" class="form-control" value="{{ $product->key }}">
                                 <input readonly type="hidden" name="produto_id[]" class="produto_row" value="{{ $product->produto->id }}">
                                 <input name="variacao_id[]" type="hidden" value="{{ $product->variacao_id }}">
+                                <input type="hidden" class="codigo_unico_ids" name="codigo_unico_ids[]" value="{{ $codigoUnicoJson }}">
 
                                 <td>
                                     <img src="{{ $product->produto->img }}" style="width: 30px; height: 40px; border-radius: 10px;">
                                 </td>
                                 <td>
-                                    <input style="width: 350px" readonly type="text" name="produto_nome[]" class="form-control" value="{{ $product->produto->nome }} @if($product->produtoVariacao != null) - {{ $product->produtoVariacao->descricao }} @endif">
+                                    <input style="width: 350px" readonly type="text" name="produto_nome[]" class="form-control" value="{{ $product->produto->nome }} @if ($product->produtoVariacao != null) - {{ $product->produtoVariacao->descricao }} @endif">
+                                    <div class="codigo-unico-wrapper @if (!$isTipoUnico) d-none @endif mt-2">
+                                        @if ($isTipoUnico)
+                                        <span class="badge bg-warning text-dark">Código único obrigatório</span>
+                                        <div class="codigo-unico-selected small text-primary mt-1">
+                                            @if (sizeof($codigoUnicoLabels) > 0)
+                                                {{ implode(', ', $codigoUnicoLabels) }}
+                                            @endif
+                                        </div>
+                                        <button type="button" class="btn btn-outline-primary btn-sm mt-1 btn-open-codigo-unico">Selecionar códigos</button>
+                                        @endif
+                                    </div>
                                 </td>
 
                                 <td class="datatable-cell">
@@ -456,7 +512,7 @@
                         </div>
                     </div> <!-- end card-->
                 </div> <!-- end col-->
-                
+
                 <!-- <div class="col-lg-2 col-6 div-vencimento d-none">
                     <div class="card ">
                         <div class="row m-2">
@@ -484,7 +540,7 @@
                                 <div class="col-md-12 col-xl-6 col-12">
                                     <button type="button" class="btn btn-sm btn-primary w-100 mt-1" data-bs-toggle="modal" data-bs-target="#observacao_pdv"><i class="ri-file-edit-fill"></i> Observação</button>
                                 </div>
-                                @if(!isset($item))
+                                @if (!isset($item))
                                 <div class="col-md-12 col-xl-6 col-12">
                                     <button type="button" class="btn btn-sm btn-light w-100 btn-vendas-suspensas mt-1" data-bs-toggle="modal" data-bs-target="#vendas_suspensas"><i class="ri-time-fill"></i> Vendas suspensas</button>
                                 </div>
@@ -494,7 +550,7 @@
                                     <button type="button" class="btn btn-sm btn-light w-100 mt-1" onclick="modalFrete()"><i class="ri-truck-line"></i> Frete <strong class="valor-frete">R$ {{ isset($item) ? __moeda($item->valor_frete) : '0,00' }}</strong></button>
                                 </div>
 
-                                @if(!isset($item))
+                                @if (!isset($item))
                                 <div class="col-md-12 col-xl-6 col-12">
                                     <button type="button" class="btn btn-sm btn-secondary w-100 btn-orcamentos mt-1" data-bs-toggle="modal" data-bs-target="#orcamentos"><i class="ri-list-settings-fill"></i> Orçamentos</button>
                                 </div>
@@ -515,12 +571,12 @@
                         <div class="card-body">
                             <div class="row">
 
-                                <a class="btn btn-danger btn-sm w-50 mt-2" href="{{ route('frontbox.index')}}" style="margin-top: -20px">
+                                <a class="btn btn-danger btn-sm w-50 mt-2" href="{{ route('frontbox.index') }}" style="margin-top: -20px">
                                     <i class="ri-arrow-left-s-line"></i>
                                     Sair do PDV
                                 </a>
 
-                                @if($isVendaSuspensa == 0 && $isOrcamento == 0)
+                                @if ($isVendaSuspensa == 0 && $isOrcamento == 0)
                                 <button type="button" id="btn-suspender" class="btn btn-light btn-sm w-50 mt-2" style="margin-top: -20px">
                                     <i class="ri-timer-line"></i>
                                     Suspender Venda
@@ -532,7 +588,7 @@
                                 </a>
                                 @endif
 
-                                @if(isset($item) && $isVendaSuspensa == 0 && $isOrcamento == 0)
+                                @if (isset($item) && $isVendaSuspensa == 0 && $isOrcamento == 0)
                                 <button type="button" class="btn btn-success w-100 mt-4" disabled id="editar_venda">
                                     <i class="ri-checkbox-circle-line"></i>
                                     Editar venda
@@ -573,12 +629,13 @@
 @include('modals._observacao_pdv')
 @include('modals._adicionais_pdv')
 @include('modals._cliente', ['cashback' => 1])
+@include('front_box.partials.modal_codigo_unico')
 
 @section('js')
 <script>
     var senhaAcao = "";
 
-    @if(isset($config) && strlen(trim($config->senha_manipula_valor)) > 1)
+    @if (isset($config) && strlen(trim($config->senha_manipula_valor)) > 1)
     senhaAcao = "{{ $config->senha_manipula_valor }}";
     @endif
 </script>
@@ -591,18 +648,18 @@
 
 <script type="text/javascript">
 
-    @if(Session::has('sangria_id'))
+    @if (Session::has('sangria_id'))
     window.open(path_url + 'sangria-print/' + {{ Session::get('sangria_id') }}, "_blank")
     @endif
-    @if(Session::has('suprimento_id'))
+    @if (Session::has('suprimento_id'))
     window.open(path_url + 'suprimento-print/' + {{ Session::get('suprimento_id') }}, "_blank")
     @endif
 
-    $('.btn-novo-cliente').click(() => {
-        $('.modal-select-cliente .btn-close').trigger('click')
-        $('#modal_novo_cliente').modal('show')
+                        $('.btn-novo-cliente').click(() => {
+                            $('.modal-select-cliente .btn-close').trigger('click')
+                            $('#modal_novo_cliente').modal('show')
 
-    })
-</script>
+                        })
+                    </script>
 
-@endsection
+                @endsection

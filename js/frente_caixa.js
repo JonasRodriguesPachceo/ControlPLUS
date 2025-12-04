@@ -239,6 +239,7 @@ $("#inp-produto_id").select2({
                 if(v.codigo_variacao){
                     o.codigo_variacao = v.codigo_variacao
                 }
+                o.tipo_unico = v.tipo_unico
 
                 o.text = ""
                 if(v.numero_sequencial){
@@ -312,6 +313,7 @@ $('#codBarras').keyup((v) => {
                     $("#inp-variacao_id").val(e.codigo_variacao);
                     $("#inp-valor_unitario").val(convertFloatToMoeda(e.valor_unitario));
                     $("#inp-subtotal").val(convertFloatToMoeda(qtd * e.valor_unitario));
+                    setProdutoTipoUnico(e.tipo_unico || 0);
                     $('.leitor_ativado').text('Leitor Ativado')
                     
                     setTimeout(() => {
@@ -355,7 +357,9 @@ function buscarPorReferencia(barcode) {
         usuario_id: $('#usuario_id').val()
     })
     .done((e) => {
-        $(".table-itens tbody").append(e);
+        const $row = $(e)
+        $(".table-itens tbody").append($row);
+        handleCodigoUnicoRow($row, true)
         calcTotal();
     })
     .fail((e) => {
@@ -633,6 +637,12 @@ $(function () {
             let product_id = $("#inp-produto_id").val();
 
             if (product_id) {
+                let selectedData = $("#inp-produto_id").select2('data');
+                if(selectedData && selectedData.length){
+                    setProdutoTipoUnico(selectedData[0].tipo_unico || 0);
+                }else{
+                    setProdutoTipoUnico(0);
+                }
                 let codigo_variacao = $("#inp-produto_id").select2('data')[0].codigo_variacao
                 $.get(path_url + "api/produtos/findWithLista",
                 { 
@@ -670,6 +680,8 @@ $(function () {
                 .fail((e) => {
                     console.log(e);
                 });
+            } else {
+                setProdutoTipoUnico(0);
             }
         })
     }, 100)
@@ -729,12 +741,160 @@ function addItem(){
 }
 
 var PRODUTOID = null
+var currentProdutoTipoUnico = 0
+var codigoUnicoRow = null
+var modalCodigoUnicoProdutoId = null
+
+function setProdutoTipoUnico(flag) {
+    currentProdutoTipoUnico = parseInt(flag || 0)
+    $('#inp-produto_tipo_unico').val(currentProdutoTipoUnico)
+    if (currentProdutoTipoUnico) {
+        lockQuantidadeTipoUnico()
+    } else {
+        unlockQuantidadeTipoUnico()
+    }
+}
+
+function lockQuantidadeTipoUnico() {
+    $("#inp-quantidade").val(convertFloatToMoeda(1))
+    $("#inp-quantidade").attr('readonly', true).addClass('bg-light')
+}
+
+function unlockQuantidadeTipoUnico() {
+    $("#inp-quantidade").removeAttr('readonly').removeClass('bg-light')
+    $('#inp-produto_tipo_unico').val(0)
+}
+
+function handleCodigoUnicoRow($row, autoOpen) {
+    if(!$row || $row.length === 0){
+        return
+    }
+    const isTipoUnico = parseInt($row.data('tipo-unico')) === 1
+    if(isTipoUnico){
+        $row.find('#btn-incrementa').attr('disabled', true)
+        $row.find('#btn-subtrai').attr('disabled', true)
+        $row.find('.codigo-unico-wrapper').removeClass('d-none')
+        const value = $row.find('.codigo_unico_ids').val()
+        if(value){
+            try{
+                const data = JSON.parse(value)
+                if(Array.isArray(data) && data.length > 0){
+                    const labels = data.map((i) => i.codigo).join(', ')
+                    $row.find('.codigo-unico-selected').text(labels)
+                }
+            }catch(error){
+                console.error(error)
+            }
+        }else{
+            $row.find('.codigo-unico-selected').text('')
+        }
+        if(autoOpen && (!value || value === '')){
+            openCodigoUnicoModal($row)
+        }
+    }else{
+        $row.find('.codigo-unico-wrapper').addClass('d-none')
+    }
+}
+
+function openCodigoUnicoModal($row){
+    codigoUnicoRow = $row
+    modalCodigoUnicoProdutoId = $row.find('.produto_row').val()
+    const produtoNome = $row.data('produto') || $row.find('input[name="produto_nome[]"]').val()
+    const $modal = $('#modal_codigo_unico')
+    if(!$modal.parent().is('body')){
+        $modal.appendTo('body')
+    }
+    $('#modal_codigo_unico_produto').text(produtoNome)
+    const quantidade = Math.max(1, Math.round(convertMoedaToFloat($row.find('.qtd_row').val())))
+    let saved = []
+    const raw = $row.find('.codigo_unico_ids').val()
+    if(raw){
+        try{
+            const parsed = JSON.parse(raw)
+            if(Array.isArray(parsed)){
+                saved = parsed
+            }
+        }catch(error){
+            console.error(error)
+        }
+    }
+    const tbody = $('#modal_codigo_unico_body')
+    tbody.html('')
+    for(let i = 0; i < quantidade; i++){
+        const savedItem = saved[i] || null
+        const tr = $('<tr></tr>')
+        const tdSelect = $('<td style="width: 250px;"></td>')
+        const select = $('<select class="form-control codigo-unico-select" data-index="'+i+'"></select>')
+        if(savedItem){
+            const optionValue = savedItem.id || savedItem.codigo
+            const option = new Option(savedItem.codigo, optionValue, true, true)
+            select.append(option).trigger('change')
+            select.data('codigo-text', savedItem.codigo)
+        }
+        tdSelect.append(select)
+        const tdObs = $('<td></td>')
+        const obsInput = $('<input type="text" class="form-control codigo-unico-observacao" data-index="'+i+'" maxlength="250">')
+        if(savedItem && savedItem.observacao){
+            obsInput.val(savedItem.observacao)
+        }
+        tdObs.append(obsInput)
+        tr.append(tdSelect).append(tdObs)
+        tbody.append(tr)
+        initCodigoUnicoSelect(select)
+    }
+    $('#modal_codigo_unico_alert').addClass('d-none').text('')
+    $modal.modal('show')
+}
+
+function initCodigoUnicoSelect($select){
+    $select.select2({
+        dropdownParent: $('#modal_codigo_unico'),
+        minimumInputLength: 2,
+        language: "pt-BR",
+        placeholder: "Digite para buscar o código",
+        width: "100%",
+        ajax: {
+            cache: true,
+            url: path_url + "api/produtos/codigo-unico",
+            dataType: "json",
+            data: function (params) {
+                return {
+                    pesquisa: params.term,
+                    empresa_id: $('#empresa_id').val(),
+                    produto_id: modalCodigoUnicoProdutoId
+                };
+            },
+            processResults: function (response) {
+                var results = [];
+                $.each(response, function (i, v) {
+                    var o = {};
+                    o.id = v.id;
+                    o.text = v.codigo;
+                    results.push(o);
+                });
+                return {
+                    results: results,
+                };
+            },
+        },
+    });
+    $select.on('select2:select', function (e) {
+        $(this).data('codigo-text', e.params.data.text);
+    });
+}
+
+function showCodigoUnicoAlert(message){
+    $('#modal_codigo_unico_alert').removeClass('d-none').text(message)
+}
 function addProdutos(id) {
     let qtd = 0;
     let agrupar_itens = $('#agrupar_itens').val()
 
     if(agrupar_itens == 1){
         $('.produto_row').each(function () {
+            if($(this).closest('tr').data('tipo-unico') == 1){
+                return
+            }
             if(id == $(this).val()){
                 qtd = $(this).next().next().next().find('input').val()
             }
@@ -756,6 +916,9 @@ function addProdutos(id) {
                 let idDup = 0
                 if(agrupar_itens == 1){
                     $(".produto_row").each(function () {
+                        if($(this).closest('tr').data('tipo-unico') == 1){
+                            return
+                        }
                         if($(this).val() == id){
                             idDup = $(this).val()
                         }
@@ -764,7 +927,9 @@ function addProdutos(id) {
 
                 setTimeout(() => {
                     if(idDup == 0){
-                        $(".table-itens tbody").append(e);
+                        const $row = $(e)
+                        $(".table-itens tbody").append($row);
+                        handleCodigoUnicoRow($row, true)
                     }else{
                         // console.clear()
                         $(".table-itens tbody tr").each(function(){
@@ -832,9 +997,10 @@ $(".btn-add-item").click(() => {
                 let agrupar_itens = $('#agrupar_itens').val()
                 if(!variacao_id && agrupar_itens == 1){
                     $(".produto_row").each(function () {
-                        // console.log(product_id)
+                        if($(this).closest('tr').data('tipo-unico') == 1){
+                            return
+                        }
                         if($(this).val() == product_id){
-                            // console.log($(this).val())
                             idDup = product_id
                         }
                     })
@@ -842,6 +1008,9 @@ $(".btn-add-item").click(() => {
 
                 setTimeout(() => {
                     $(".qtd_row").each(function () {
+                        if($(this).closest('tr').data('tipo-unico') == 1){
+                            return
+                        }
                         let lID = $(this).closest('tr').find('.produto_row').val()
                         if(idDup == lID){
                             qtdDup = convertMoedaToFloat($(this).val())
@@ -861,7 +1030,9 @@ $(".btn-add-item").click(() => {
                                     "warning"
                                     );
                             } else {
-                                $(".table-itens tbody").append(e);
+                                const $row = $(e)
+                                $(".table-itens tbody").append($row);
+                                handleCodigoUnicoRow($row, true)
                                 beepSucesso()
                                 calcTotal();
                             }
@@ -1250,6 +1421,37 @@ function registrarLog(data){
     .fail((err) => {
         // console.log(err)
     })
+}
+
+function validateCodigoUnicoRows(){
+    let valid = true
+    let produtoNome = ''
+    $(".table-itens tbody tr").each(function(){
+        if(!valid){
+            return
+        }
+        const row = $(this)
+        if(parseInt(row.data('tipo-unico')) === 1){
+            const qtd = Math.max(1, Math.round(convertMoedaToFloat(row.find('.qtd_row').val())))
+            let value = row.find('.codigo_unico_ids').val()
+            let parsed = []
+            if(value){
+                try{
+                    parsed = JSON.parse(value)
+                }catch(error){
+                    console.error(error)
+                }
+            }
+            if(!Array.isArray(parsed) || parsed.length !== qtd){
+                valid = false
+                produtoNome = row.find('input[name="produto_nome[]"]').val() || row.data('produto') || ''
+            }
+        }
+    })
+    if(!valid){
+        swal("Atenção", "Defina os códigos únicos para o produto " + produtoNome, "warning")
+    }
+    return valid
 }
 
 function setaDesconto() {
@@ -2090,6 +2292,9 @@ $('#btn_nao_fiscal').click(() => {
 $("#form-pdv").on("submit", function (e) {
 
     e.preventDefault();
+    if(!validateCodigoUnicoRows()){
+        return;
+    }
     const form = $(e.target);
     var json = $(this).serializeFormJSON();
 
@@ -2230,6 +2435,9 @@ var update = false
 $("#form-pdv-update").on("submit", function (e) {
     update = true
     e.preventDefault();
+    if(!validateCodigoUnicoRows()){
+        return;
+    }
     const form = $(e.target);
     var json = $(this).serializeFormJSON();
 
@@ -2398,6 +2606,10 @@ $(function () {
     let data = new Date
     let dataFormatada = (data.getFullYear() + "-" + adicionaZero((data.getMonth() + 1)) + "-" + adicionaZero(data.getDate()));
     $('.data_atual').val(dataFormatada)
+
+    $(".table-itens tbody tr").each(function(){
+        handleCodigoUnicoRow($(this), false)
+    })
 })
 
 
@@ -2412,4 +2624,59 @@ $('.funcionario-venda').click(() => {
     });
 })
 
+$(document).on('click', '.btn-open-codigo-unico', function () {
+    const row = $(this).closest('tr')
+    openCodigoUnicoModal(row)
+})
 
+$('#modal_codigo_unico_salvar').click(() => {
+    if(!codigoUnicoRow){
+        $('#modal_codigo_unico').modal('hide')
+        return
+    }
+    const data = []
+    const used = {}
+    let hasError = false
+    $('#modal_codigo_unico_alert').addClass('d-none').text('')
+    $('#modal_codigo_unico_body').find('tr').each(function () {
+        if(hasError){
+            return
+        }
+        const select = $(this).find('.codigo-unico-select')
+        const obs = $(this).find('.codigo-unico-observacao').val()
+        const value = select.val()
+        if(!value){
+            showCodigoUnicoAlert('Informe todos os códigos únicos.')
+            hasError = true
+            return
+        }
+        if(used[value]){
+            showCodigoUnicoAlert('Existe código único repetido na seleção.')
+            hasError = true
+            return
+        }
+        used[value] = true
+        let text = select.data('codigo-text')
+        const selectData = select.select2('data')
+        if((!text || text.length === 0) && selectData && selectData.length){
+            text = selectData[0].text
+        }
+        data.push({
+            id: value,
+            codigo: text || '',
+            observacao: obs || ''
+        })
+    })
+    if(hasError){
+        return
+    }
+    codigoUnicoRow.find('.codigo_unico_ids').val(JSON.stringify(data))
+    codigoUnicoRow.find('.codigo-unico-selected').text(data.map((item) => item.codigo).join(', '))
+    codigoUnicoRow.find('.codigo-unico-wrapper').removeClass('d-none')
+    $('#modal_codigo_unico').modal('hide')
+})
+
+$('#modal_codigo_unico').on('hidden.bs.modal', () => {
+    codigoUnicoRow = null
+    modalCodigoUnicoProdutoId = null
+})

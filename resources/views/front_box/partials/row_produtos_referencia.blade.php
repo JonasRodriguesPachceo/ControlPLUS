@@ -1,11 +1,38 @@
-<tr class="">
+@php
+    $codigoUnicoJson = $item->codigo_unico_json ?? '';
+    $codigoUnicoLabels = [];
+    if($codigoUnicoJson){
+        $decoded = json_decode($codigoUnicoJson, true);
+        if(is_array($decoded)){
+            foreach($decoded as $cu){
+                if(isset($cu['codigo'])){
+                    $codigoUnicoLabels[] = $cu['codigo'];
+                }
+            }
+        }
+    }
+    $isTipoUnico = $item->tipo_unico ?? ($item->produto->tipo_unico ?? 0);
+@endphp
+<tr class="line-product" data-tipo-unico="{{ $isTipoUnico ? 1 : 0 }}" data-produto="{{ $item->nome }}">
     <input readonly type="hidden" name="key" class="form-control" value="{{ $item->key }}">
     <input readonly type="hidden" name="produto_id[]" class="form-control" value="{{ $item->id }}">
+    <input type="hidden" class="codigo_unico_ids" name="codigo_unico_ids[]" value="{{ $codigoUnicoJson }}">
     <td>
         <img src="{{ $item->img }}" style="width: 30px; height: 40px; border-radius: 10px;">
     </td>
     <td class="col-6">
         <input readonly type="text" name="produto_nome[]" class="form-control" value="{{ $item->nome }}">
+        <div class="codigo-unico-wrapper @if(!$isTipoUnico) d-none @endif mt-2">
+            @if($isTipoUnico)
+            <span class="badge bg-warning text-dark">Código único obrigatório</span>
+            <div class="codigo-unico-selected small text-primary mt-1">
+                @if(sizeof($codigoUnicoLabels) > 0)
+                    {{ implode(', ', $codigoUnicoLabels) }}
+                @endif
+            </div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-1 btn-open-codigo-unico">Selecionar códigos</button>
+            @endif
+        </div>
     </td>
     <td class="datatable-cell">
         <div class="form-group mb-2">

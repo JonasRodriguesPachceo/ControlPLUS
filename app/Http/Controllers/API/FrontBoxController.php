@@ -61,6 +61,7 @@ use App\Models\RegistroTef;
 use Illuminate\Support\Str;
 use App\Utils\FilaEnvioUtil;
 use App\Models\Garantia;
+use App\Models\ProdutoUnico;
 
 class FrontBoxController extends Controller
 {
@@ -595,6 +596,7 @@ class FrontBoxController extends Controller
                     'user_id' => $request->usuario_id
                 ]);
 
+                $codigoInputs = $request->codigo_unico_ids ?? [];
                 if($request->produto_id){
                     for ($i = 0; $i < sizeof($request->produto_id); $i++) {
                         $variacao_id = isset($request->variacao_id[$i]) ? $request->variacao_id[$i] : null;
@@ -705,6 +707,95 @@ class FrontBoxController extends Controller
         return 0;
     }
 
+    private function processaCodigoUnicoSaida($produtoId, $quantidade, $jsonCodigos, $nfceId, ItemNfce $itemNfce)
+    {
+        if(!$jsonCodigos){
+            throw new \Exception('Selecione os códigos únicos para o produto informado.');
+        }
+
+        $codigoSelecionados = json_decode($jsonCodigos, true);
+        if(!is_array($codigoSelecionados) || sizeof($codigoSelecionados) == 0){
+            throw new \Exception('Selecione os códigos únicos para o produto informado.');
+        }
+
+        $quantidadeItem = (int)round(__convert_value_bd($quantidade));
+        if($quantidadeItem <= 0){
+            $quantidadeItem = 1;
+        }
+
+        if(sizeof($codigoSelecionados) != $quantidadeItem){
+            throw new \Exception('A quantidade de códigos únicos não corresponde à quantidade vendida.');
+        }
+
+        $codigosTexto = [];
+        foreach($codigoSelecionados as $code){
+            $entrada = null;
+            if(isset($code['id']) && $code['id']){
+                $entrada = ProdutoUnico::find($code['id']);
+            }
+
+            if(!$entrada){
+                $codigoTexto = $code['codigo'] ?? null;
+                $entrada = ProdutoUnico::where('produto_id', $produtoId)
+                ->where('codigo', $codigoTexto)
+                ->where('tipo', 'entrada')
+                ->first();
+            }
+
+            if(!$entrada || $entrada->produto_id != $produtoId){
+                throw new \Exception('Código único inválido selecionado para o produto.');
+            }
+
+            if($entrada->em_estoque == 0){
+                throw new \Exception("O código {$entrada->codigo} já foi utilizado em outra venda.");
+            }
+
+            $entrada->em_estoque = 0;
+            $entrada->save();
+
+            ProdutoUnico::create([
+                'nfe_id' => null,
+                'nfce_id' => $nfceId,
+                'produto_id' => $produtoId,
+                'codigo' => $entrada->codigo,
+                'observacao' => $code['observacao'] ?? '',
+                'tipo' => 'saida',
+                'em_estoque' => 0
+            ]);
+
+            $codigosTexto[] = $entrada->codigo;
+        }
+
+        if(sizeof($codigosTexto) > 0){
+            $itemNfce->infAdProd = implode(', ', $codigosTexto);
+            $itemNfce->save();
+        }
+    }
+
+    private function liberarCodigosUnicosNfce($nfceId)
+    {
+        $codigosSaida = ProdutoUnico::where('nfce_id', $nfceId)
+        ->where('tipo', 'saida')
+        ->get();
+
+        if($codigosSaida->count() == 0){
+            return;
+        }
+
+        foreach($codigosSaida as $saida){
+            $entrada = ProdutoUnico::where('produto_id', $saida->produto_id)
+            ->where('codigo', $saida->codigo)
+            ->where('tipo', 'entrada')
+            ->first();
+            if($entrada){
+                $entrada->em_estoque = 1;
+                $entrada->save();
+            }
+        }
+
+        ProdutoUnico::where('nfce_id', $nfceId)->delete();
+    }
+
     public function store(Request $request)
     {
         try {
@@ -777,6 +868,7 @@ class FrontBoxController extends Controller
                     'numero_sequencial' => $this->getLastNumero($request->empresa_id)
                 ]);
                 $nfce = Nfce::create($request->all());
+                $codigoInputs = $request->codigo_unico_ids ?? [];
                 if($request->produto_id){
                     for ($i = 0; $i < sizeof($request->produto_id); $i++) {
                         $product = Produto::findOrFail($request->produto_id[$i]);
@@ -800,6 +892,12 @@ class FrontBoxController extends Controller
                             'ncm' => $product->ncm,
                             'variacao_id' => $variacao_id,
                         ]);
+                        $codigoUnicoValue = $codigoInputs[$i] ?? null;
+                        if($product->tipo_unico){
+                            $this->processaCodigoUnicoSaida($product->id, $request->quantidade[$i], $codigoUnicoValue, $nfce->id, $itemNfce);
+                        }else if($codigoUnicoValue){
+                            $this->processaCodigoUnicoSaida($product->id, $request->quantidade[$i], $codigoUnicoValue, $nfce->id, $itemNfce);
+                        }
 
                         if(isset($request->adicionais[$i])){
                             $adicionais = explode(",", $request->adicionais[$i]);
@@ -1816,6 +1914,7 @@ public function storeNfe(Request $request)
                 'tpNF' => 1
             ]);
             $nfe = Nfe::create($request->all());
+            $codigoInputs = $request->codigo_unico_ids ?? [];
             if($request->produto_id){
                 for ($i = 0; $i < sizeof($request->produto_id); $i++) {
                     $product = Produto::findOrFail($request->produto_id[$i]);
@@ -2022,6 +2121,7 @@ public function update(Request $request, $id){
             ]);
 
             $item->fill($request->all())->save();
+            $this->liberarCodigosUnicosNfce($item->id);
 
             if($request->produto_id){
                 foreach($item->itens as $i){
@@ -2056,6 +2156,12 @@ public function update(Request $request, $id){
                         'ncm' => $product->ncm,
                         'variacao_id' => $variacao_id,
                     ]);
+                    $codigoUnicoValue = $codigoInputs[$i] ?? null;
+                    if($product->tipo_unico){
+                        $this->processaCodigoUnicoSaida($product->id, $request->quantidade[$i], $codigoUnicoValue, $item->id, $itemNfce);
+                    }else if($codigoUnicoValue){
+                        $this->processaCodigoUnicoSaida($product->id, $request->quantidade[$i], $codigoUnicoValue, $item->id, $itemNfce);
+                    }
 
                     if(isset($request->adicionais[$i])){
                         $adicionais = explode(",", $request->adicionais[$i]);

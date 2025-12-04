@@ -18,6 +18,7 @@ use App\Models\Localizacao;
 use App\Models\TefMultiPlusCard;
 use App\Models\Mesa;
 use App\Models\Garantia;
+use App\Models\ProdutoUnico;
 use App\Models\ConfiguracaoCardapio;
 use App\Models\User;
 use App\Models\Pedido;
@@ -394,6 +395,46 @@ class FrontBoxController extends Controller
         ->findOrFail($id);
 
         __validaObjetoEmpresa($item);
+
+        $codigoUnicoSaida = ProdutoUnico::where('nfce_id', $item->id)
+        ->where('tipo', 'saida')
+        ->orderBy('id')
+        ->get();
+        if($codigoUnicoSaida->count() > 0){
+            $codesGrouped = $codigoUnicoSaida->groupBy('produto_id')->map(function($group){
+                return $group->values();
+            });
+            $entradaCodes = ProdutoUnico::whereIn('codigo', $codigoUnicoSaida->pluck('codigo')->unique())
+            ->where('tipo', 'entrada')
+            ->get()
+            ->keyBy('codigo');
+
+            foreach($item->itens as $it){
+                if(isset($codesGrouped[$it->produto_id])){
+                    $selecionados = [];
+                    $grupo = $codesGrouped[$it->produto_id];
+                    $quantidade = (int)round($it->quantidade);
+                    if($quantidade <= 0){
+                        $quantidade = 1;
+                    }
+                    for($x = 0; $x < $quantidade; $x++){
+                        $codigoSaida = $grupo->shift();
+                        if(!$codigoSaida){
+                            break;
+                        }
+                        $entrada = $entradaCodes->get($codigoSaida->codigo);
+                        $selecionados[] = [
+                            'id' => $entrada ? $entrada->id : null,
+                            'codigo' => $codigoSaida->codigo
+                        ];
+                    }
+                    if(sizeof($selecionados) > 0){
+                        $it->codigo_unico_json = json_encode($selecionados);
+                    }
+                    $codesGrouped[$it->produto_id] = $grupo;
+                }
+            }
+        }
 
         if (!__isCaixaAberto()) {
             session()->flash("flash_warning", "Abrir caixa antes de continuar!");

@@ -185,6 +185,9 @@ class ProdutoController extends Controller
         ->where('produtos.status', 1)
         ->select('produto_unicos.*')
         ->join('produtos', 'produtos.id', '=', 'produto_unicos.produto_id')
+        ->when($request->produto_id, function ($q) use ($request) {
+            return $q->where('produto_unicos.produto_id', $request->produto_id);
+        })
         ->when($request->pesquisa, function ($q) use ($request) {
             return $q->where('produto_unicos.codigo', 'LIKE', "%$request->pesquisa%");
         })

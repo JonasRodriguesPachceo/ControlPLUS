@@ -1,5 +1,5 @@
 @foreach($produtos as $prod)
-<div class="card-group col-xl-4 col-md-6 col-sm-6" onclick="addProdutos('{{ $prod->id }}')">
+<div class="card-group col-xl-4 col-md-6 col-sm-6" onclick="addProdutos('{{ $prod->id }}', '{{ $prod->tipo_unico }}')">
     <div class="row card-new" style="margin-left: 0.1px; margin-top: 1px;">
 
         <img src="{{$prod->img}}" class="card-img-top mt-1" alt="..." style="opacity: 0.8; height: 140px; border-radius: 10px; width: 100vw;">
