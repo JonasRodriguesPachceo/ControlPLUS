@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.44, for Linux (x86_64)
 --
--- Host: localhost    Database: controlplus
+-- Host: localhost    Database: u869107291_plus
 -- ------------------------------------------------------
 -- Server version	8.0.44
 
@@ -33,7 +33,7 @@ CREATE TABLE `acao_logs` (
   PRIMARY KEY (`id`),
   KEY `acao_logs_empresa_id_foreign` (`empresa_id`),
   CONSTRAINT `acao_logs_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,6 +42,7 @@ CREATE TABLE `acao_logs` (
 
 LOCK TABLES `acao_logs` WRITE;
 /*!40000 ALTER TABLE `acao_logs` DISABLE KEYS */;
+INSERT INTO `acao_logs` VALUES (4,1,'Produto','Iphone 16 pro max','cadastrar','2025-12-04 15:08:50','2025-12-04 15:08:50'),(5,1,'Caixa','empresa teste | CAIXA ABERTO - abertura: 04/12/2025 15:09 - valor abertura: 10.000.000,00','cadastrar','2025-12-04 15:09:38','2025-12-04 15:09:38'),(6,1,'Fornecedor','fornecedor para teste','cadastrar','2025-12-04 15:09:59','2025-12-04 15:09:59'),(7,1,'Compra','fornecedor para teste 088.954.979-80 R$ 45.553,50','cadastrar','2025-12-04 15:10:36','2025-12-04 15:10:36'),(8,1,'Cliente','Robson Montiero','cadastrar','2025-12-04 15:29:28','2025-12-04 15:29:28'),(9,1,'Compra','fornecedor para teste 088.954.979-80 R$ 45.553,50','cadastrar','2025-12-04 15:36:13','2025-12-04 15:36:13'),(10,1,'Compra','fornecedor para teste 088.954.979-80 R$ 45.553,50','excluir','2025-12-04 15:37:44','2025-12-04 15:37:44'),(11,1,'Compra','fornecedor para teste 088.954.979-80 R$ 45.553,50','excluir','2025-12-04 15:37:46','2025-12-04 15:37:46'),(12,1,'Produto','Iphone 16 pro max','cadastrar','2025-12-04 15:38:29','2025-12-04 15:38:29'),(13,1,'Produto','Iphone 16 pro max','excluir','2025-12-04 15:38:46','2025-12-04 15:38:46'),(14,1,'Compra','fornecedor para teste 088.954.979-80 R$ 45.553,50','cadastrar','2025-12-04 15:39:13','2025-12-04 15:39:13'),(15,1,'Produto','Iphone 16 pro max','editar','2025-12-04 15:42:02','2025-12-04 15:42:02'),(16,1,'Produto','SQLSTATE[23000]: Integrity constraint violation: 1451 Cannot delete or update a parent row: a foreign key constraint fails (`u869107291_plus`.`produto_fornecedors`, CONSTRAINT `produto_fornecedors_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES ','erro','2025-12-04 15:42:21','2025-12-04 15:42:21'),(17,1,'Produto','Iphone 16 pro max','cadastrar','2025-12-04 15:43:24','2025-12-04 15:43:24'),(18,1,'Compra','fornecedor para teste 088.954.979-80 R$ 45.553,50','cadastrar','2025-12-04 15:44:00','2025-12-04 15:44:00'),(19,1,'Venda','Robson Montiero 088.954.979-61 R$ 6.377,49','cadastrar','2025-12-04 15:44:44','2025-12-04 15:44:44'),(20,1,'Produto','SANSUNG GALAXY S24E','cadastrar','2025-12-04 16:53:30','2025-12-04 16:53:30'),(21,1,'Compra','fornecedor para teste 088.954.979-80 R$ 4.555,35','cadastrar','2025-12-04 16:54:17','2025-12-04 16:54:17'),(22,1,'Compra','fornecedor para teste 088.954.979-80 R$ 4.555,35','cadastrar','2025-12-04 16:55:05','2025-12-04 16:55:05'),(23,1,'Venda','Robson Montiero 088.954.979-61 R$ 5.010,88','cadastrar','2025-12-04 16:56:05','2025-12-04 16:56:05'),(24,1,'PDV','Selecione os códigos únicos para o produto informado.','erro','2025-12-04 16:59:47','2025-12-04 16:59:47'),(25,1,'PDV','Selecione os códigos únicos para o produto informado.','erro','2025-12-04 16:59:58','2025-12-04 16:59:58'),(26,1,'PDV','Selecione os códigos únicos para o produto informado.','erro','2025-12-04 17:00:49','2025-12-04 17:00:49'),(27,1,'PDV','Selecione os códigos únicos para o produto informado.','erro','2025-12-04 17:00:53','2025-12-04 17:00:53'),(28,1,'PDV','Selecione os códigos únicos para o produto informado.','erro','2025-12-04 17:01:06','2025-12-04 17:01:06'),(29,1,'PDV','#1 - R$ 4.950,00','cadastrar','2025-12-04 17:05:32','2025-12-04 17:05:32'),(30,1,'Estoque','Iphone 16 pro max - quantidade 10','editar','2025-12-05 11:48:38','2025-12-05 11:48:38'),(31,1,'Produto','Iphone 16 pro max','editar','2025-12-05 11:48:44','2025-12-05 11:48:44'),(32,1,'Compra','fornecedor para teste 088.954.979-80 R$ 45.553,50','cadastrar','2025-12-05 11:49:17','2025-12-05 11:49:17'),(33,1,'Venda','Robson Montiero 088.954.979-61 R$ 6.377,49','excluir','2025-12-05 11:51:05','2025-12-05 11:51:05'),(34,1,'Venda','Robson Montiero 088.954.979-61 R$ 5.010,88','excluir','2025-12-05 11:51:08','2025-12-05 11:51:08'),(35,1,'PDV','SQLSTATE[23000]: Integrity constraint violation: 1451 Cannot delete or update a parent row: a foreign key constraint fails (`u869107291_plus`.`produto_unicos`, CONSTRAINT `produto_unicos_nfce_id_foreign` FOREIGN KEY (`nfce_id`) REFERENCES `nfces` (`id`)) ','erro','2025-12-05 11:51:10','2025-12-05 11:51:10'),(36,1,'Compra','fornecedor para teste 088.954.979-80 R$ 45.553,50','excluir','2025-12-05 11:51:21','2025-12-05 11:51:21'),(37,1,'Compra','fornecedor para teste 088.954.979-80 R$ 45.553,50','excluir','2025-12-05 11:51:23','2025-12-05 11:51:23'),(38,1,'Compra','fornecedor para teste 088.954.979-80 R$ 4.555,35','excluir','2025-12-05 11:51:26','2025-12-05 11:51:26'),(39,1,'Compra','fornecedor para teste 088.954.979-80 R$ 4.555,35','excluir','2025-12-05 11:51:28','2025-12-05 11:51:28'),(40,1,'Compra','fornecedor para teste 088.954.979-80 R$ 45.553,50','excluir','2025-12-05 11:51:31','2025-12-05 11:51:31'),(41,1,'Produto','SQLSTATE[23000]: Integrity constraint violation: 1451 Cannot delete or update a parent row: a foreign key constraint fails (`u869107291_plus`.`produto_fornecedors`, CONSTRAINT `produto_fornecedors_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES ','erro','2025-12-05 11:51:42','2025-12-05 11:51:42'),(42,1,'Produto','SQLSTATE[23000]: Integrity constraint violation: 1451 Cannot delete or update a parent row: a foreign key constraint fails (`u869107291_plus`.`produto_fornecedors`, CONSTRAINT `produto_fornecedors_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES ','erro','2025-12-05 11:51:46','2025-12-05 11:51:46'),(43,1,'Produto','SQLSTATE[23000]: Integrity constraint violation: 1451 Cannot delete or update a parent row: a foreign key constraint fails (`u869107291_plus`.`pdv_logs`, CONSTRAINT `pdv_logs_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`)) (Co','erro','2025-12-05 11:51:49','2025-12-05 11:51:49'),(44,1,'Produto','Iphone 16 pro max','cadastrar','2025-12-05 11:52:26','2025-12-05 11:52:26'),(45,1,'Compra','fornecedor para teste 088.954.979-80 R$ 267.750,00','cadastrar','2025-12-05 11:53:19','2025-12-05 11:53:19'),(46,1,'Venda','Robson Montiero 088.954.979-61 R$ 29.452,50','cadastrar','2025-12-05 11:54:07','2025-12-05 11:54:07'),(47,1,'PDV','#2 - R$ 9.900,00','cadastrar','2025-12-05 11:54:55','2025-12-05 11:54:55');
 /*!40000 ALTER TABLE `acao_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -61,7 +62,7 @@ CREATE TABLE `acesso_logs` (
   PRIMARY KEY (`id`),
   KEY `acesso_logs_usuario_id_foreign` (`usuario_id`),
   CONSTRAINT `acesso_logs_usuario_id_foreign` FOREIGN KEY (`usuario_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -70,6 +71,7 @@ CREATE TABLE `acesso_logs` (
 
 LOCK TABLES `acesso_logs` WRITE;
 /*!40000 ALTER TABLE `acesso_logs` DISABLE KEYS */;
+INSERT INTO `acesso_logs` VALUES (42,1,'172.18.0.1','2025-12-04 15:04:47','2025-12-04 15:04:47'),(43,2,'172.18.0.1','2025-12-04 15:07:40','2025-12-04 15:07:40'),(44,1,'172.18.0.1','2025-12-04 15:22:42','2025-12-04 15:22:42'),(45,2,'172.18.0.1','2025-12-04 15:22:49','2025-12-04 15:22:49'),(46,2,'172.18.0.1','2025-12-04 15:25:56','2025-12-04 15:25:56'),(47,2,'172.18.0.1','2025-12-05 11:46:48','2025-12-05 11:46:48');
 /*!40000 ALTER TABLE `acesso_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -164,7 +166,7 @@ CREATE TABLE `agendamentos` (
   `acrescimo` decimal(10,2) DEFAULT NULL,
   `valor_comissao` decimal(10,2) NOT NULL DEFAULT '0.00',
   `status` tinyint(1) NOT NULL DEFAULT '0',
-  `prioridade` enum('baixa','media','alta') COLLATE utf8mb4_unicode_ci DEFAULT 'baixa',
+  `prioridade` enum('baixa','media','alta') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'baixa',
   `nfce_id` int DEFAULT NULL,
   `pedido_delivery_id` int DEFAULT NULL,
   `msg_wpp_manha_horario` tinyint(1) DEFAULT '0',
@@ -513,7 +515,7 @@ CREATE TABLE `caixas` (
   KEY `caixas_usuario_id_foreign` (`usuario_id`),
   CONSTRAINT `caixas_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`),
   CONSTRAINT `caixas_usuario_id_foreign` FOREIGN KEY (`usuario_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -522,6 +524,7 @@ CREATE TABLE `caixas` (
 
 LOCK TABLES `caixas` WRITE;
 /*!40000 ALTER TABLE `caixas` DISABLE KEYS */;
+INSERT INTO `caixas` VALUES (1,1,2,10000000.00,NULL,'',1,NULL,0.00,0.00,0.00,0.00,5,'2025-12-04 15:09:38','2025-12-04 15:09:38');
 /*!40000 ALTER TABLE `caixas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -541,8 +544,8 @@ CREATE TABLE `carrinho_cardapios` (
   `estado` enum('pendente','finalizado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `cliente_nome` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `session_cart_user` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cliente_nome` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `session_cart_user` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `carrinho_cardapios_empresa_id_foreign` (`empresa_id`),
   CONSTRAINT `carrinho_cardapios_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
@@ -573,19 +576,19 @@ CREATE TABLE `carrinho_deliveries` (
   `estado` enum('pendente','finalizado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `valor_total` decimal(10,2) NOT NULL,
   `valor_desconto` decimal(10,2) NOT NULL,
-  `cupom` varchar(6) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `fone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cupom` varchar(6) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `valor_frete` decimal(10,2) NOT NULL,
   `session_cart_delivery` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `observacao` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tipo_pagamento` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_pagamento` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `troco_para` decimal(10,2) DEFAULT NULL,
-  `tipo_entrega` enum('delivery','retirada') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_entrega` enum('delivery','retirada') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `funcionario_id_agendamento` int DEFAULT NULL,
-  `inicio_agendamento` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `fim_agendamento` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `inicio_agendamento` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fim_agendamento` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `data_agendamento` date DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `carrinho_deliveries_cliente_id_foreign` (`cliente_id`),
@@ -735,8 +738,8 @@ CREATE TABLE `cash_back_configs` (
   `mensagem_padrao_whatsapp` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `mensagem_automatica_5_dias` text COLLATE utf8mb4_unicode_ci,
-  `mensagem_automatica_1_dia` text COLLATE utf8mb4_unicode_ci,
+  `mensagem_automatica_5_dias` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `mensagem_automatica_1_dia` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `cash_back_configs_empresa_id_foreign` (`empresa_id`),
   CONSTRAINT `cash_back_configs_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
@@ -946,8 +949,8 @@ CREATE TABLE `categoria_produtos` (
   `ecommerce` tinyint(1) DEFAULT '0',
   `reserva` tinyint(1) DEFAULT '0',
   `tipo_pizza` tinyint(1) DEFAULT '0',
-  `hash_ecommerce` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `hash_delivery` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hash_ecommerce` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hash_delivery` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `categoria_id` bigint unsigned DEFAULT NULL,
   `_id_import` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -980,9 +983,9 @@ CREATE TABLE `categoria_servicos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `empresa_id` bigint unsigned NOT NULL,
   `nome` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `imagem` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `imagem` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `marketplace` tinyint(1) DEFAULT '0',
-  `hash_delivery` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hash_delivery` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -1164,7 +1167,7 @@ CREATE TABLE `clientes` (
   `consumidor_final` tinyint(1) NOT NULL DEFAULT '0',
   `email` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `telefone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `imagem` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `imagem` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cidade_id` bigint unsigned DEFAULT NULL,
   `rua` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `cep` varchar(9) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1173,16 +1176,16 @@ CREATE TABLE `clientes` (
   `complemento` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` tinyint(1) DEFAULT '1',
   `token` int DEFAULT NULL,
-  `uid` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `senha` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `uid` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `senha` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `valor_cashback` decimal(10,2) DEFAULT '0.00',
   `valor_credito` decimal(10,2) DEFAULT '0.00',
-  `nuvem_shop_id` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nuvem_shop_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `limite_credito` decimal(10,2) DEFAULT NULL,
   `lista_preco_id` int DEFAULT NULL,
   `_id_import` int DEFAULT NULL,
-  `codigo_pais` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `id_estrangeiro` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_pais` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id_estrangeiro` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `data_nascimento` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -1191,7 +1194,7 @@ CREATE TABLE `clientes` (
   KEY `clientes_cidade_id_foreign` (`cidade_id`),
   CONSTRAINT `clientes_cidade_id_foreign` FOREIGN KEY (`cidade_id`) REFERENCES `cidades` (`id`),
   CONSTRAINT `clientes_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1200,6 +1203,7 @@ CREATE TABLE `clientes` (
 
 LOCK TABLES `clientes` WRITE;
 /*!40000 ALTER TABLE `clientes` DISABLE KEYS */;
+INSERT INTO `clientes` VALUES (1,1,'Robson Montiero','Robson Monteiro','088.954.979-61',NULL,1,0,0,'robsonnsbr@gmail.com','(41) 99539-8003','',4006,'Rua Luiz Barreto Murat','82820-160','1780','Bairro Alto',NULL,1,NULL,NULL,NULL,0.00,0.00,NULL,NULL,NULL,NULL,'1058',NULL,NULL,'2025-12-04 15:29:28','2025-12-04 15:44:44');
 /*!40000 ALTER TABLE `clientes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1313,52 +1317,52 @@ CREATE TABLE `config_gerals` (
   `confirmar_itens_prevenda` tinyint(1) DEFAULT '0',
   `gerenciar_estoque` tinyint(1) DEFAULT '0',
   `agrupar_itens` tinyint(1) DEFAULT '0',
-  `notificacoes` text COLLATE utf8mb4_unicode_ci,
+  `notificacoes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `margem_combo` decimal(5,2) DEFAULT '50.00',
   `percentual_desconto_orcamento` decimal(5,2) DEFAULT NULL,
   `percentual_lucro_produto` decimal(10,2) DEFAULT '0.00',
-  `tipos_pagamento_pdv` text COLLATE utf8mb4_unicode_ci,
-  `senha_manipula_valor` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipos_pagamento_pdv` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `senha_manipula_valor` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `abrir_modal_cartao` tinyint(1) DEFAULT '1',
-  `tipo_comissao` enum('percentual_vendedor','percentual_margem') COLLATE utf8mb4_unicode_ci DEFAULT 'percentual_vendedor',
-  `modelo` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'light',
+  `tipo_comissao` enum('percentual_vendedor','percentual_margem') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'percentual_vendedor',
+  `modelo` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'light',
   `alerta_sonoro` tinyint(1) DEFAULT '1',
   `cabecalho_pdv` tinyint(1) DEFAULT '1',
   `definir_vendedor_pdv` tinyint(1) DEFAULT '0',
   `gerar_conta_receber_padrao` tinyint(1) DEFAULT '1',
   `gerar_conta_pagar_padrao` tinyint(1) DEFAULT '1',
   `regime_nfse` int DEFAULT NULL,
-  `mercadopago_public_key_pix` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `mercadopago_access_token_pix` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mercadopago_public_key_pix` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mercadopago_access_token_pix` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `definir_vendedor_pdv_off` tinyint(1) DEFAULT '0',
   `alterar_valor_pdv_off` tinyint(1) DEFAULT '0',
-  `acessos_pdv_off` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tipo_menu` enum('vertical','horizontal') COLLATE utf8mb4_unicode_ci DEFAULT 'vertical',
-  `cor_menu` enum('light','brand','dark') COLLATE utf8mb4_unicode_ci DEFAULT 'light',
-  `cor_top_bar` enum('light','brand','dark') COLLATE utf8mb4_unicode_ci DEFAULT 'light',
+  `acessos_pdv_off` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_menu` enum('vertical','horizontal') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'vertical',
+  `cor_menu` enum('light','brand','dark') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'light',
+  `cor_top_bar` enum('light','brand','dark') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'light',
   `usar_ibpt` tinyint(1) DEFAULT '1',
   `casas_decimais_quantidade` int DEFAULT '2',
   `cliente_padrao_pdv_off` int DEFAULT NULL,
-  `mensagem_padrao_impressao_venda` text COLLATE utf8mb4_unicode_ci,
-  `mensagem_padrao_impressao_os` text COLLATE utf8mb4_unicode_ci,
+  `mensagem_padrao_impressao_venda` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `mensagem_padrao_impressao_os` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ultimo_codigo_produto` int DEFAULT '0',
   `ultimo_codigo_cliente` int DEFAULT '0',
   `ultimo_codigo_fornecedor` int DEFAULT '0',
   `app_valor_aprazo` tinyint(1) DEFAULT '0',
   `impressao_sem_janela_cupom` tinyint(1) DEFAULT '0',
-  `resp_tec_email` varchar(80) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `resp_tec_cpf_cnpj` varchar(18) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `resp_tec_nome` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `resp_tec_telefone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `resp_tec_email` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `resp_tec_cpf_cnpj` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `resp_tec_nome` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `resp_tec_telefone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `limitar_credito_cliente` tinyint(1) DEFAULT '0',
   `corrigir_numeracao_fiscal` tinyint(1) DEFAULT '1',
-  `documento_pdv` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT 'nfce',
+  `documento_pdv` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'nfce',
   `numero_inicial_comanda` int DEFAULT NULL,
   `numero_final_comanda` int DEFAULT NULL,
-  `home_componentes` text COLLATE utf8mb4_unicode_ci,
-  `token_whatsapp` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `small_header_user` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'small-4.png',
-  `mensagem_wpp_link` text COLLATE utf8mb4_unicode_ci,
+  `home_componentes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `token_whatsapp` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `small_header_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'small-4.png',
+  `mensagem_wpp_link` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `status_wpp_link` tinyint(1) DEFAULT '0',
   `enviar_danfe_wpp_link` tinyint(1) DEFAULT '0',
   `enviar_xml_wpp_link` tinyint(1) DEFAULT '0',
@@ -1366,7 +1370,7 @@ CREATE TABLE `config_gerals` (
   `produtos_exibe_tabela` tinyint(1) DEFAULT '1',
   `clientes_exibe_tabela` tinyint(1) DEFAULT '1',
   `itens_por_pagina` int DEFAULT '30',
-  `tipo_ordem_servico` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'normal',
+  `tipo_ordem_servico` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'normal',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -1448,9 +1452,9 @@ CREATE TABLE `configuracao_cardapios` (
   `incluir_servico` tinyint(1) DEFAULT '0',
   `qr_code_mesa` tinyint(1) DEFAULT '0',
   `confirma_mesa` tinyint(1) DEFAULT '0',
-  `valor_pizza` enum('divide','valor_maior') COLLATE utf8mb4_unicode_ci DEFAULT 'divide',
+  `valor_pizza` enum('divide','valor_maior') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'divide',
   `percentual_taxa_servico` decimal(5,2) DEFAULT '0.00',
-  `cor_principal` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cor_principal` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `limite_pessoas_qr_code` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -1490,26 +1494,26 @@ CREATE TABLE `configuracao_supers` (
   `landing_page` tinyint(1) DEFAULT '0',
   `mercadopago_public_key` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mercadopago_access_token` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `sms_key` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `token_whatsapp` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `usuario_correios` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `codigo_acesso_correios` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cartao_postagem_correios` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `token_correios` text COLLATE utf8mb4_unicode_ci,
-  `token_expira_correios` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `dr_correios` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `contrato_correios` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `token_auth_nfse` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sms_key` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token_whatsapp` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `usuario_correios` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_acesso_correios` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cartao_postagem_correios` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token_correios` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `token_expira_correios` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `dr_correios` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contrato_correios` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token_auth_nfse` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `timeout_nfe` int DEFAULT '8',
   `timeout_nfce` int DEFAULT '8',
   `timeout_cte` int DEFAULT '8',
   `timeout_mdfe` int DEFAULT '8',
-  `token_api` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `token_integra_notas` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `banco_plano` enum('mercado_pago','asaas') COLLATE utf8mb4_unicode_ci DEFAULT 'mercado_pago',
-  `asaas_token` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token_api` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token_integra_notas` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `banco_plano` enum('mercado_pago','asaas') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'mercado_pago',
+  `asaas_token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `receber_com_boleto` tinyint(1) DEFAULT '0',
-  `asaas_token_boleto` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `asaas_token_boleto` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `percentual_juros_padrao_boleto` decimal(5,2) DEFAULT '0.00',
   `percentual_multa_padrao_boleto` decimal(5,2) DEFAULT '0.00',
   `dias_atraso_suspender_boleto` int DEFAULT NULL,
@@ -1517,9 +1521,9 @@ CREATE TABLE `configuracao_supers` (
   `usuario_alterar_plano` tinyint(1) DEFAULT '1',
   `info_topo_menu` tinyint(1) DEFAULT '1',
   `dias_alerta_boleto` int DEFAULT '10',
-  `tema_padrao` enum('light','dark') COLLATE utf8mb4_unicode_ci DEFAULT 'light',
+  `tema_padrao` enum('light','dark') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'light',
   `duplicar_cpf_cnpj` tinyint(1) DEFAULT '1',
-  `email_aviso_novo_cadastro` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_aviso_novo_cadastro` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -1666,20 +1670,20 @@ CREATE TABLE `conta_pagars` (
   `nfe_id` bigint unsigned DEFAULT NULL,
   `fornecedor_id` bigint unsigned DEFAULT NULL,
   `descricao` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `referencia` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `arquivo` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `referencia` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `arquivo` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `valor_integral` decimal(16,7) NOT NULL,
   `valor_pago` decimal(16,7) DEFAULT NULL,
   `data_vencimento` date NOT NULL,
   `data_pagamento` date DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '0',
   `observacao` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `observacao2` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `observacao3` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao2` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao3` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tipo_pagamento` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `caixa_id` bigint unsigned DEFAULT NULL,
   `local_id` int DEFAULT NULL,
-  `motivo_estorno` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `motivo_estorno` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `categoria_conta_id` int DEFAULT NULL,
   `desconto` decimal(16,7) DEFAULT NULL,
   `acrescimo` decimal(16,7) DEFAULT NULL,
@@ -1722,8 +1726,8 @@ CREATE TABLE `conta_recebers` (
   `ordem_servico_id` int DEFAULT NULL,
   `cliente_id` bigint unsigned DEFAULT NULL,
   `descricao` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `referencia` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `arquivo` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `referencia` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `arquivo` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `valor_integral` decimal(16,7) NOT NULL,
   `valor_original` decimal(16,7) DEFAULT NULL,
   `valor_recebido` decimal(16,7) DEFAULT NULL,
@@ -1732,13 +1736,13 @@ CREATE TABLE `conta_recebers` (
   `status` tinyint(1) NOT NULL DEFAULT '0',
   `recebimento_parcial` tinyint(1) DEFAULT '0',
   `observacao` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `observacao2` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `observacao3` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao2` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao3` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tipo_pagamento` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `caixa_id` bigint unsigned DEFAULT NULL,
   `local_id` int DEFAULT NULL,
   `categoria_conta_id` int DEFAULT NULL,
-  `motivo_estorno` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `motivo_estorno` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `conta_empresa_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -1869,7 +1873,7 @@ CREATE TABLE `contrato_empresas` (
   `cpf_cnpj` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `texto` text COLLATE utf8mb4_unicode_ci,
+  `texto` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `contrato_empresas_empresa_id_foreign` (`empresa_id`),
   CONSTRAINT `contrato_empresas_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
@@ -1938,7 +1942,7 @@ CREATE TABLE `cotacaos` (
   `data_resposta` timestamp NULL DEFAULT NULL,
   `nfe_id` int DEFAULT NULL,
   `valor_frete` decimal(10,2) DEFAULT NULL,
-  `observacao_frete` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao_frete` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `previsao_entrega` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -2092,10 +2096,10 @@ CREATE TABLE `cte_os` (
   `chave` varchar(48) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `estado_emissao` enum('novo','aprovado','cancelado','rejeitado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `data_emissao` timestamp NULL DEFAULT NULL,
-  `data_viagem` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `horario_viagem` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `cfop` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `recibo` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `data_viagem` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `horario_viagem` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `cfop` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `recibo` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `local_id` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -2150,12 +2154,12 @@ CREATE TABLE `ctes` (
   `municipio_envio` bigint unsigned NOT NULL,
   `municipio_inicio` bigint unsigned NOT NULL,
   `municipio_fim` bigint unsigned NOT NULL,
-  `cpf_cnpj_tomador` varchar(18) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `ie_tomador` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `razao_social_tomador` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `nome_fantasia_tomador` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `telefone_tomador` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `email_tomador` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cpf_cnpj_tomador` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ie_tomador` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `razao_social_tomador` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nome_fantasia_tomador` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `telefone_tomador` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_tomador` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `logradouro_tomador` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `numero_tomador` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `bairro_tomador` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -2192,15 +2196,15 @@ CREATE TABLE `ctes` (
   `local_id` int DEFAULT NULL,
   `tipo_servico` int DEFAULT NULL,
   `tipo_cte` int DEFAULT '0',
-  `referencia_cte` varchar(44) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `doc_anterior` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `emitente_anterior` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tp_doc_anterior` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `serie_anterior` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `n_doc_anterior` varchar(8) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `referencia_cte` varchar(44) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `doc_anterior` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `emitente_anterior` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tp_doc_anterior` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `serie_anterior` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `n_doc_anterior` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `data_emissao_anterior` date DEFAULT NULL,
-  `uf_anterior` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `ie_anterior` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `uf_anterior` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ie_anterior` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -2518,8 +2522,8 @@ CREATE TABLE `ecommerce_configs` (
   `termos_condicoes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `dados_deposito` text COLLATE utf8mb4_unicode_ci,
-  `cor_principal` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT '#000',
+  `dados_deposito` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `cor_principal` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '#000',
   PRIMARY KEY (`id`),
   KEY `ecommerce_configs_empresa_id_foreign` (`empresa_id`),
   KEY `ecommerce_configs_cidade_id_foreign` (`cidade_id`),
@@ -2585,7 +2589,7 @@ CREATE TABLE `empresas` (
   `nome` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `nome_fantasia` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cpf_cnpj` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `aut_xml` varchar(18) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `aut_xml` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ie` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `celular` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -2617,11 +2621,11 @@ CREATE TABLE `empresas` (
   `csc` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `csc_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ambiente` int NOT NULL,
-  `tributacao` enum('MEI','Simples Nacional','Regime Normal','Simples Nacional, excesso sublimite de receita bruta') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tributacao` enum('MEI','Simples Nacional','Regime Normal','Simples Nacional, excesso sublimite de receita bruta') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `token` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `token_nfse` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `token_ibpt` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `logo` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token_nfse` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token_ibpt` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `logo` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tipo_contador` tinyint(1) DEFAULT '0',
   `limite_cadastro_empresas` int DEFAULT '0',
   `cadastrar_planos` tinyint(1) DEFAULT '0',
@@ -2629,18 +2633,18 @@ CREATE TABLE `empresas` (
   `perc_ap_cred` decimal(10,2) DEFAULT '0.00',
   `empresa_selecionada` int DEFAULT NULL,
   `exclusao_icms_pis_cofins` tinyint(1) DEFAULT '0',
-  `observacao_padrao_nfe` text COLLATE utf8mb4_unicode_ci,
-  `observacao_padrao_nfce` text COLLATE utf8mb4_unicode_ci,
-  `mensagem_aproveitamento_credito` text COLLATE utf8mb4_unicode_ci,
+  `observacao_padrao_nfe` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `observacao_padrao_nfce` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `mensagem_aproveitamento_credito` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `dia_vencimento_boleto` int DEFAULT NULL,
   `receber_com_boleto` tinyint(1) DEFAULT '0',
-  `asaas_id` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `asaas_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `empresas_cidade_id_foreign` (`cidade_id`),
   CONSTRAINT `empresas_cidade_id_foreign` FOREIGN KEY (`cidade_id`) REFERENCES `cidades` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2649,6 +2653,7 @@ CREATE TABLE `empresas` (
 
 LOCK TABLES `empresas` WRITE;
 /*!40000 ALTER TABLE `empresas` DISABLE KEYS */;
+INSERT INTO `empresas` VALUES (1,'empresa teste','empresa teste','08895497980',NULL,'123123123123',NULL,'(41) 99539-8003',NULL,NULL,1,0,'82820-160','Rua Luiz Barreto Murat','1780','Bairro Alto',NULL,136,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,2,'MEI',NULL,NULL,NULL,NULL,0,0,0,0.00,NULL,NULL,0,NULL,NULL,NULL,NULL,0,NULL,'2025-12-04 15:05:40','2025-12-04 15:46:45');
 /*!40000 ALTER TABLE `empresas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2755,7 +2760,7 @@ CREATE TABLE `escritorio_contabils` (
   `envio_xml_automatico` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `token_sieg` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token_sieg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `escritorio_contabils_empresa_id_foreign` (`empresa_id`),
   KEY `escritorio_contabils_cidade_id_foreign` (`cidade_id`),
@@ -2789,7 +2794,7 @@ CREATE TABLE `estoque_atual_produtos` (
   PRIMARY KEY (`id`),
   KEY `estoque_atual_produtos_produto_id_foreign` (`produto_id`),
   CONSTRAINT `estoque_atual_produtos_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2798,6 +2803,7 @@ CREATE TABLE `estoque_atual_produtos` (
 
 LOCK TABLES `estoque_atual_produtos` WRITE;
 /*!40000 ALTER TABLE `estoque_atual_produtos` DISABLE KEYS */;
+INSERT INTO `estoque_atual_produtos` VALUES (3,5,8.0000,'2025-12-05 11:52:26','2025-12-05 11:54:55');
 /*!40000 ALTER TABLE `estoque_atual_produtos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2821,7 +2827,7 @@ CREATE TABLE `estoques` (
   KEY `estoques_produto_variacao_id_foreign` (`produto_variacao_id`),
   CONSTRAINT `estoques_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`),
   CONSTRAINT `estoques_produto_variacao_id_foreign` FOREIGN KEY (`produto_variacao_id`) REFERENCES `produto_variacaos` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2830,6 +2836,7 @@ CREATE TABLE `estoques` (
 
 LOCK TABLES `estoques` WRITE;
 /*!40000 ALTER TABLE `estoques` DISABLE KEYS */;
+INSERT INTO `estoques` VALUES (2,5,NULL,8.0000,5,'2025-12-05 11:52:26','2025-12-05 11:54:55');
 /*!40000 ALTER TABLE `estoques` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3006,7 +3013,7 @@ CREATE TABLE `fatura_nfces` (
   PRIMARY KEY (`id`),
   KEY `fatura_nfces_nfce_id_foreign` (`nfce_id`),
   CONSTRAINT `fatura_nfces_nfce_id_foreign` FOREIGN KEY (`nfce_id`) REFERENCES `nfces` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3015,6 +3022,7 @@ CREATE TABLE `fatura_nfces` (
 
 LOCK TABLES `fatura_nfces` WRITE;
 /*!40000 ALTER TABLE `fatura_nfces` DISABLE KEYS */;
+INSERT INTO `fatura_nfces` VALUES (2,7,'01','2025-12-05',9900.00,NULL,'2025-12-05 11:54:55','2025-12-05 11:54:55');
 /*!40000 ALTER TABLE `fatura_nfces` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3274,7 +3282,7 @@ CREATE TABLE `financeiro_planos` (
   KEY `financeiro_planos_plano_id_foreign` (`plano_id`),
   CONSTRAINT `financeiro_planos_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`),
   CONSTRAINT `financeiro_planos_plano_id_foreign` FOREIGN KEY (`plano_id`) REFERENCES `planos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3283,6 +3291,7 @@ CREATE TABLE `financeiro_planos` (
 
 LOCK TABLES `financeiro_planos` WRITE;
 /*!40000 ALTER TABLE `financeiro_planos` DISABLE KEYS */;
+INSERT INTO `financeiro_planos` VALUES (13,1,1,200.00,'Dinheiro','recebido',1,'2025-12-04 15:07:25','2025-12-04 15:07:25');
 /*!40000 ALTER TABLE `financeiro_planos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3342,8 +3351,8 @@ CREATE TABLE `fornecedors` (
   `bairro` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `complemento` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `_id_import` int DEFAULT NULL,
-  `codigo_pais` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `id_estrangeiro` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_pais` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id_estrangeiro` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -3351,7 +3360,7 @@ CREATE TABLE `fornecedors` (
   KEY `fornecedors_cidade_id_foreign` (`cidade_id`),
   CONSTRAINT `fornecedors_cidade_id_foreign` FOREIGN KEY (`cidade_id`) REFERENCES `cidades` (`id`),
   CONSTRAINT `fornecedors_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3360,6 +3369,7 @@ CREATE TABLE `fornecedors` (
 
 LOCK TABLES `fornecedors` WRITE;
 /*!40000 ALTER TABLE `fornecedors` DISABLE KEYS */;
+INSERT INTO `fornecedors` VALUES (1,1,'fornecedor para teste','fornecedor para teste','088.954.979-80','123123123',1,1,0,'robsonnsbr@gmail.com','(41) 99539-8003',4006,'Rua Luiz Barreto Murat','82820-160','1780','Bairro Alto',NULL,NULL,'1058',NULL,'2025-12-04 15:09:59','2025-12-04 15:09:59');
 /*!40000 ALTER TABLE `fornecedors` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3657,7 +3667,7 @@ CREATE TABLE `funcionarios` (
   `usuario_id` bigint unsigned DEFAULT NULL,
   `comissao` decimal(10,2) DEFAULT '0.00',
   `salario` decimal(10,2) DEFAULT '0.00',
-  `codigo` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` tinyint(1) DEFAULT '1',
   `permite_alterar_valor_app` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
@@ -3990,7 +4000,7 @@ CREATE TABLE `ifood_configs` (
   `catalogId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `merchantUUID` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `merchantUUID` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ifood_configs_empresa_id_foreign` (`empresa_id`),
   CONSTRAINT `ifood_configs_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
@@ -4142,7 +4152,7 @@ CREATE TABLE `interrupcoes` (
   `inicio` time NOT NULL,
   `fim` time NOT NULL,
   `dia_id` enum('segunda','terca','quarta','quinta','sexta','sabado','domingo') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `motivo` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `motivo` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `empresa_id` bigint unsigned DEFAULT NULL,
   `status` tinyint(1) DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
@@ -4470,7 +4480,7 @@ CREATE TABLE `item_carrinho_deliveries` (
   `sub_total` decimal(10,3) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `observacao` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `servico_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `item_carrinho_deliveries_carrinho_id_foreign` (`carrinho_id`),
@@ -4547,7 +4557,7 @@ CREATE TABLE `item_conta_empresas` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `cliente_id` int DEFAULT NULL,
   `fornecedor_id` int DEFAULT NULL,
-  `numero_documento` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `numero_documento` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `categoria_id` bigint unsigned DEFAULT NULL,
   `conta_pagar_id` int DEFAULT NULL,
   `conta_receber_id` int DEFAULT NULL,
@@ -4718,7 +4728,7 @@ CREATE TABLE `item_inventarios` (
   `usuario_id` bigint unsigned DEFAULT NULL,
   `quantidade` decimal(10,2) NOT NULL,
   `observacao` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `estado` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `estado` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -4803,9 +4813,10 @@ CREATE TABLE `item_nfces` (
   `pST` decimal(10,2) DEFAULT NULL,
   `vBCSTRet` decimal(10,2) DEFAULT NULL,
   `origem` int NOT NULL DEFAULT '0',
-  `codigo_beneficio_fiscal` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_beneficio_fiscal` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tamanho_id` bigint unsigned DEFAULT NULL,
-  `observacao` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `infAdProd` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -4815,7 +4826,7 @@ CREATE TABLE `item_nfces` (
   CONSTRAINT `item_nfces_nfce_id_foreign` FOREIGN KEY (`nfce_id`) REFERENCES `nfces` (`id`),
   CONSTRAINT `item_nfces_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`),
   CONSTRAINT `item_nfces_variacao_id_foreign` FOREIGN KEY (`variacao_id`) REFERENCES `produto_variacaos` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4824,6 +4835,7 @@ CREATE TABLE `item_nfces` (
 
 LOCK TABLES `item_nfces` WRITE;
 /*!40000 ALTER TABLE `item_nfces` DISABLE KEYS */;
+INSERT INTO `item_nfces` VALUES (7,7,5,NULL,2.0000,4950.00,9900.00,495.00,495.00,495.00,495.00,NULL,'101','01','01','00',0.00,'4950','9701.92.00',NULL,NULL,NULL,0,NULL,NULL,NULL,'123123234, 1231232345','2025-12-05 11:54:55','2025-12-05 11:54:55');
 /*!40000 ALTER TABLE `item_nfces` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -4901,7 +4913,7 @@ CREATE TABLE `item_nves` (
   `perc_pis` decimal(10,2) NOT NULL DEFAULT '0.00',
   `perc_cofins` decimal(10,2) NOT NULL DEFAULT '0.00',
   `perc_ipi` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `descricao` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `descricao` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cst_csosn` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `cst_pis` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `cst_cofins` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -4919,11 +4931,11 @@ CREATE TABLE `item_nves` (
   `vBCSTRet` decimal(10,2) DEFAULT NULL,
   `origem` int NOT NULL DEFAULT '0',
   `codigo_beneficio_fiscal` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `lote` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lote` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `data_vencimento` date DEFAULT NULL,
-  `xPed` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `nItemPed` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `infAdProd` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `xPed` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nItemPed` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `infAdProd` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pMVAST` decimal(10,4) DEFAULT NULL,
   `vBCST` decimal(10,2) DEFAULT NULL,
   `pICMSST` decimal(10,2) DEFAULT NULL,
@@ -4933,18 +4945,18 @@ CREATE TABLE `item_nves` (
   `vFCPST` decimal(10,2) DEFAULT NULL,
   `vICMSSubstituto` decimal(10,2) DEFAULT NULL,
   `modBCST` int DEFAULT NULL,
-  `nDI` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nDI` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `dDI` date DEFAULT NULL,
   `cidade_desembarque_id` int DEFAULT NULL,
   `dDesemb` date DEFAULT NULL,
-  `tpViaTransp` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tpViaTransp` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `vAFRMM` decimal(12,2) DEFAULT NULL,
-  `tpIntermedio` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cpf_cnpj_di` varchar(18) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `UFTerceiro` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cExportador` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `nAdicao` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cFabricante` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tpIntermedio` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cpf_cnpj_di` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `UFTerceiro` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cExportador` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nAdicao` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cFabricante` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `vBCII` decimal(10,2) DEFAULT NULL,
   `vDespAdu` decimal(10,2) DEFAULT NULL,
   `vII` decimal(10,2) DEFAULT NULL,
@@ -4958,7 +4970,7 @@ CREATE TABLE `item_nves` (
   CONSTRAINT `item_nves_nfe_id_foreign` FOREIGN KEY (`nfe_id`) REFERENCES `nves` (`id`),
   CONSTRAINT `item_nves_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`),
   CONSTRAINT `item_nves_variacao_id_foreign` FOREIGN KEY (`variacao_id`) REFERENCES `produto_variacaos` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4967,6 +4979,7 @@ CREATE TABLE `item_nves` (
 
 LOCK TABLES `item_nves` WRITE;
 /*!40000 ALTER TABLE `item_nves` DISABLE KEYS */;
+INSERT INTO `item_nves` VALUES (10,10,5,NULL,10.0000,4500.00,45000.00,495.00,495.00,495.00,495.00,'','101','01','01','00',NULL,0.00,0.00,0.00,0.00,0.00,'2950','9701.92.00','001',NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2025-12-05 11:53:19','2025-12-05 11:53:19'),(11,11,5,NULL,1.0000,4950.00,4950.00,495.00,495.00,495.00,495.00,'','101','01','01','00',NULL,0.00,0.00,0.00,0.00,0.00,'6950','9701.92.00','001',NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,'1231323432',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2025-12-05 11:54:07','2025-12-05 11:54:12');
 /*!40000 ALTER TABLE `item_nves` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -4988,7 +5001,7 @@ CREATE TABLE `item_ordem_producaos` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `cliente_id` int DEFAULT NULL,
-  `numero_pedido` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `numero_pedido` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `item_ordem_producaos_ordem_producao_id_foreign` (`ordem_producao_id`),
   KEY `item_ordem_producaos_item_producao_id_foreign` (`item_producao_id`),
@@ -5220,8 +5233,8 @@ CREATE TABLE `item_pedidos` (
   `ponto_carne` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tamanho_id` bigint unsigned DEFAULT NULL,
   `impresso` tinyint(1) DEFAULT '0',
-  `nome_cardapio` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `telefone_cardapio` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nome_cardapio` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `telefone_cardapio` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `finalizado_pdv` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -5448,8 +5461,8 @@ CREATE TABLE `item_producaos` (
   `item_id` int NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `observacao` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `dimensao` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `dimensao` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `item_producaos_produto_id_foreign` (`produto_id`),
   CONSTRAINT `item_producaos_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`)
@@ -5856,15 +5869,15 @@ CREATE TABLE `localizacaos` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `perc_ap_cred` decimal(10,2) DEFAULT '0.00',
-  `mensagem_aproveitamento_credito` text COLLATE utf8mb4_unicode_ci,
-  `token_whatsapp` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mensagem_aproveitamento_credito` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `token_whatsapp` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `substituto_tributario` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `localizacaos_empresa_id_foreign` (`empresa_id`),
   KEY `localizacaos_cidade_id_foreign` (`cidade_id`),
   CONSTRAINT `localizacaos_cidade_id_foreign` FOREIGN KEY (`cidade_id`) REFERENCES `cidades` (`id`),
   CONSTRAINT `localizacaos_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5873,6 +5886,7 @@ CREATE TABLE `localizacaos` (
 
 LOCK TABLES `localizacaos` WRITE;
 /*!40000 ALTER TABLE `localizacaos` DISABLE KEYS */;
+INSERT INTO `localizacaos` VALUES (5,1,'BL0001',1,'empresa teste','empresa teste','088.954.979-80',NULL,'123123123123',NULL,'(41) 99539-8003',NULL,NULL,'82820-160','Rua Luiz Barreto Murat','1780','Bairro Alto',NULL,136,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,2,'MEI',NULL,'','2025-12-04 15:05:40','2025-12-04 15:05:40',0.00,NULL,NULL,0);
 /*!40000 ALTER TABLE `localizacaos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -6184,12 +6198,12 @@ CREATE TABLE `market_place_configs` (
   `confirmacao_pedido_cliente` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `tipo_entrega` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `loja_id` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `email` varchar(80) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cor_principal` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `funcionamento_descricao` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `token_whatsapp` varchar(120) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_entrega` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `loja_id` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cor_principal` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `funcionamento_descricao` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token_whatsapp` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `market_place_configs_empresa_id_foreign` (`empresa_id`),
   KEY `market_place_configs_cidade_id_foreign` (`cidade_id`),
@@ -6227,7 +6241,7 @@ CREATE TABLE `mdves` (
   `veiculo_reboque_id` bigint unsigned DEFAULT NULL,
   `veiculo_reboque2_id` bigint unsigned DEFAULT NULL,
   `veiculo_reboque3_id` bigint unsigned DEFAULT NULL,
-  `estado_emissao` enum('novo','aprovado','rejeitado','cancelado') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `estado_emissao` enum('novo','aprovado','rejeitado','cancelado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mdfe_numero` int DEFAULT NULL,
   `chave` varchar(44) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `protocolo` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -6250,15 +6264,15 @@ CREATE TABLE `mdves` (
   `cep_carrega` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `cep_descarrega` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `tp_carga` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `latitude_carregamento` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `longitude_carregamento` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `latitude_descarregamento` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `longitude_descarregamento` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `latitude_carregamento` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `longitude_carregamento` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `latitude_descarregamento` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `longitude_descarregamento` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `local_id` int DEFAULT NULL,
   `tipo_modal` int DEFAULT '1',
-  `nome_pagador` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `documento_pagador` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `ind_pag` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nome_pagador` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `documento_pagador` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ind_pag` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `valor_transporte` decimal(10,2) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -6489,7 +6503,7 @@ CREATE TABLE `mercado_livre_configs` (
   `url` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `refresh_token` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `refresh_token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `token_expira` bigint DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `mercado_livre_configs_empresa_id_foreign` (`empresa_id`),
@@ -6523,7 +6537,7 @@ CREATE TABLE `mercado_livre_perguntas` (
   `data` timestamp NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `resposta` text COLLATE utf8mb4_unicode_ci,
+  `resposta` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `mercado_livre_perguntas_empresa_id_foreign` (`empresa_id`),
   CONSTRAINT `mercado_livre_perguntas_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
@@ -6615,7 +6629,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=294 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=295 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -6624,7 +6638,7 @@ CREATE TABLE `migrations` (
 
 LOCK TABLES `migrations` WRITE;
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
-INSERT INTO `migrations` VALUES (1,'2014_10_12_000000_create_users_table',1),(2,'2014_10_12_100000_create_password_reset_tokens_table',1),(3,'2014_10_12_100000_create_password_resets_table',1),(4,'2019_08_19_000000_create_failed_jobs_table',1),(5,'2019_12_14_000001_create_personal_access_tokens_table',1),(6,'2022_05_20_113136_create_cidades_table',1),(7,'2022_05_23_155235_create_empresas_table',1),(8,'2022_05_24_013544_create_categoria_produtos_table',1),(9,'2022_05_24_151959_create_fornecedors_table',1),(10,'2022_05_24_153746_create_padrao_tributacao_produtos_table',1),(11,'2022_05_24_155235_create_caixas_table',1),(12,'2022_06_19_111405_create_marcas_table',1),(13,'2022_06_20_113816_create_planos_table',1),(14,'2022_06_20_114141_create_produtos_table',1),(15,'2022_06_20_114600_create_clientes_table',1),(16,'2022_06_20_115621_create_transportadoras_table',1),(17,'2022_06_20_153825_create_produto_variacaos_table',1),(18,'2023_05_22_172141_create_natureza_operacaos_table',1),(19,'2023_05_23_172141_create_nves_table',1),(20,'2023_05_23_172155_create_nfces_table',1),(21,'2023_06_20_114952_create_item_nves_table',1),(22,'2023_06_20_151658_create_fatura_nves_table',1),(23,'2023_06_21_150613_create_usuario_empresas_table',1),(24,'2023_07_02_105610_create_item_nfces_table',1),(25,'2023_07_05_131046_create_fatura_nfces_table',1),(26,'2023_07_06_153007_create_plano_empresas_table',1),(27,'2023_07_10_151925_create_pagamentos_table',1),(28,'2023_07_11_112157_create_configuracao_supers_table',1),(29,'2023_07_17_145600_create_inutilizacaos_table',1),(30,'2023_10_28_104158_create_veiculos_table',1),(31,'2023_10_29_102738_create_estoques_table',1),(32,'2023_10_29_102914_create_movimentacao_produtos_table',1),(33,'2023_10_29_103729_create_ctes_table',1),(34,'2023_10_29_104211_create_medida_ctes_table',1),(35,'2023_10_29_104221_create_componente_ctes_table',1),(36,'2023_10_30_153753_create_conta_pagars_table',1),(37,'2023_10_30_153800_create_conta_recebers_table',1),(38,'2023_11_01_081200_create_sangria_caixas_table',1),(39,'2023_11_01_081206_create_suprimento_caixas_table',1),(40,'2023_11_03_153420_create_chave_nfe_ctes_table',1),(41,'2023_11_10_141730_create_funcionarios_table',1),(42,'2023_11_13_151606_create_comissao_vendas_table',1),(43,'2023_11_24_105534_create_manifesto_dves_table',1),(44,'2023_11_27_140746_create_mdves_table',1),(45,'2023_11_27_162950_create_municipio_carregamentos_table',1),(46,'2023_11_27_163011_create_ciots_table',1),(47,'2023_11_27_163028_create_percursos_table',1),(48,'2023_11_27_163040_create_vale_pedagios_table',1),(49,'2023_11_27_163052_create_info_descargas_table',1),(50,'2023_11_27_163110_create_c_te_descargas_table',1),(51,'2023_11_27_163134_create_n_fe_descargas_table',1),(52,'2023_11_27_163147_create_lacre_transportes_table',1),(53,'2023_11_27_163158_create_lacre_unidade_cargas_table',1),(54,'2023_11_27_163208_create_unidade_cargas_table',1),(55,'2023_12_05_141539_create_categoria_servicos_table',1),(56,'2023_12_05_145247_create_dia_semanas_table',1),(57,'2023_12_06_135418_create_servicos_table',1),(58,'2023_12_06_144725_create_funcionamentos_table',1),(59,'2023_12_06_144741_create_interrupcoes_table',1),(60,'2023_12_12_112042_create_ordem_servicos_table',1),(61,'2023_12_12_113048_create_servico_os_table',1),(62,'2023_12_12_113656_create_relatorio_os_table',1),(63,'2023_12_12_113711_create_funcionario_os_table',1),(64,'2023_12_13_100300_create_produto_os_table',1),(65,'2023_12_15_095550_create_agendamentos_table',1),(66,'2023_12_15_100127_create_item_agendamentos_table',1),(67,'2023_12_18_160002_create_funcionario_servicos_table',1),(68,'2023_12_20_165824_create_tamanho_pizzas_table',1),(69,'2023_12_21_150227_create_adicionals_table',1),(70,'2023_12_21_150237_create_pedidos_table',1),(71,'2023_12_21_150243_create_item_pedidos_table',1),(72,'2023_12_21_150450_create_produto_adicionals_table',1),(73,'2023_12_26_113648_create_item_adicionals_table',1),(74,'2023_12_28_095938_create_carrossel_cardapios_table',1),(75,'2023_12_28_140654_create_produto_ingredientes_table',1),(76,'2023_12_29_094137_create_configuracao_cardapios_table',1),(77,'2024_01_02_165122_create_produto_composicaos_table',1),(78,'2024_01_03_104835_create_apontamentos_table',1),(79,'2024_01_04_091713_create_cte_os_table',1),(80,'2024_01_06_105130_create_notificao_cardapios_table',1),(81,'2024_01_08_170502_create_produto_pizza_valors_table',1),(82,'2024_01_10_094345_create_config_gerals_table',1),(83,'2024_01_11_004710_create_item_pizza_pedidos_table',1),(84,'2024_01_15_110444_create_pre_vendas_table',1),(85,'2024_01_15_110510_create_fatura_pre_vendas_table',1),(86,'2024_01_15_110526_create_item_pre_vendas_table',1),(87,'2024_01_18_163458_create_taxa_pagamentos_table',1),(88,'2024_01_23_155331_create_acesso_logs_table',1),(89,'2024_01_29_090134_create_motivo_interrupcaos_table',1),(90,'2024_01_30_082949_create_evento_salarios_table',1),(91,'2024_01_31_082926_create_apuracao_mensals_table',1),(92,'2024_01_31_082938_create_apuracao_mensal_eventos_table',1),(93,'2024_01_31_083022_create_funcionario_eventos_table',1),(94,'2024_02_01_175219_create_bairro_delivery_masters_table',1),(95,'2024_02_01_175224_create_bairro_deliveries_table',1),(96,'2024_02_03_091346_create_contador_empresas_table',1),(97,'2024_02_04_150252_create_plano_pendentes_table',1),(98,'2024_02_04_174204_create_difals_table',1),(99,'2024_02_05_113246_create_financeiro_contadors_table',1),(100,'2024_02_06_095641_create_market_place_configs_table',1),(101,'2024_02_09_193535_create_destaque_market_places_table',1),(102,'2024_02_09_193730_create_cupom_descontos_table',1),(103,'2024_02_10_102134_create_funcionamento_deliveries_table',1),(104,'2024_02_11_164301_create_motoboys_table',1),(105,'2024_02_11_230028_create_endereco_deliveries_table',1),(106,'2024_02_11_230831_create_pedido_deliveries_table',1),(107,'2024_02_11_231438_create_item_pedido_deliveries_table',1),(108,'2024_02_12_102619_create_item_adicional_deliveries_table',1),(109,'2024_02_12_102623_create_item_pizza_pedido_deliveries_table',1),(110,'2024_02_12_220040_create_motoboy_comissaos_table',1),(111,'2024_02_13_153900_create_cupom_desconto_clientes_table',1),(112,'2024_02_14_084625_create_cash_back_configs_table',1),(113,'2024_02_14_084735_create_cash_back_clientes_table',1),(114,'2024_02_23_194404_create_variacao_modelos_table',1),(115,'2024_02_23_194410_create_variacao_modelo_items_table',1),(116,'2024_03_02_100919_create_ecommerce_configs_table',1),(117,'2024_03_02_111611_create_galeria_produtos_table',1),(118,'2024_03_09_121107_create_endereco_ecommerces_table',1),(119,'2024_03_10_120603_create_carrinhos_table',1),(120,'2024_03_10_120607_create_item_carrinhos_table',1),(121,'2024_03_12_133550_create_sessions_table',1),(122,'2024_03_17_150828_create_pedido_ecommerces_table',1),(123,'2024_03_17_150841_create_item_pedido_ecommerces_table',1),(124,'2024_03_24_190933_create_cotacaos_table',1),(125,'2024_03_24_191224_create_item_cotacaos_table',1),(126,'2024_03_24_191517_create_fatura_cotacaos_table',1),(127,'2024_03_31_121948_create_nota_servicos_table',1),(128,'2024_03_31_122104_create_item_nota_servicos_table',1),(129,'2024_04_03_191609_create_lista_precos_table',1),(130,'2024_04_03_191911_create_item_lista_precos_table',1),(131,'2024_04_09_112642_create_ncms_table',1),(132,'2024_04_11_091648_create_tickets_table',1),(133,'2024_04_11_091932_create_ticket_mensagems_table',1),(134,'2024_04_11_092300_create_ticket_mensagem_anexos_table',1),(135,'2024_04_12_150530_create_notificacaos_table',1),(136,'2024_04_17_185819_create_carrinho_deliveries_table',1),(137,'2024_04_17_185839_create_item_carrinho_deliveries_table',1),(138,'2024_04_22_191708_create_ibpts_table',1),(139,'2024_04_22_191712_create_item_ibpts_table',1),(140,'2024_04_26_190538_create_item_carrinho_adicional_deliveries_table',1),(141,'2024_04_29_111839_create_item_pizza_carrinhos_table',1),(142,'2024_04_30_001535_create_nota_servico_configs_table',1),(143,'2024_05_08_145357_create_segmentos_table',1),(144,'2024_05_09_145200_create_segmento_empresas_table',1),(145,'2024_05_11_095900_create_mercado_livre_configs_table',1),(146,'2024_05_12_161817_create_categoria_mercado_livres_table',1),(147,'2024_05_13_192558_create_mercado_livre_perguntas_table',1),(148,'2024_05_13_230953_create_pedido_mercado_livres_table',1),(149,'2024_05_13_230957_create_item_pedido_mercado_livres_table',1),(150,'2024_05_20_161922_create_variacao_mercado_livres_table',1),(151,'2024_05_25_140650_create_plano_contas_table',1),(152,'2024_05_26_140440_create_conta_empresas_table',1),(153,'2024_05_26_140831_create_item_conta_empresas_table',1),(154,'2024_05_30_100725_create_produto_combos_table',1),(155,'2024_05_31_231523_create_item_servico_nfces_table',1),(156,'2024_06_03_134326_create_conta_boletos_table',1),(157,'2024_06_03_182735_create_boletos_table',1),(158,'2024_06_03_214825_create_remessa_boletos_table',1),(159,'2024_06_03_214937_create_remessa_boleto_items_table',1),(160,'2024_06_06_190823_create_video_suportes_table',1),(161,'2024_06_10_152353_create_nuvem_shop_configs_table',1),(162,'2024_06_10_152519_create_nuvem_shop_pedidos_table',1),(163,'2024_06_10_152626_create_nuvem_shop_item_pedidos_table',1),(164,'2024_06_11_144901_create_categoria_nuvem_shops_table',1),(165,'2024_06_17_151413_create_permission_tables',1),(166,'2024_06_21_094935_create_localizacaos_table',1),(167,'2024_06_21_113522_create_produto_localizacaos_table',1),(168,'2024_06_21_114911_create_usuario_localizacaos_table',1),(169,'2024_06_24_232419_create_financeiro_planos_table',1),(170,'2024_06_27_091834_create_modelo_etiquetas_table',1),(171,'2024_07_06_104854_create_transferencia_estoques_table',1),(172,'2024_07_06_105116_create_item_transferencia_estoques_table',1),(173,'2024_07_07_082043_create_reserva_configs_table',1),(174,'2024_07_07_082044_create_categoria_acomodacaos_table',1),(175,'2024_07_07_084023_create_acomodacaos_table',1),(176,'2024_07_07_095427_create_frigobars_table',1),(177,'2024_07_07_121439_create_reservas_table',1),(178,'2024_07_07_122035_create_consumo_reservas_table',1),(179,'2024_07_07_122230_create_notas_reservas_table',1),(180,'2024_07_07_122604_create_servico_reservas_table',1),(181,'2024_07_07_122913_create_padrao_frigobars_table',1),(182,'2024_07_07_164930_create_hospede_reservas_table',1),(183,'2024_07_09_112559_create_fatura_reservas_table',1),(184,'2024_07_29_182151_create_produto_fornecedors_table',1),(185,'2024_08_14_095314_create_venda_suspensas_table',1),(186,'2024_08_14_095318_create_item_venda_suspensas_table',1),(187,'2024_08_14_184446_create_trocas_table',1),(188,'2024_08_14_184450_create_item_trocas_table',1),(189,'2024_08_16_092516_create_credito_clientes_table',1),(190,'2024_08_18_110001_create_contigencias_table',1),(191,'2024_08_30_104205_create_woocommerce_configs_table',1),(192,'2024_08_30_111235_create_categoria_woocommerces_table',1),(193,'2024_08_31_152251_create_woocommerce_pedidos_table',1),(194,'2024_08_31_152257_create_woocommerce_item_pedidos_table',1),(195,'2024_09_11_103656_create_system_updates_table',1),(196,'2024_09_13_112025_create_tef_multi_plus_cards_table',1),(197,'2024_09_13_171400_create_registro_tefs_table',1),(198,'2024_09_24_000224_create_acao_logs_table',1),(199,'2024_10_08_140556_create_produto_unicos_table',1),(200,'2024_10_13_102724_create_api_configs_table',1),(201,'2024_10_13_112822_create_api_logs_table',1),(202,'2024_10_21_140621_create_margem_comissaos_table',1),(203,'2024_10_23_075745_create_tipo_despesa_fretes_table',1),(204,'2024_10_23_183544_create_fretes_table',1),(205,'2024_10_23_183611_create_despesa_fretes_table',1),(206,'2024_11_03_200952_create_unidade_medidas_table',1),(207,'2024_11_14_100452_create_manutencao_veiculos_table',1),(208,'2024_11_14_103928_create_manutencao_veiculo_servicos_table',1),(209,'2024_11_14_103933_create_manutencao_veiculo_produtos_table',1),(210,'2024_11_15_105524_create_manutencao_veiculo_anexos_table',1),(211,'2024_11_15_110940_create_frete_anexos_table',1),(212,'2024_11_19_142805_create_email_configs_table',1),(213,'2024_11_20_090954_create_escritorio_contabils_table',1),(214,'2024_11_26_141456_create_configuracao_agendamentos_table',1),(215,'2024_11_27_155256_create_lista_preco_usuarios_table',1),(216,'2024_12_02_072343_create_sped_configs_table',1),(217,'2024_12_02_072347_create_speds_table',1),(218,'2024_12_04_170933_create_relacao_dados_fornecedors_table',1),(219,'2024_12_08_100712_create_inventarios_table',1),(220,'2024_12_08_100718_create_item_inventarios_table',1),(221,'2024_12_16_113135_create_convenios_table',1),(222,'2024_12_23_135437_create_medicos_table',1),(223,'2024_12_23_140145_create_medicao_receita_os_table',1),(224,'2024_12_23_143714_create_otica_os_table',1),(225,'2024_12_29_091441_create_tipo_armacaos_table',1),(226,'2024_12_29_095617_create_laboratorios_table',1),(227,'2024_12_30_115501_create_tratamento_oticas_table',1),(228,'2024_12_30_165734_create_formato_armacao_oticas_table',1),(229,'2024_12_31_073622_create_usuario_emissaos_table',1),(230,'2025_01_03_182112_create_meta_resultados_table',1),(231,'2025_01_09_081021_create_percurso_cte_os_table',1),(232,'2025_01_11_100805_create_item_dimensao_nves_table',1),(233,'2025_01_28_153709_create_produto_tributacao_locals_table',1),(234,'2025_02_10_122858_create_crm_anotacaos_table',1),(235,'2025_02_10_155459_create_crm_anotacao_notas_table',1),(236,'2025_02_20_134040_create_item_producaos_table',1),(237,'2025_02_20_134352_create_ordem_producaos_table',1),(238,'2025_02_20_141933_create_item_ordem_producaos_table',1),(239,'2025_02_24_112226_create_item_pedido_servicos_table',1),(240,'2025_03_12_203941_create_financeiro_boletos_table',1),(241,'2025_03_13_172512_create_log_boletos_table',1),(242,'2025_03_20_185638_create_contrato_empresas_table',1),(243,'2025_03_20_185702_create_contrato_configs_table',1),(244,'2025_04_07_122119_create_tributacao_clientes_table',1),(245,'2025_04_11_161711_create_impressora_pedidos_table',1),(246,'2025_04_11_161949_create_impressora_pedido_produtos_table',1),(247,'2025_04_15_135052_create_etiqueta_configuracaos_table',1),(248,'2025_04_17_112608_create_categoria_adicionals_table',1),(249,'2025_04_22_162633_create_registro_empresas_table',1),(250,'2025_04_27_100846_create_ifood_configs_table',1),(251,'2025_05_02_145804_create_natureza_operacao_supers_table',1),(252,'2025_05_02_145824_create_padrao_tributacao_produto_supers_table',1),(253,'2025_05_08_093415_create_categoria_produto_ifoods_table',1),(254,'2025_05_09_114313_create_produto_ibpts_table',1),(255,'2025_05_11_172608_create_vendi_zap_configs_table',1),(256,'2025_05_11_174923_create_categoria_vendi_zaps_table',1),(257,'2025_05_13_145005_create_pedido_vendi_zaps_table',1),(258,'2025_05_14_070646_create_item_pedido_vendi_zaps_table',1),(259,'2025_05_15_225233_create_mesas_table',1),(260,'2025_05_17_074202_create_carrinho_cardapios_table',1),(261,'2025_05_17_074405_create_item_carrinho_cardapios_table',1),(262,'2025_05_17_112219_create_item_carrinho_adicional_cardapios_table',1),(263,'2025_05_17_112550_create_item_pizza_carrinho_cardapios_table',1),(264,'2025_05_23_121342_create_produto_ifoods_table',1),(265,'2025_05_28_110242_create_mensagem_agendamento_logs_table',1),(266,'2025_05_29_110012_create_categoria_contas_table',1),(267,'2025_06_10_164849_create_retirada_estoques_table',1),(268,'2025_07_05_092546_create_item_adicional_nfces_table',1),(269,'2025_07_05_092653_create_item_pizza_nfces_table',1),(270,'2025_07_28_105604_create_planejamento_custos_table',1),(271,'2025_07_28_141848_create_produto_planejamento_custos_table',1),(272,'2025_07_28_141858_create_servico_planejamento_custos_table',1),(273,'2025_08_08_085428_create_planejamento_custo_logs_table',1),(274,'2025_08_08_201213_create_custo_adm_planejamento_custos_table',1),(275,'2025_08_09_213459_create_item_proposta_planejamento_custos_table',1),(276,'2025_08_14_104005_create_fatura_clientes_table',1),(277,'2025_08_20_165946_create_representante_empresas_table',1),(278,'2025_08_22_082745_create_projeto_custos_table',1),(279,'2025_08_31_213521_create_projeto_custo_configs_table',1),(280,'2025_09_14_181058_create_promocao_produtos_table',1),(281,'2025_09_16_112849_create_gestao_custo_producaos_table',1),(282,'2025_09_16_113535_create_gestao_custo_producao_produtos_table',1),(283,'2025_09_16_113700_create_gestao_custo_producao_servicos_table',1),(284,'2025_09_18_090846_create_gestao_custo_producao_outro_custos_table',1),(285,'2025_09_22_121123_create_mensagem_padrao_crms_table',1),(286,'2025_09_22_164703_create_estoque_atual_produtos_table',1),(287,'2025_09_23_114258_create_fila_envio_crons_table',1),(288,'2025_10_09_122304_create_componente_mdves_table',1),(289,'2025_10_09_122409_create_parcelamento_mdves_table',1),(290,'2025_10_09_122507_create_informacao_bancaria_mdves_table',1),(291,'2025_10_21_154159_create_garantias_table',1),(292,'2025_10_31_080421_create_pdv_logs_table',1),(293,'2025_11_10_084110_create_fatura_ordem_servicos_table',1);
+INSERT INTO `migrations` VALUES (1,'2014_10_12_000000_create_users_table',1),(2,'2014_10_12_100000_create_password_reset_tokens_table',1),(3,'2014_10_12_100000_create_password_resets_table',1),(4,'2019_08_19_000000_create_failed_jobs_table',1),(5,'2019_12_14_000001_create_personal_access_tokens_table',1),(6,'2022_05_20_113136_create_cidades_table',1),(7,'2022_05_23_155235_create_empresas_table',1),(8,'2022_05_24_013544_create_categoria_produtos_table',1),(9,'2022_05_24_151959_create_fornecedors_table',1),(10,'2022_05_24_153746_create_padrao_tributacao_produtos_table',1),(11,'2022_05_24_155235_create_caixas_table',1),(12,'2022_06_19_111405_create_marcas_table',1),(13,'2022_06_20_113816_create_planos_table',1),(14,'2022_06_20_114141_create_produtos_table',1),(15,'2022_06_20_114600_create_clientes_table',1),(16,'2022_06_20_115621_create_transportadoras_table',1),(17,'2022_06_20_153825_create_produto_variacaos_table',1),(18,'2023_05_22_172141_create_natureza_operacaos_table',1),(19,'2023_05_23_172141_create_nves_table',1),(20,'2023_05_23_172155_create_nfces_table',1),(21,'2023_06_20_114952_create_item_nves_table',1),(22,'2023_06_20_151658_create_fatura_nves_table',1),(23,'2023_06_21_150613_create_usuario_empresas_table',1),(24,'2023_07_02_105610_create_item_nfces_table',1),(25,'2023_07_05_131046_create_fatura_nfces_table',1),(26,'2023_07_06_153007_create_plano_empresas_table',1),(27,'2023_07_10_151925_create_pagamentos_table',1),(28,'2023_07_11_112157_create_configuracao_supers_table',1),(29,'2023_07_17_145600_create_inutilizacaos_table',1),(30,'2023_10_28_104158_create_veiculos_table',1),(31,'2023_10_29_102738_create_estoques_table',1),(32,'2023_10_29_102914_create_movimentacao_produtos_table',1),(33,'2023_10_29_103729_create_ctes_table',1),(34,'2023_10_29_104211_create_medida_ctes_table',1),(35,'2023_10_29_104221_create_componente_ctes_table',1),(36,'2023_10_30_153753_create_conta_pagars_table',1),(37,'2023_10_30_153800_create_conta_recebers_table',1),(38,'2023_11_01_081200_create_sangria_caixas_table',1),(39,'2023_11_01_081206_create_suprimento_caixas_table',1),(40,'2023_11_03_153420_create_chave_nfe_ctes_table',1),(41,'2023_11_10_141730_create_funcionarios_table',1),(42,'2023_11_13_151606_create_comissao_vendas_table',1),(43,'2023_11_24_105534_create_manifesto_dves_table',1),(44,'2023_11_27_140746_create_mdves_table',1),(45,'2023_11_27_162950_create_municipio_carregamentos_table',1),(46,'2023_11_27_163011_create_ciots_table',1),(47,'2023_11_27_163028_create_percursos_table',1),(48,'2023_11_27_163040_create_vale_pedagios_table',1),(49,'2023_11_27_163052_create_info_descargas_table',1),(50,'2023_11_27_163110_create_c_te_descargas_table',1),(51,'2023_11_27_163134_create_n_fe_descargas_table',1),(52,'2023_11_27_163147_create_lacre_transportes_table',1),(53,'2023_11_27_163158_create_lacre_unidade_cargas_table',1),(54,'2023_11_27_163208_create_unidade_cargas_table',1),(55,'2023_12_05_141539_create_categoria_servicos_table',1),(56,'2023_12_05_145247_create_dia_semanas_table',1),(57,'2023_12_06_135418_create_servicos_table',1),(58,'2023_12_06_144725_create_funcionamentos_table',1),(59,'2023_12_06_144741_create_interrupcoes_table',1),(60,'2023_12_12_112042_create_ordem_servicos_table',1),(61,'2023_12_12_113048_create_servico_os_table',1),(62,'2023_12_12_113656_create_relatorio_os_table',1),(63,'2023_12_12_113711_create_funcionario_os_table',1),(64,'2023_12_13_100300_create_produto_os_table',1),(65,'2023_12_15_095550_create_agendamentos_table',1),(66,'2023_12_15_100127_create_item_agendamentos_table',1),(67,'2023_12_18_160002_create_funcionario_servicos_table',1),(68,'2023_12_20_165824_create_tamanho_pizzas_table',1),(69,'2023_12_21_150227_create_adicionals_table',1),(70,'2023_12_21_150237_create_pedidos_table',1),(71,'2023_12_21_150243_create_item_pedidos_table',1),(72,'2023_12_21_150450_create_produto_adicionals_table',1),(73,'2023_12_26_113648_create_item_adicionals_table',1),(74,'2023_12_28_095938_create_carrossel_cardapios_table',1),(75,'2023_12_28_140654_create_produto_ingredientes_table',1),(76,'2023_12_29_094137_create_configuracao_cardapios_table',1),(77,'2024_01_02_165122_create_produto_composicaos_table',1),(78,'2024_01_03_104835_create_apontamentos_table',1),(79,'2024_01_04_091713_create_cte_os_table',1),(80,'2024_01_06_105130_create_notificao_cardapios_table',1),(81,'2024_01_08_170502_create_produto_pizza_valors_table',1),(82,'2024_01_10_094345_create_config_gerals_table',1),(83,'2024_01_11_004710_create_item_pizza_pedidos_table',1),(84,'2024_01_15_110444_create_pre_vendas_table',1),(85,'2024_01_15_110510_create_fatura_pre_vendas_table',1),(86,'2024_01_15_110526_create_item_pre_vendas_table',1),(87,'2024_01_18_163458_create_taxa_pagamentos_table',1),(88,'2024_01_23_155331_create_acesso_logs_table',1),(89,'2024_01_29_090134_create_motivo_interrupcaos_table',1),(90,'2024_01_30_082949_create_evento_salarios_table',1),(91,'2024_01_31_082926_create_apuracao_mensals_table',1),(92,'2024_01_31_082938_create_apuracao_mensal_eventos_table',1),(93,'2024_01_31_083022_create_funcionario_eventos_table',1),(94,'2024_02_01_175219_create_bairro_delivery_masters_table',1),(95,'2024_02_01_175224_create_bairro_deliveries_table',1),(96,'2024_02_03_091346_create_contador_empresas_table',1),(97,'2024_02_04_150252_create_plano_pendentes_table',1),(98,'2024_02_04_174204_create_difals_table',1),(99,'2024_02_05_113246_create_financeiro_contadors_table',1),(100,'2024_02_06_095641_create_market_place_configs_table',1),(101,'2024_02_09_193535_create_destaque_market_places_table',1),(102,'2024_02_09_193730_create_cupom_descontos_table',1),(103,'2024_02_10_102134_create_funcionamento_deliveries_table',1),(104,'2024_02_11_164301_create_motoboys_table',1),(105,'2024_02_11_230028_create_endereco_deliveries_table',1),(106,'2024_02_11_230831_create_pedido_deliveries_table',1),(107,'2024_02_11_231438_create_item_pedido_deliveries_table',1),(108,'2024_02_12_102619_create_item_adicional_deliveries_table',1),(109,'2024_02_12_102623_create_item_pizza_pedido_deliveries_table',1),(110,'2024_02_12_220040_create_motoboy_comissaos_table',1),(111,'2024_02_13_153900_create_cupom_desconto_clientes_table',1),(112,'2024_02_14_084625_create_cash_back_configs_table',1),(113,'2024_02_14_084735_create_cash_back_clientes_table',1),(114,'2024_02_23_194404_create_variacao_modelos_table',1),(115,'2024_02_23_194410_create_variacao_modelo_items_table',1),(116,'2024_03_02_100919_create_ecommerce_configs_table',1),(117,'2024_03_02_111611_create_galeria_produtos_table',1),(118,'2024_03_09_121107_create_endereco_ecommerces_table',1),(119,'2024_03_10_120603_create_carrinhos_table',1),(120,'2024_03_10_120607_create_item_carrinhos_table',1),(121,'2024_03_12_133550_create_sessions_table',1),(122,'2024_03_17_150828_create_pedido_ecommerces_table',1),(123,'2024_03_17_150841_create_item_pedido_ecommerces_table',1),(124,'2024_03_24_190933_create_cotacaos_table',1),(125,'2024_03_24_191224_create_item_cotacaos_table',1),(126,'2024_03_24_191517_create_fatura_cotacaos_table',1),(127,'2024_03_31_121948_create_nota_servicos_table',1),(128,'2024_03_31_122104_create_item_nota_servicos_table',1),(129,'2024_04_03_191609_create_lista_precos_table',1),(130,'2024_04_03_191911_create_item_lista_precos_table',1),(131,'2024_04_09_112642_create_ncms_table',1),(132,'2024_04_11_091648_create_tickets_table',1),(133,'2024_04_11_091932_create_ticket_mensagems_table',1),(134,'2024_04_11_092300_create_ticket_mensagem_anexos_table',1),(135,'2024_04_12_150530_create_notificacaos_table',1),(136,'2024_04_17_185819_create_carrinho_deliveries_table',1),(137,'2024_04_17_185839_create_item_carrinho_deliveries_table',1),(138,'2024_04_22_191708_create_ibpts_table',1),(139,'2024_04_22_191712_create_item_ibpts_table',1),(140,'2024_04_26_190538_create_item_carrinho_adicional_deliveries_table',1),(141,'2024_04_29_111839_create_item_pizza_carrinhos_table',1),(142,'2024_04_30_001535_create_nota_servico_configs_table',1),(143,'2024_05_08_145357_create_segmentos_table',1),(144,'2024_05_09_145200_create_segmento_empresas_table',1),(145,'2024_05_11_095900_create_mercado_livre_configs_table',1),(146,'2024_05_12_161817_create_categoria_mercado_livres_table',1),(147,'2024_05_13_192558_create_mercado_livre_perguntas_table',1),(148,'2024_05_13_230953_create_pedido_mercado_livres_table',1),(149,'2024_05_13_230957_create_item_pedido_mercado_livres_table',1),(150,'2024_05_20_161922_create_variacao_mercado_livres_table',1),(151,'2024_05_25_140650_create_plano_contas_table',1),(152,'2024_05_26_140440_create_conta_empresas_table',1),(153,'2024_05_26_140831_create_item_conta_empresas_table',1),(154,'2024_05_30_100725_create_produto_combos_table',1),(155,'2024_05_31_231523_create_item_servico_nfces_table',1),(156,'2024_06_03_134326_create_conta_boletos_table',1),(157,'2024_06_03_182735_create_boletos_table',1),(158,'2024_06_03_214825_create_remessa_boletos_table',1),(159,'2024_06_03_214937_create_remessa_boleto_items_table',1),(160,'2024_06_06_190823_create_video_suportes_table',1),(161,'2024_06_10_152353_create_nuvem_shop_configs_table',1),(162,'2024_06_10_152519_create_nuvem_shop_pedidos_table',1),(163,'2024_06_10_152626_create_nuvem_shop_item_pedidos_table',1),(164,'2024_06_11_144901_create_categoria_nuvem_shops_table',1),(165,'2024_06_17_151413_create_permission_tables',1),(166,'2024_06_21_094935_create_localizacaos_table',1),(167,'2024_06_21_113522_create_produto_localizacaos_table',1),(168,'2024_06_21_114911_create_usuario_localizacaos_table',1),(169,'2024_06_24_232419_create_financeiro_planos_table',1),(170,'2024_06_27_091834_create_modelo_etiquetas_table',1),(171,'2024_07_06_104854_create_transferencia_estoques_table',1),(172,'2024_07_06_105116_create_item_transferencia_estoques_table',1),(173,'2024_07_07_082043_create_reserva_configs_table',1),(174,'2024_07_07_082044_create_categoria_acomodacaos_table',1),(175,'2024_07_07_084023_create_acomodacaos_table',1),(176,'2024_07_07_095427_create_frigobars_table',1),(177,'2024_07_07_121439_create_reservas_table',1),(178,'2024_07_07_122035_create_consumo_reservas_table',1),(179,'2024_07_07_122230_create_notas_reservas_table',1),(180,'2024_07_07_122604_create_servico_reservas_table',1),(181,'2024_07_07_122913_create_padrao_frigobars_table',1),(182,'2024_07_07_164930_create_hospede_reservas_table',1),(183,'2024_07_09_112559_create_fatura_reservas_table',1),(184,'2024_07_29_182151_create_produto_fornecedors_table',1),(185,'2024_08_14_095314_create_venda_suspensas_table',1),(186,'2024_08_14_095318_create_item_venda_suspensas_table',1),(187,'2024_08_14_184446_create_trocas_table',1),(188,'2024_08_14_184450_create_item_trocas_table',1),(189,'2024_08_16_092516_create_credito_clientes_table',1),(190,'2024_08_18_110001_create_contigencias_table',1),(191,'2024_08_30_104205_create_woocommerce_configs_table',1),(192,'2024_08_30_111235_create_categoria_woocommerces_table',1),(193,'2024_08_31_152251_create_woocommerce_pedidos_table',1),(194,'2024_08_31_152257_create_woocommerce_item_pedidos_table',1),(195,'2024_09_11_103656_create_system_updates_table',1),(196,'2024_09_13_112025_create_tef_multi_plus_cards_table',1),(197,'2024_09_13_171400_create_registro_tefs_table',1),(198,'2024_09_24_000224_create_acao_logs_table',1),(199,'2024_10_08_140556_create_produto_unicos_table',1),(200,'2024_10_13_102724_create_api_configs_table',1),(201,'2024_10_13_112822_create_api_logs_table',1),(202,'2024_10_21_140621_create_margem_comissaos_table',1),(203,'2024_10_23_075745_create_tipo_despesa_fretes_table',1),(204,'2024_10_23_183544_create_fretes_table',1),(205,'2024_10_23_183611_create_despesa_fretes_table',1),(206,'2024_11_03_200952_create_unidade_medidas_table',1),(207,'2024_11_14_100452_create_manutencao_veiculos_table',1),(208,'2024_11_14_103928_create_manutencao_veiculo_servicos_table',1),(209,'2024_11_14_103933_create_manutencao_veiculo_produtos_table',1),(210,'2024_11_15_105524_create_manutencao_veiculo_anexos_table',1),(211,'2024_11_15_110940_create_frete_anexos_table',1),(212,'2024_11_19_142805_create_email_configs_table',1),(213,'2024_11_20_090954_create_escritorio_contabils_table',1),(214,'2024_11_26_141456_create_configuracao_agendamentos_table',1),(215,'2024_11_27_155256_create_lista_preco_usuarios_table',1),(216,'2024_12_02_072343_create_sped_configs_table',1),(217,'2024_12_02_072347_create_speds_table',1),(218,'2024_12_04_170933_create_relacao_dados_fornecedors_table',1),(219,'2024_12_08_100712_create_inventarios_table',1),(220,'2024_12_08_100718_create_item_inventarios_table',1),(221,'2024_12_16_113135_create_convenios_table',1),(222,'2024_12_23_135437_create_medicos_table',1),(223,'2024_12_23_140145_create_medicao_receita_os_table',1),(224,'2024_12_23_143714_create_otica_os_table',1),(225,'2024_12_29_091441_create_tipo_armacaos_table',1),(226,'2024_12_29_095617_create_laboratorios_table',1),(227,'2024_12_30_115501_create_tratamento_oticas_table',1),(228,'2024_12_30_165734_create_formato_armacao_oticas_table',1),(229,'2024_12_31_073622_create_usuario_emissaos_table',1),(230,'2025_01_03_182112_create_meta_resultados_table',1),(231,'2025_01_09_081021_create_percurso_cte_os_table',1),(232,'2025_01_11_100805_create_item_dimensao_nves_table',1),(233,'2025_01_28_153709_create_produto_tributacao_locals_table',1),(234,'2025_02_10_122858_create_crm_anotacaos_table',1),(235,'2025_02_10_155459_create_crm_anotacao_notas_table',1),(236,'2025_02_20_134040_create_item_producaos_table',1),(237,'2025_02_20_134352_create_ordem_producaos_table',1),(238,'2025_02_20_141933_create_item_ordem_producaos_table',1),(239,'2025_02_24_112226_create_item_pedido_servicos_table',1),(240,'2025_03_12_203941_create_financeiro_boletos_table',1),(241,'2025_03_13_172512_create_log_boletos_table',1),(242,'2025_03_20_185638_create_contrato_empresas_table',1),(243,'2025_03_20_185702_create_contrato_configs_table',1),(244,'2025_04_07_122119_create_tributacao_clientes_table',1),(245,'2025_04_11_161711_create_impressora_pedidos_table',1),(246,'2025_04_11_161949_create_impressora_pedido_produtos_table',1),(247,'2025_04_15_135052_create_etiqueta_configuracaos_table',1),(248,'2025_04_17_112608_create_categoria_adicionals_table',1),(249,'2025_04_22_162633_create_registro_empresas_table',1),(250,'2025_04_27_100846_create_ifood_configs_table',1),(251,'2025_05_02_145804_create_natureza_operacao_supers_table',1),(252,'2025_05_02_145824_create_padrao_tributacao_produto_supers_table',1),(253,'2025_05_08_093415_create_categoria_produto_ifoods_table',1),(254,'2025_05_09_114313_create_produto_ibpts_table',1),(255,'2025_05_11_172608_create_vendi_zap_configs_table',1),(256,'2025_05_11_174923_create_categoria_vendi_zaps_table',1),(257,'2025_05_13_145005_create_pedido_vendi_zaps_table',1),(258,'2025_05_14_070646_create_item_pedido_vendi_zaps_table',1),(259,'2025_05_15_225233_create_mesas_table',1),(260,'2025_05_17_074202_create_carrinho_cardapios_table',1),(261,'2025_05_17_074405_create_item_carrinho_cardapios_table',1),(262,'2025_05_17_112219_create_item_carrinho_adicional_cardapios_table',1),(263,'2025_05_17_112550_create_item_pizza_carrinho_cardapios_table',1),(264,'2025_05_23_121342_create_produto_ifoods_table',1),(265,'2025_05_28_110242_create_mensagem_agendamento_logs_table',1),(266,'2025_05_29_110012_create_categoria_contas_table',1),(267,'2025_06_10_164849_create_retirada_estoques_table',1),(268,'2025_07_05_092546_create_item_adicional_nfces_table',1),(269,'2025_07_05_092653_create_item_pizza_nfces_table',1),(270,'2025_07_28_105604_create_planejamento_custos_table',1),(271,'2025_07_28_141848_create_produto_planejamento_custos_table',1),(272,'2025_07_28_141858_create_servico_planejamento_custos_table',1),(273,'2025_08_08_085428_create_planejamento_custo_logs_table',1),(274,'2025_08_08_201213_create_custo_adm_planejamento_custos_table',1),(275,'2025_08_09_213459_create_item_proposta_planejamento_custos_table',1),(276,'2025_08_14_104005_create_fatura_clientes_table',1),(277,'2025_08_20_165946_create_representante_empresas_table',1),(278,'2025_08_22_082745_create_projeto_custos_table',1),(279,'2025_08_31_213521_create_projeto_custo_configs_table',1),(280,'2025_09_14_181058_create_promocao_produtos_table',1),(281,'2025_09_16_112849_create_gestao_custo_producaos_table',1),(282,'2025_09_16_113535_create_gestao_custo_producao_produtos_table',1),(283,'2025_09_16_113700_create_gestao_custo_producao_servicos_table',1),(284,'2025_09_18_090846_create_gestao_custo_producao_outro_custos_table',1),(285,'2025_09_22_121123_create_mensagem_padrao_crms_table',1),(286,'2025_09_22_164703_create_estoque_atual_produtos_table',1),(287,'2025_09_23_114258_create_fila_envio_crons_table',1),(288,'2025_10_09_122304_create_componente_mdves_table',1),(289,'2025_10_09_122409_create_parcelamento_mdves_table',1),(290,'2025_10_09_122507_create_informacao_bancaria_mdves_table',1),(291,'2025_10_21_154159_create_garantias_table',1),(292,'2025_10_31_080421_create_pdv_logs_table',1),(293,'2025_11_10_084110_create_fatura_ordem_servicos_table',1),(294,'2025_03_21_000001_add_inf_ad_prod_to_item_nfces_table',2);
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -6677,6 +6691,7 @@ CREATE TABLE `model_has_roles` (
 
 LOCK TABLES `model_has_roles` WRITE;
 /*!40000 ALTER TABLE `model_has_roles` DISABLE KEYS */;
+INSERT INTO `model_has_roles` VALUES (5,'App\\Models\\User',2);
 /*!40000 ALTER TABLE `model_has_roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -6847,7 +6862,7 @@ CREATE TABLE `movimentacao_produtos` (
   KEY `movimentacao_produtos_produto_variacao_id_foreign` (`produto_variacao_id`),
   CONSTRAINT `movimentacao_produtos_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`),
   CONSTRAINT `movimentacao_produtos_produto_variacao_id_foreign` FOREIGN KEY (`produto_variacao_id`) REFERENCES `produto_variacaos` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -6856,6 +6871,7 @@ CREATE TABLE `movimentacao_produtos` (
 
 LOCK TABLES `movimentacao_produtos` WRITE;
 /*!40000 ALTER TABLE `movimentacao_produtos` DISABLE KEYS */;
+INSERT INTO `movimentacao_produtos` VALUES (3,5,10.0000,'incremento',2,2,'alteracao_estoque',NULL,10.0000,'2025-12-05 11:52:26','2025-12-05 11:52:26'),(4,5,2.0000,'reducao',7,2,'venda_nfce',NULL,8.0000,'2025-12-05 11:54:55','2025-12-05 11:54:55');
 /*!40000 ALTER TABLE `movimentacao_produtos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -6969,14 +6985,14 @@ CREATE TABLE `natureza_operacaos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `empresa_id` bigint unsigned DEFAULT NULL,
   `descricao` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `cst_csosn` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cst_pis` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cst_cofins` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cst_ipi` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cfop_estadual` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cfop_outro_estado` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cfop_entrada_estadual` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cfop_entrada_outro_estado` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cst_csosn` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cst_pis` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cst_cofins` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cst_ipi` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cfop_estadual` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cfop_outro_estado` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cfop_entrada_estadual` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cfop_entrada_outro_estado` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `perc_icms` decimal(5,2) DEFAULT NULL,
   `perc_pis` decimal(5,2) DEFAULT NULL,
   `perc_cofins` decimal(5,2) DEFAULT NULL,
@@ -6990,7 +7006,7 @@ CREATE TABLE `natureza_operacaos` (
   PRIMARY KEY (`id`),
   KEY `natureza_operacaos_empresa_id_foreign` (`empresa_id`),
   CONSTRAINT `natureza_operacaos_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -6999,6 +7015,7 @@ CREATE TABLE `natureza_operacaos` (
 
 LOCK TABLES `natureza_operacaos` WRITE;
 /*!40000 ALTER TABLE `natureza_operacaos` DISABLE KEYS */;
+INSERT INTO `natureza_operacaos` VALUES (1,1,'teste PDV',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,0,NULL,'2025-12-04 15:09:23','2025-12-04 15:09:23');
 /*!40000 ALTER TABLE `natureza_operacaos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7051,7 +7068,7 @@ CREATE TABLE `nfces` (
   `cliente_nome` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cliente_cpf_cnpj` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `chave` varchar(44) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `chave_sat` varchar(44) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `chave_sat` varchar(44) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `recibo` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `numero_serie` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `numero` int DEFAULT NULL,
@@ -7063,27 +7080,27 @@ CREATE TABLE `nfces` (
   `valor_cashback` decimal(10,2) DEFAULT NULL,
   `acrescimo` decimal(12,2) DEFAULT NULL,
   `valor_entrega` decimal(10,2) DEFAULT '0.00',
-  `observacao` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `api` tinyint(1) NOT NULL DEFAULT '0',
   `data_emissao` timestamp NULL DEFAULT NULL,
   `dinheiro_recebido` decimal(10,2) NOT NULL,
   `troco` decimal(10,2) NOT NULL,
   `tipo_pagamento` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `bandeira_cartao` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT '99',
-  `cnpj_cartao` varchar(18) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cAut_cartao` varchar(18) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bandeira_cartao` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '99',
+  `cnpj_cartao` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cAut_cartao` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `gerar_conta_receber` tinyint(1) DEFAULT '0',
   `local_id` int DEFAULT NULL,
-  `signed_xml` text COLLATE utf8mb4_unicode_ci,
+  `signed_xml` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `user_id` int DEFAULT NULL,
   `contigencia` tinyint(1) DEFAULT '0',
   `reenvio_contigencia` tinyint(1) DEFAULT '0',
-  `placa` varchar(9) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `uf` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `placa` varchar(9) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `uf` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tipo` int DEFAULT NULL,
   `qtd_volumes` int DEFAULT NULL,
-  `numeracao_volumes` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `especie` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `numeracao_volumes` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `especie` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `peso_liquido` decimal(8,3) DEFAULT NULL,
   `peso_bruto` decimal(8,3) DEFAULT NULL,
   `valor_frete` decimal(12,2) DEFAULT NULL,
@@ -7101,7 +7118,7 @@ CREATE TABLE `nfces` (
   CONSTRAINT `nfces_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`),
   CONSTRAINT `nfces_natureza_id_foreign` FOREIGN KEY (`natureza_id`) REFERENCES `natureza_operacaos` (`id`),
   CONSTRAINT `nfces_transportadora_id_foreign` FOREIGN KEY (`transportadora_id`) REFERENCES `transportadoras` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7110,6 +7127,7 @@ CREATE TABLE `nfces` (
 
 LOCK TABLES `nfces` WRITE;
 /*!40000 ALTER TABLE `nfces` DISABLE KEYS */;
+INSERT INTO `nfces` VALUES (6,1,1,'empresa teste','08895497980',2,NULL,NULL,NULL,1,'123','088.954.979-80','',NULL,NULL,'1',1,NULL,'novo',1,4950.00,0.00,0.00,0.00,0.00,'',0,NULL,0.00,0.00,'01','','','',0,5,NULL,2,0,0,NULL,NULL,9,NULL,NULL,NULL,NULL,NULL,0.00,NULL,'2025-12-04 17:05:32','2025-12-04 17:05:32'),(7,1,1,'empresa teste','08895497980',2,NULL,NULL,NULL,1,'123123','','',NULL,NULL,'1',1,NULL,'novo',2,9900.00,0.00,0.00,0.00,0.00,'',0,NULL,0.00,0.00,'01','','','',0,5,NULL,2,0,0,NULL,NULL,9,NULL,NULL,NULL,NULL,NULL,0.00,NULL,'2025-12-05 11:54:55','2025-12-05 11:54:55');
 /*!40000 ALTER TABLE `nfces` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7470,14 +7488,14 @@ CREATE TABLE `nves` (
   `valor_frete` decimal(12,2) DEFAULT NULL,
   `desconto` decimal(12,2) DEFAULT NULL,
   `acrescimo` decimal(12,2) DEFAULT NULL,
-  `observacao` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `placa` varchar(9) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `uf` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tipo` int DEFAULT NULL,
   `qtd_volumes` int DEFAULT NULL,
   `numeracao_volumes` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `especie` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `marca` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `marca` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `peso_liquido` decimal(8,3) DEFAULT NULL,
   `peso_bruto` decimal(8,3) DEFAULT NULL,
   `api` tinyint(1) NOT NULL DEFAULT '0',
@@ -7493,21 +7511,21 @@ CREATE TABLE `nves` (
   `data_emissao_saida` date DEFAULT NULL,
   `data_emissao_retroativa` date DEFAULT NULL,
   `data_entrega` date DEFAULT NULL,
-  `bandeira_cartao` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cnpj_cartao` varchar(18) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cAut_cartao` varchar(18) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tipo_pagamento` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `bandeira_cartao` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cnpj_cartao` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cAut_cartao` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_pagamento` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `local_id` int DEFAULT NULL,
-  `signed_xml` text COLLATE utf8mb4_unicode_ci,
+  `signed_xml` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `user_id` int DEFAULT NULL,
   `contigencia` tinyint(1) DEFAULT '0',
-  `nome_entrega` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `documento_entrega` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `rua_entrega` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cep_entrega` varchar(9) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `numero_entrega` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `bairro_entrega` varchar(40) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `complemento_entrega` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nome_entrega` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `documento_entrega` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `rua_entrega` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cep_entrega` varchar(9) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `numero_entrega` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bairro_entrega` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `complemento_entrega` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cidade_id_entrega` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -7524,7 +7542,7 @@ CREATE TABLE `nves` (
   CONSTRAINT `nves_fornecedor_id_foreign` FOREIGN KEY (`fornecedor_id`) REFERENCES `fornecedors` (`id`),
   CONSTRAINT `nves_natureza_id_foreign` FOREIGN KEY (`natureza_id`) REFERENCES `natureza_operacaos` (`id`),
   CONSTRAINT `nves_transportadora_id_foreign` FOREIGN KEY (`transportadora_id`) REFERENCES `transportadoras` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7533,6 +7551,7 @@ CREATE TABLE `nves` (
 
 LOCK TABLES `nves` WRITE;
 /*!40000 ALTER TABLE `nves` DISABLE KEYS */;
+INSERT INTO `nves` VALUES (10,1,1,NULL,'empresa teste','08895497980',NULL,2,NULL,NULL,1,1,NULL,'',NULL,NULL,'0',1,1,0,NULL,'novo',267750.00,45.00,0.00,0.00,0.00,NULL,NULL,'AC',9,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,NULL,0,1,1,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5,NULL,2,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2025-12-05 11:53:19','2025-12-05 11:53:19'),(11,1,1,NULL,'empresa teste','08895497980',NULL,2,NULL,1,NULL,1,NULL,'',NULL,NULL,'0',1,2,0,NULL,'novo',29452.50,4.95,0.00,0.00,0.00,NULL,NULL,'AC',9,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,NULL,1,1,1,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5,NULL,2,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2025-12-05 11:54:07','2025-12-05 11:54:07');
 /*!40000 ALTER TABLE `nves` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -7598,14 +7617,14 @@ CREATE TABLE `ordem_servicos` (
   `local_id` int DEFAULT NULL,
   `veiculo_id` int DEFAULT NULL,
   `adiantamento` decimal(10,2) DEFAULT '0.00',
-  `hash_link` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `tipo_servico` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `diagnostico_cliente` text COLLATE utf8mb4_unicode_ci,
-  `diagnostico_tecnico` text COLLATE utf8mb4_unicode_ci,
-  `defeito_encontrado` text COLLATE utf8mb4_unicode_ci,
-  `equipamento` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `numero_serie` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cor` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hash_link` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_servico` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `diagnostico_cliente` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `diagnostico_tecnico` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `defeito_encontrado` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `equipamento` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `numero_serie` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cor` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `faturada` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -7753,8 +7772,8 @@ CREATE TABLE `padrao_tributacao_produto_supers` (
   `redBCST` decimal(5,2) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `cst_ibscbs` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cclass_trib` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cst_ibscbs` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cclass_trib` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `perc_ibs_uf` decimal(10,2) DEFAULT NULL,
   `perc_ibs_mun` decimal(10,2) DEFAULT NULL,
   `perc_cbs` decimal(10,2) DEFAULT NULL,
@@ -7793,21 +7812,21 @@ CREATE TABLE `padrao_tributacao_produtos` (
   `cst_ipi` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cfop_estadual` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `cfop_outro_estado` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `cfop_entrada_estadual` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cfop_entrada_outro_estado` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cfop_entrada_estadual` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cfop_entrada_outro_estado` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cEnq` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `perc_red_bc` decimal(5,2) DEFAULT NULL,
   `pST` decimal(5,2) DEFAULT NULL,
   `cest` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ncm` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `codigo_beneficio_fiscal` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_beneficio_fiscal` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `padrao` tinyint(1) DEFAULT '0',
   `modBCST` int DEFAULT NULL,
   `pMVAST` decimal(5,2) DEFAULT NULL,
   `pICMSST` decimal(5,2) DEFAULT NULL,
   `redBCST` decimal(5,2) DEFAULT NULL,
-  `cst_ibscbs` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cclass_trib` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cst_ibscbs` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cclass_trib` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `perc_ibs_uf` decimal(10,2) DEFAULT NULL,
   `perc_ibs_mun` decimal(10,2) DEFAULT NULL,
   `perc_cbs` decimal(10,2) DEFAULT NULL,
@@ -7966,7 +7985,7 @@ CREATE TABLE `pdv_logs` (
   CONSTRAINT `pdv_logs_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`),
   CONSTRAINT `pdv_logs_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`),
   CONSTRAINT `pdv_logs_usuario_id_foreign` FOREIGN KEY (`usuario_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7975,6 +7994,7 @@ CREATE TABLE `pdv_logs` (
 
 LOCK TABLES `pdv_logs` WRITE;
 /*!40000 ALTER TABLE `pdv_logs` DISABLE KEYS */;
+INSERT INTO `pdv_logs` VALUES (7,1,2,3,'Item removido',NULL,NULL,'2025-12-04 17:00:32','2025-12-04 17:00:32');
 /*!40000 ALTER TABLE `pdv_logs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8016,8 +8036,8 @@ CREATE TABLE `pedido_deliveries` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `funcionario_id_agendamento` int DEFAULT NULL,
-  `inicio_agendamento` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `fim_agendamento` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `inicio_agendamento` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `fim_agendamento` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `data_agendamento` date DEFAULT NULL,
   `numero_sequencial` int DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -8056,7 +8076,7 @@ CREATE TABLE `pedido_ecommerces` (
   `empresa_id` bigint unsigned NOT NULL,
   `endereco_id` bigint unsigned DEFAULT NULL,
   `estado` enum('novo','preparando','em_trasporte','finalizado','recusado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tipo_pagamento` enum('cartao','pix','boleto','deposito') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_pagamento` enum('cartao','pix','boleto','deposito') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `valor_total` decimal(10,2) NOT NULL,
   `valor_frete` decimal(10,2) NOT NULL,
   `desconto` decimal(10,2) NOT NULL,
@@ -8086,7 +8106,7 @@ CREATE TABLE `pedido_ecommerces` (
   `numero_documento` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `comprovante` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `comprovante` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `pedido_ecommerces_cliente_id_foreign` (`cliente_id`),
   KEY `pedido_ecommerces_empresa_id_foreign` (`empresa_id`),
@@ -8134,7 +8154,7 @@ CREATE TABLE `pedido_mercado_livres` (
   `bairro_entrega` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cidade_entrega` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `comentario_entrega` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `codigo_rastreamento` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_rastreamento` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cliente_nome` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cliente_documento` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -8236,9 +8256,9 @@ CREATE TABLE `pedidos` (
   `confirma_mesa` tinyint(1) DEFAULT '1',
   `nfce_id` int DEFAULT NULL,
   `mesa_id` int DEFAULT NULL,
-  `local_pedido` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `session_cart_cardapio` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `session_cart_user` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `local_pedido` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `session_cart_cardapio` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `session_cart_user` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -8437,12 +8457,12 @@ CREATE TABLE `planejamento_custos` (
   `frete` decimal(14,2) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `codigo_material` varchar(60) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `equipamento` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `desenho` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `material` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_material` varchar(60) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `equipamento` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `desenho` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `material` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `quantidade` decimal(10,2) DEFAULT NULL,
-  `unidade` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `unidade` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `projeto_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `planejamento_custos_empresa_id_foreign` (`empresa_id`),
@@ -8514,7 +8534,7 @@ CREATE TABLE `plano_empresas` (
   KEY `plano_empresas_plano_id_foreign` (`plano_id`),
   CONSTRAINT `plano_empresas_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`),
   CONSTRAINT `plano_empresas_plano_id_foreign` FOREIGN KEY (`plano_id`) REFERENCES `planos` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8523,6 +8543,7 @@ CREATE TABLE `plano_empresas` (
 
 LOCK TABLES `plano_empresas` WRITE;
 /*!40000 ALTER TABLE `plano_empresas` DISABLE KEYS */;
+INSERT INTO `plano_empresas` VALUES (1,1,1,'2026-12-04',200.00,'Dinheiro',NULL,'2025-12-04 15:07:25','2025-12-04 15:07:25');
 /*!40000 ALTER TABLE `plano_empresas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8572,7 +8593,7 @@ CREATE TABLE `planos` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `nome` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `descricao` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `descricao_curta` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `descricao_curta` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `maximo_nfes` int NOT NULL,
   `maximo_nfces` int NOT NULL,
   `maximo_ctes` int NOT NULL,
@@ -8587,7 +8608,7 @@ CREATE TABLE `planos` (
   `valor_implantacao` decimal(10,2) DEFAULT '0.00',
   `intervalo_dias` int NOT NULL,
   `dias_teste` int DEFAULT NULL,
-  `modulos` text COLLATE utf8mb4_unicode_ci,
+  `modulos` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `auto_cadastro` tinyint(1) DEFAULT '0',
   `fiscal` tinyint(1) DEFAULT '1',
   `segmento_id` int DEFAULT NULL,
@@ -8595,7 +8616,7 @@ CREATE TABLE `planos` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8604,6 +8625,7 @@ CREATE TABLE `planos` (
 
 LOCK TABLES `planos` WRITE;
 /*!40000 ALTER TABLE `planos` DISABLE KEYS */;
+INSERT INTO `planos` VALUES (1,'PREMIUM','','empresa teste',100,100,100,100,100,100,'',1,0,1,200.00,0.00,365,365,'[\"Produtos\",\"Pessoas\",\"Usu\\u00e1rios\",\"Compras\",\"PDV\",\"Vendas\",\"NFCe\",\"CTe\",\"MDFe\",\"Financeiro\",\"Veiculos\",\"Servi\\u00e7os\",\"Atendimento\",\"Cardapio\",\"Agendamentos\",\"Delivery\",\"Ecommerce\",\"NFSe\",\"Mercado Livre\",\"Nuvem Shop\",\"Pr\\u00e9 venda\",\"Reservas\",\"Localiza\\u00e7\\u00f5es\",\"Woocommerce\",\"Controle de Fretes\",\"Sped\",\"Ordem de Produ\\u00e7\\u00e3o\",\"CRM\",\"Planejamento de Custos\",\"Gest\\u00e3o de Produ\\u00e7\\u00e3o\"]',0,1,NULL,NULL,'2025-12-04 15:06:38','2025-12-04 15:06:38');
 /*!40000 ALTER TABLE `planos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8776,7 +8798,7 @@ CREATE TABLE `produto_fornecedors` (
   KEY `produto_fornecedors_fornecedor_id_foreign` (`fornecedor_id`),
   CONSTRAINT `produto_fornecedors_fornecedor_id_foreign` FOREIGN KEY (`fornecedor_id`) REFERENCES `fornecedors` (`id`),
   CONSTRAINT `produto_fornecedors_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8785,6 +8807,7 @@ CREATE TABLE `produto_fornecedors` (
 
 LOCK TABLES `produto_fornecedors` WRITE;
 /*!40000 ALTER TABLE `produto_fornecedors` DISABLE KEYS */;
+INSERT INTO `produto_fornecedors` VALUES (2,2,1,'2025-12-04 15:39:13','2025-12-04 15:39:13'),(3,3,1,'2025-12-04 15:44:00','2025-12-04 15:44:00'),(4,4,1,'2025-12-04 16:54:17','2025-12-04 16:54:17'),(5,5,1,'2025-12-05 11:53:19','2025-12-05 11:53:19');
 /*!40000 ALTER TABLE `produto_fornecedors` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -8917,7 +8940,7 @@ CREATE TABLE `produto_localizacaos` (
   KEY `produto_localizacaos_localizacao_id_foreign` (`localizacao_id`),
   CONSTRAINT `produto_localizacaos_localizacao_id_foreign` FOREIGN KEY (`localizacao_id`) REFERENCES `localizacaos` (`id`),
   CONSTRAINT `produto_localizacaos_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -8926,6 +8949,7 @@ CREATE TABLE `produto_localizacaos` (
 
 LOCK TABLES `produto_localizacaos` WRITE;
 /*!40000 ALTER TABLE `produto_localizacaos` DISABLE KEYS */;
+INSERT INTO `produto_localizacaos` VALUES (19,5,5,'2025-12-05 11:52:26','2025-12-05 11:52:26');
 /*!40000 ALTER TABLE `produto_localizacaos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -9104,7 +9128,7 @@ CREATE TABLE `produto_unicos` (
   CONSTRAINT `produto_unicos_nfce_id_foreign` FOREIGN KEY (`nfce_id`) REFERENCES `nfces` (`id`),
   CONSTRAINT `produto_unicos_nfe_id_foreign` FOREIGN KEY (`nfe_id`) REFERENCES `nves` (`id`),
   CONSTRAINT `produto_unicos_produto_id_foreign` FOREIGN KEY (`produto_id`) REFERENCES `produtos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9113,6 +9137,7 @@ CREATE TABLE `produto_unicos` (
 
 LOCK TABLES `produto_unicos` WRITE;
 /*!40000 ALTER TABLE `produto_unicos` DISABLE KEYS */;
+INSERT INTO `produto_unicos` VALUES (65,NULL,6,4,'51123','','saida',0,'2025-12-04 17:05:32','2025-12-04 17:05:32'),(76,10,NULL,5,'1231323432','','entrada',0,'2025-12-05 11:53:46','2025-12-05 11:54:12'),(77,10,NULL,5,'123123234','','entrada',0,'2025-12-05 11:53:46','2025-12-05 11:54:55'),(78,10,NULL,5,'123123','','entrada',1,'2025-12-05 11:53:46','2025-12-05 11:53:46'),(79,10,NULL,5,'12312345','','entrada',1,'2025-12-05 11:53:46','2025-12-05 11:53:46'),(80,10,NULL,5,'1231232345','','entrada',0,'2025-12-05 11:53:46','2025-12-05 11:54:55'),(81,10,NULL,5,'123123525','','entrada',1,'2025-12-05 11:53:46','2025-12-05 11:53:46'),(82,10,NULL,5,'1231233457','','entrada',1,'2025-12-05 11:53:46','2025-12-05 11:53:46'),(83,10,NULL,5,'12312345','','entrada',1,'2025-12-05 11:53:46','2025-12-05 11:53:46'),(84,10,NULL,5,'1231236','','entrada',1,'2025-12-05 11:53:46','2025-12-05 11:53:46'),(85,10,NULL,5,'124124234','','entrada',1,'2025-12-05 11:53:46','2025-12-05 11:53:46'),(86,11,NULL,5,'1231323432','','saida',0,'2025-12-05 11:54:12','2025-12-05 11:54:12'),(87,NULL,7,5,'123123234','','saida',0,'2025-12-05 11:54:55','2025-12-05 11:54:55'),(88,NULL,7,5,'1231232345','','saida',0,'2025-12-05 11:54:55','2025-12-05 11:54:55');
 /*!40000 ALTER TABLE `produto_unicos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -9165,12 +9190,12 @@ CREATE TABLE `produtos` (
   `marca_id` bigint unsigned DEFAULT NULL,
   `variacao_modelo_id` int DEFAULT NULL,
   `sub_variacao_modelo_id` int DEFAULT NULL,
-  `nome` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `local_armazenamento` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nome` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `local_armazenamento` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `codigo_barras` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `codigo_barras2` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `codigo_barras3` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `referencia` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_barras2` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_barras3` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `referencia` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ncm` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `unidade` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `imagem` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -9193,8 +9218,8 @@ CREATE TABLE `produtos` (
   `percentual_lucro` decimal(10,2) DEFAULT '0.00',
   `cfop_estadual` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `cfop_outro_estado` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `cfop_entrada_estadual` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cfop_entrada_outro_estado` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cfop_entrada_estadual` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cfop_entrada_outro_estado` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `codigo_beneficio_fiscal` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `cEnq` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `gerenciar_estoque` tinyint(1) NOT NULL DEFAULT '0',
@@ -9202,14 +9227,14 @@ CREATE TABLE `produtos` (
   `pBio` decimal(10,4) DEFAULT '0.0000',
   `tipo_servico` tinyint(1) DEFAULT '0',
   `indImport` int DEFAULT '0',
-  `cUFOrig` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cUFOrig` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pOrig` decimal(5,2) DEFAULT '0.00',
-  `codigo_anp` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_anp` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `perc_glp` decimal(5,2) DEFAULT '0.00',
   `perc_gnn` decimal(5,2) DEFAULT '0.00',
   `perc_gni` decimal(5,2) DEFAULT '0.00',
   `valor_partida` decimal(10,2) DEFAULT '0.00',
-  `unidade_tributavel` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `unidade_tributavel` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `quantidade_tributavel` decimal(10,2) DEFAULT '0.00',
   `status` tinyint(1) NOT NULL DEFAULT '1',
   `cardapio` tinyint(1) NOT NULL DEFAULT '0',
@@ -9234,46 +9259,46 @@ CREATE TABLE `produtos` (
   `combo` tinyint(1) DEFAULT '0',
   `margem_combo` decimal(5,2) DEFAULT '0.00',
   `estoque_minimo` decimal(5,2) DEFAULT '0.00',
-  `alerta_validade` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `alerta_validade` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `referencia_balanca` int DEFAULT NULL,
   `balanca_pdv` tinyint(1) DEFAULT '0',
   `exportar_balanca` tinyint(1) DEFAULT '0',
   `valor_ecommerce` decimal(12,4) DEFAULT NULL,
   `destaque_ecommerce` tinyint(1) DEFAULT '0',
   `percentual_desconto` int DEFAULT NULL,
-  `descricao_ecommerce` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `texto_ecommerce` text COLLATE utf8mb4_unicode_ci,
+  `descricao_ecommerce` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `texto_ecommerce` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `largura` decimal(8,2) DEFAULT NULL,
   `comprimento` decimal(8,2) DEFAULT NULL,
   `altura` decimal(8,2) DEFAULT NULL,
   `peso` decimal(12,3) DEFAULT NULL,
   `peso_bruto` decimal(12,3) DEFAULT NULL,
-  `hash_ecommerce` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `hash_delivery` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `texto_delivery` text COLLATE utf8mb4_unicode_ci,
-  `mercado_livre_id` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `mercado_livre_link` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hash_ecommerce` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hash_delivery` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `texto_delivery` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `mercado_livre_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mercado_livre_link` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mercado_livre_valor` decimal(12,4) DEFAULT NULL,
-  `mercado_livre_categoria` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `condicao_mercado_livre` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mercado_livre_categoria` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `condicao_mercado_livre` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `quantidade_mercado_livre` int DEFAULT NULL,
-  `mercado_livre_tipo_publicacao` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `mercado_livre_youtube` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `mercado_livre_descricao` text COLLATE utf8mb4_unicode_ci,
+  `mercado_livre_tipo_publicacao` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mercado_livre_youtube` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mercado_livre_descricao` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `mercado_livre_status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `mercado_livre_modelo` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `woocommerce_id` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `woocommerce_slug` varchar(80) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `woocommerce_link` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mercado_livre_modelo` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `woocommerce_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `woocommerce_slug` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `woocommerce_link` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `woocommerce_valor` decimal(12,4) DEFAULT NULL,
-  `woocommerce_type` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `woocommerce_status` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `woocommerce_descricao` text COLLATE utf8mb4_unicode_ci,
-  `woocommerce_stock_status` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `categorias_woocommerce` text COLLATE utf8mb4_unicode_ci,
-  `nuvem_shop_id` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `woocommerce_type` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `woocommerce_status` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `woocommerce_descricao` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `woocommerce_stock_status` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `categorias_woocommerce` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `nuvem_shop_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `nuvem_shop_valor` decimal(12,4) DEFAULT NULL,
-  `texto_nuvem_shop` text COLLATE utf8mb4_unicode_ci,
+  `texto_nuvem_shop` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `modBCST` int DEFAULT NULL,
   `pMVAST` decimal(5,2) DEFAULT NULL,
   `pICMSST` decimal(5,2) DEFAULT NULL,
@@ -9282,30 +9307,30 @@ CREATE TABLE `produtos` (
   `pRedBCEfet` decimal(5,2) DEFAULT NULL,
   `valor_atacado` decimal(22,7) DEFAULT '0.0000000',
   `quantidade_atacado` int DEFAULT NULL,
-  `referencia_xml` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `referencia_xml` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `tipo_dimensao` tinyint(1) DEFAULT '0',
   `tipo_producao` tinyint(1) DEFAULT '0',
   `espessura` decimal(8,2) DEFAULT NULL,
   `_id_import` int DEFAULT NULL,
-  `observacao` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `observacao2` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `observacao3` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `observacao4` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao2` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao3` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao4` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `numero_sequencial` int DEFAULT NULL,
-  `ifood_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `vendizap_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ifood_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `vendizap_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `vendizap_valor` decimal(12,4) DEFAULT NULL,
-  `tipo_item_sped` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_item_sped` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `prazo_garantia` int DEFAULT NULL,
-  `cst_ibscbs` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `cclass_trib` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cst_ibscbs` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `cclass_trib` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `perc_ibs_uf` decimal(10,2) DEFAULT '0.00',
   `perc_ibs_mun` decimal(10,2) DEFAULT '0.00',
   `perc_cbs` decimal(10,2) DEFAULT '0.00',
   `perc_dif` decimal(10,2) DEFAULT '0.00',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `ponto_carne` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ponto_carne` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `produtos_empresa_id_foreign` (`empresa_id`),
   KEY `produtos_categoria_id_foreign` (`categoria_id`),
@@ -9317,7 +9342,7 @@ CREATE TABLE `produtos` (
   CONSTRAINT `produtos_marca_id_foreign` FOREIGN KEY (`marca_id`) REFERENCES `marcas` (`id`),
   CONSTRAINT `produtos_padrao_id_foreign` FOREIGN KEY (`padrao_id`) REFERENCES `padrao_tributacao_produtos` (`id`),
   CONSTRAINT `produtos_sub_categoria_id_foreign` FOREIGN KEY (`sub_categoria_id`) REFERENCES `categoria_produtos` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9326,6 +9351,7 @@ CREATE TABLE `produtos` (
 
 LOCK TABLES `produtos` WRITE;
 /*!40000 ALTER TABLE `produtos` DISABLE KEYS */;
+INSERT INTO `produtos` VALUES (2,1,NULL,NULL,NULL,NULL,NULL,NULL,'Iphone 16 pro max',NULL,NULL,NULL,NULL,NULL,'8416.30.00','UN','',1.23,1.23,1.23,1.23,NULL,0,'101','01','01','00',NULL,NULL,4950.0000,0.0000,0.0000,4500.0000,10.00,'123','6231','123','223',NULL,'001',1,0.0000,0.0000,0,0,'',0.00,'',0.00,0.00,0.00,0.00,'',0.00,1,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL,0,1,0,0,0.00,0.00,NULL,NULL,0,0,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,NULL,0.0000,NULL,NULL,NULL,NULL,NULL,'','',NULL,NULL,NULL,NULL,4.9500,NULL,'publish','','instock','[]',NULL,4950.0000,'',0,NULL,NULL,NULL,NULL,NULL,0.0000000,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,NULL,2,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0.00,0.00,0.00,0.00,'2025-12-04 15:38:29','2025-12-04 15:42:02',NULL),(3,1,NULL,NULL,NULL,NULL,NULL,NULL,'Iphone 16 pro max',NULL,NULL,NULL,NULL,NULL,'8543.70.91','UN','',1.23,1.23,1.23,1.23,NULL,0,'101','01','01','00',NULL,NULL,6300.0000,0.0000,4950.0000,4500.0000,40.00,'123','6231','123','223',NULL,'001',1,0.0000,0.0000,0,0,'',0.00,'',0.00,0.00,0.00,0.00,'',0.00,1,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL,0,1,0,0,0.00,0.00,NULL,NULL,0,0,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,NULL,0.0000,NULL,NULL,NULL,NULL,NULL,'','',NULL,NULL,NULL,NULL,6.3000,NULL,'publish','','instock','[]',NULL,6300.0000,'',0,NULL,NULL,NULL,NULL,NULL,0.0000000,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,NULL,3,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0.00,0.00,0.00,0.00,'2025-12-04 15:43:24','2025-12-05 11:48:44',NULL),(4,1,NULL,NULL,NULL,NULL,NULL,NULL,'SANSUNG GALAXY S24E',NULL,NULL,NULL,NULL,NULL,'8416.30.00','UN','',1.23,1.23,1.23,1.23,NULL,0,'101','01','01','00',NULL,NULL,4950.0000,0.0000,4950.0000,4500.0000,10.00,'123','6231','123','223',NULL,'001',0,0.0000,0.0000,0,0,'',0.00,'',0.00,0.00,0.00,0.00,'',0.00,1,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL,0,1,0,0,0.00,0.00,NULL,NULL,0,0,NULL,0,NULL,NULL,'',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,NULL,0.0000,NULL,NULL,NULL,NULL,NULL,'','',NULL,NULL,NULL,NULL,4950.0000,NULL,'publish','','instock','[]',NULL,4950.0000,'',0,NULL,NULL,NULL,NULL,NULL,0.0000000,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,NULL,4,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0.00,0.00,0.00,0.00,'2025-12-04 16:53:30','2025-12-05 11:49:17',NULL),(5,1,NULL,NULL,NULL,NULL,NULL,NULL,'Iphone 16 pro max',NULL,'7891000174067',NULL,NULL,NULL,'9701.92.00','UN','',495.00,495.00,495.00,495.00,NULL,0,'101','01','01','00',NULL,NULL,4950.0000,0.0000,4950.0000,4500.0000,10.00,'4950','6950','1950','2950',NULL,'001',1,0.0000,0.0000,0,0,'',0.00,'',0.00,0.00,0.00,0.00,'',0.00,1,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL,0,1,0,0,0.00,0.00,NULL,NULL,0,0,NULL,0,NULL,NULL,'',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'',NULL,NULL,0.0000,NULL,NULL,NULL,NULL,NULL,'','',NULL,NULL,NULL,NULL,4950.0000,NULL,'publish','','instock','[]',NULL,4950.0000,'',0,NULL,NULL,NULL,NULL,NULL,0.0000000,NULL,NULL,0,0,NULL,NULL,NULL,NULL,NULL,NULL,5,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0.00,0.00,0.00,0.00,'2025-12-05 11:52:26','2025-12-05 11:53:19',NULL);
 /*!40000 ALTER TABLE `produtos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -9483,7 +9509,7 @@ CREATE TABLE `registro_tefs` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `usuario_id` int DEFAULT NULL,
-  `finalizacao` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `finalizacao` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `registro_tefs_empresa_id_foreign` (`empresa_id`),
   KEY `registro_tefs_nfce_id_foreign` (`nfce_id`),
@@ -9718,7 +9744,7 @@ CREATE TABLE `reservas` (
   `link_externo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `numero_sequencial` int DEFAULT NULL,
   `data_checkin_realizado` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `motivo_cancelamento` text COLLATE utf8mb4_unicode_ci,
+  `motivo_cancelamento` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `nfe_id` int DEFAULT NULL,
   `nfse_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -9797,7 +9823,7 @@ CREATE TABLE `role_has_permissions` (
 
 LOCK TABLES `role_has_permissions` WRITE;
 /*!40000 ALTER TABLE `role_has_permissions` DISABLE KEYS */;
-INSERT INTO `role_has_permissions` VALUES (126,3),(127,3),(128,3),(129,3),(130,3),(131,3),(132,3),(133,3),(134,3),(135,3),(136,3),(137,3),(138,3),(139,3),(140,3),(141,3),(142,3),(143,3),(144,3),(145,3),(146,3),(147,3),(148,3),(149,3),(150,3),(151,3),(152,3),(153,3),(154,3),(155,3),(156,3),(157,3),(158,3),(159,3),(160,3),(161,3),(162,3),(163,3),(164,3),(165,3),(166,3),(167,3),(168,3),(169,3),(170,3),(171,3),(172,3),(173,3),(174,3),(175,3),(176,3),(177,3),(178,3),(179,3),(180,3),(181,3),(182,3),(183,3),(184,3),(185,3),(186,3),(187,3),(188,3),(189,3),(190,3),(191,3),(192,3),(193,3),(194,3),(195,3),(196,3),(197,3),(198,3),(199,3),(200,3),(201,3),(202,3),(203,3),(204,3),(205,3),(206,3),(207,3),(208,3),(209,3),(210,3),(211,3),(212,3),(213,3),(214,3),(215,3),(216,3),(217,3),(218,3),(219,3),(220,3),(221,3),(222,3),(223,3),(224,3),(225,3),(226,3),(227,3),(228,3),(229,3),(230,3),(231,3),(232,3),(233,3),(234,3),(235,3),(236,3),(237,3),(238,3),(239,3),(240,3),(241,3),(242,3),(243,3),(244,3),(245,3),(246,3),(247,3),(248,3),(249,3),(250,3),(251,3),(252,3),(253,3),(254,3),(255,3),(256,3),(257,3),(258,3),(259,3),(260,3),(261,3),(262,3),(263,3),(264,3),(265,3),(266,3),(267,3),(268,3),(269,3),(270,3),(271,3),(272,3),(273,3),(274,3),(275,3),(276,3),(277,3),(278,3),(279,3),(280,3),(281,3),(282,3),(283,3),(284,3),(285,3),(286,3),(287,3),(288,3),(289,3),(290,3),(291,3),(292,3),(293,3),(294,3),(295,3),(296,3),(297,3),(298,3),(299,3),(300,3),(301,3),(302,3),(303,3),(304,3),(305,3),(306,3),(307,3),(308,3),(309,3),(310,3),(311,3),(312,3),(313,3),(314,3),(315,3),(316,3),(317,3),(318,3),(319,3),(320,3),(321,3),(322,3),(323,3),(324,3),(325,3),(326,3),(327,3),(328,3),(329,3),(330,3),(331,3),(332,3),(333,3),(334,3),(335,3),(336,3),(337,3),(338,3),(339,3),(340,3),(341,3),(342,3),(343,3),(344,3),(345,3),(346,3),(347,3),(348,3),(349,3),(350,3),(351,3),(352,3),(353,3),(354,3),(355,3),(356,3),(357,3),(358,3),(359,3),(360,3),(361,3),(362,3),(363,3),(364,3),(365,3),(366,3),(367,3),(368,3),(369,3),(370,3),(371,3),(372,3),(373,3),(374,3),(375,3),(376,3),(377,3),(378,3),(379,3),(380,3),(381,3),(382,3),(383,3),(384,3),(385,3),(386,3),(387,3),(388,3),(389,3),(390,3),(391,3),(392,3),(393,3),(394,3),(395,3),(396,3),(397,3),(398,3),(399,3),(400,3),(401,3),(402,3),(403,3),(404,3),(405,3),(406,3),(407,3),(408,3),(409,3),(410,3),(411,3),(412,3),(413,3),(414,3),(415,3),(416,3),(417,3),(418,3),(419,3),(420,3),(421,3),(422,3),(423,3),(424,3),(425,3),(426,3),(427,3),(428,3),(429,3),(430,3),(431,3),(432,3),(433,3),(434,3),(435,3),(436,3),(437,3),(438,3),(126,4),(127,4),(128,4),(129,4),(130,4),(131,4),(132,4),(133,4),(134,4),(135,4),(136,4),(137,4),(138,4),(139,4),(140,4),(141,4),(142,4),(143,4),(144,4),(145,4),(146,4),(147,4),(148,4),(149,4),(150,4),(151,4),(152,4),(153,4),(154,4),(155,4),(156,4),(157,4),(158,4),(159,4),(160,4),(161,4),(162,4),(163,4),(164,4),(165,4),(166,4),(167,4),(168,4),(169,4),(170,4),(171,4),(172,4),(173,4),(174,4),(175,4),(176,4),(177,4),(178,4),(179,4),(180,4),(181,4),(182,4),(183,4),(184,4),(185,4),(186,4),(187,4),(188,4),(189,4),(190,4),(191,4),(192,4),(193,4),(194,4),(195,4),(196,4),(197,4),(198,4),(199,4),(200,4),(201,4),(202,4),(203,4),(204,4),(205,4),(206,4),(207,4),(208,4),(209,4),(210,4),(211,4),(212,4),(213,4),(214,4),(215,4),(216,4),(217,4),(218,4),(219,4),(220,4),(221,4),(222,4),(223,4),(224,4),(225,4),(226,4),(227,4),(228,4),(229,4),(230,4),(231,4),(232,4),(233,4),(234,4),(235,4),(236,4),(237,4),(238,4),(239,4),(240,4),(241,4),(242,4),(243,4),(244,4),(245,4),(246,4),(247,4),(248,4),(249,4),(250,4),(251,4),(252,4),(253,4),(254,4),(255,4),(256,4),(257,4),(258,4),(259,4),(260,4),(261,4),(262,4),(263,4),(264,4),(265,4),(266,4),(267,4),(268,4),(269,4),(270,4),(271,4),(272,4),(273,4),(274,4),(275,4),(276,4),(277,4),(278,4),(279,4),(280,4),(281,4),(282,4),(283,4),(284,4),(285,4),(286,4),(287,4),(288,4),(289,4),(290,4),(291,4),(292,4),(293,4),(294,4),(295,4),(296,4),(297,4),(298,4),(299,4),(300,4),(301,4),(302,4),(303,4),(304,4),(305,4),(306,4),(307,4),(308,4),(309,4),(310,4),(311,4),(312,4),(313,4),(314,4),(315,4),(316,4),(317,4),(318,4),(319,4),(320,4),(321,4),(322,4),(323,4),(324,4),(325,4),(326,4),(327,4),(328,4),(329,4),(330,4),(331,4),(332,4),(333,4),(334,4),(335,4),(336,4),(337,4),(338,4),(339,4),(340,4),(341,4),(342,4),(343,4),(344,4),(345,4),(346,4),(347,4),(348,4),(349,4),(350,4),(351,4),(352,4),(353,4),(354,4),(355,4),(356,4),(357,4),(358,4),(359,4),(360,4),(361,4),(362,4),(363,4),(364,4),(365,4),(366,4),(367,4),(368,4),(369,4),(370,4),(371,4),(372,4),(373,4),(374,4),(375,4),(376,4),(377,4),(378,4),(379,4),(380,4),(381,4),(382,4),(383,4),(384,4),(385,4),(386,4),(387,4),(388,4),(389,4),(390,4),(391,4),(392,4),(393,4),(394,4),(395,4),(396,4),(397,4),(398,4),(399,4),(400,4),(401,4),(402,4),(403,4),(404,4),(405,4),(406,4),(407,4),(408,4),(409,4),(410,4),(411,4),(412,4),(413,4),(414,4),(415,4),(416,4),(417,4),(418,4),(419,4),(420,4),(421,4),(422,4),(423,4),(424,4),(425,4),(426,4),(427,4),(428,4),(429,4),(430,4),(431,4),(432,4),(433,4),(434,4),(435,4),(436,4),(437,4),(438,4);
+INSERT INTO `role_has_permissions` VALUES (126,3),(127,3),(128,3),(129,3),(130,3),(131,3),(132,3),(133,3),(134,3),(135,3),(136,3),(137,3),(138,3),(139,3),(140,3),(141,3),(142,3),(143,3),(144,3),(145,3),(146,3),(147,3),(148,3),(149,3),(150,3),(151,3),(152,3),(153,3),(154,3),(155,3),(156,3),(157,3),(158,3),(159,3),(160,3),(161,3),(162,3),(163,3),(164,3),(165,3),(166,3),(167,3),(168,3),(169,3),(170,3),(171,3),(172,3),(173,3),(174,3),(175,3),(176,3),(177,3),(178,3),(179,3),(180,3),(181,3),(182,3),(183,3),(184,3),(185,3),(186,3),(187,3),(188,3),(189,3),(190,3),(191,3),(192,3),(193,3),(194,3),(195,3),(196,3),(197,3),(198,3),(199,3),(200,3),(201,3),(202,3),(203,3),(204,3),(205,3),(206,3),(207,3),(208,3),(209,3),(210,3),(211,3),(212,3),(213,3),(214,3),(215,3),(216,3),(217,3),(218,3),(219,3),(220,3),(221,3),(222,3),(223,3),(224,3),(225,3),(226,3),(227,3),(228,3),(229,3),(230,3),(231,3),(232,3),(233,3),(234,3),(235,3),(236,3),(237,3),(238,3),(239,3),(240,3),(241,3),(242,3),(243,3),(244,3),(245,3),(246,3),(247,3),(248,3),(249,3),(250,3),(251,3),(252,3),(253,3),(254,3),(255,3),(256,3),(257,3),(258,3),(259,3),(260,3),(261,3),(262,3),(263,3),(264,3),(265,3),(266,3),(267,3),(268,3),(269,3),(270,3),(271,3),(272,3),(273,3),(274,3),(275,3),(276,3),(277,3),(278,3),(279,3),(280,3),(281,3),(282,3),(283,3),(284,3),(285,3),(286,3),(287,3),(288,3),(289,3),(290,3),(291,3),(292,3),(293,3),(294,3),(295,3),(296,3),(297,3),(298,3),(299,3),(300,3),(301,3),(302,3),(303,3),(304,3),(305,3),(306,3),(307,3),(308,3),(309,3),(310,3),(311,3),(312,3),(313,3),(314,3),(315,3),(316,3),(317,3),(318,3),(319,3),(320,3),(321,3),(322,3),(323,3),(324,3),(325,3),(326,3),(327,3),(328,3),(329,3),(330,3),(331,3),(332,3),(333,3),(334,3),(335,3),(336,3),(337,3),(338,3),(339,3),(340,3),(341,3),(342,3),(343,3),(344,3),(345,3),(346,3),(347,3),(348,3),(349,3),(350,3),(351,3),(352,3),(353,3),(354,3),(355,3),(356,3),(357,3),(358,3),(359,3),(360,3),(361,3),(362,3),(363,3),(364,3),(365,3),(366,3),(367,3),(368,3),(369,3),(370,3),(371,3),(372,3),(373,3),(374,3),(375,3),(376,3),(377,3),(378,3),(379,3),(380,3),(381,3),(382,3),(383,3),(384,3),(385,3),(386,3),(387,3),(388,3),(389,3),(390,3),(391,3),(392,3),(393,3),(394,3),(395,3),(396,3),(397,3),(398,3),(399,3),(400,3),(401,3),(402,3),(403,3),(404,3),(405,3),(406,3),(407,3),(408,3),(409,3),(410,3),(411,3),(412,3),(413,3),(414,3),(415,3),(416,3),(417,3),(418,3),(419,3),(420,3),(421,3),(422,3),(423,3),(424,3),(425,3),(426,3),(427,3),(428,3),(429,3),(430,3),(431,3),(432,3),(433,3),(434,3),(435,3),(436,3),(437,3),(438,3),(126,4),(127,4),(128,4),(129,4),(130,4),(131,4),(132,4),(133,4),(134,4),(135,4),(136,4),(137,4),(138,4),(139,4),(140,4),(141,4),(142,4),(143,4),(144,4),(145,4),(146,4),(147,4),(148,4),(149,4),(150,4),(151,4),(152,4),(153,4),(154,4),(155,4),(156,4),(157,4),(158,4),(159,4),(160,4),(161,4),(162,4),(163,4),(164,4),(165,4),(166,4),(167,4),(168,4),(169,4),(170,4),(171,4),(172,4),(173,4),(174,4),(175,4),(176,4),(177,4),(178,4),(179,4),(180,4),(181,4),(182,4),(183,4),(184,4),(185,4),(186,4),(187,4),(188,4),(189,4),(190,4),(191,4),(192,4),(193,4),(194,4),(195,4),(196,4),(197,4),(198,4),(199,4),(200,4),(201,4),(202,4),(203,4),(204,4),(205,4),(206,4),(207,4),(208,4),(209,4),(210,4),(211,4),(212,4),(213,4),(214,4),(215,4),(216,4),(217,4),(218,4),(219,4),(220,4),(221,4),(222,4),(223,4),(224,4),(225,4),(226,4),(227,4),(228,4),(229,4),(230,4),(231,4),(232,4),(233,4),(234,4),(235,4),(236,4),(237,4),(238,4),(239,4),(240,4),(241,4),(242,4),(243,4),(244,4),(245,4),(246,4),(247,4),(248,4),(249,4),(250,4),(251,4),(252,4),(253,4),(254,4),(255,4),(256,4),(257,4),(258,4),(259,4),(260,4),(261,4),(262,4),(263,4),(264,4),(265,4),(266,4),(267,4),(268,4),(269,4),(270,4),(271,4),(272,4),(273,4),(274,4),(275,4),(276,4),(277,4),(278,4),(279,4),(280,4),(281,4),(282,4),(283,4),(284,4),(285,4),(286,4),(287,4),(288,4),(289,4),(290,4),(291,4),(292,4),(293,4),(294,4),(295,4),(296,4),(297,4),(298,4),(299,4),(300,4),(301,4),(302,4),(303,4),(304,4),(305,4),(306,4),(307,4),(308,4),(309,4),(310,4),(311,4),(312,4),(313,4),(314,4),(315,4),(316,4),(317,4),(318,4),(319,4),(320,4),(321,4),(322,4),(323,4),(324,4),(325,4),(326,4),(327,4),(328,4),(329,4),(330,4),(331,4),(332,4),(333,4),(334,4),(335,4),(336,4),(337,4),(338,4),(339,4),(340,4),(341,4),(342,4),(343,4),(344,4),(345,4),(346,4),(347,4),(348,4),(349,4),(350,4),(351,4),(352,4),(353,4),(354,4),(355,4),(356,4),(357,4),(358,4),(359,4),(360,4),(361,4),(362,4),(363,4),(364,4),(365,4),(366,4),(367,4),(368,4),(369,4),(370,4),(371,4),(372,4),(373,4),(374,4),(375,4),(376,4),(377,4),(378,4),(379,4),(380,4),(381,4),(382,4),(383,4),(384,4),(385,4),(386,4),(387,4),(388,4),(389,4),(390,4),(391,4),(392,4),(393,4),(394,4),(395,4),(396,4),(397,4),(398,4),(399,4),(400,4),(401,4),(402,4),(403,4),(404,4),(405,4),(406,4),(407,4),(408,4),(409,4),(410,4),(411,4),(412,4),(413,4),(414,4),(415,4),(416,4),(417,4),(418,4),(419,4),(420,4),(421,4),(422,4),(423,4),(424,4),(425,4),(426,4),(427,4),(428,4),(429,4),(430,4),(431,4),(432,4),(433,4),(434,4),(435,4),(436,4),(437,4),(438,4),(126,5),(127,5),(128,5),(129,5),(130,5),(131,5),(132,5),(133,5),(134,5),(135,5),(136,5),(137,5),(138,5),(139,5),(140,5),(141,5),(142,5),(143,5),(144,5),(145,5),(146,5),(147,5),(148,5),(149,5),(150,5),(151,5),(152,5),(153,5),(154,5),(155,5),(156,5),(157,5),(158,5),(159,5),(160,5),(161,5),(162,5),(163,5),(164,5),(165,5),(166,5),(167,5),(168,5),(169,5),(170,5),(171,5),(172,5),(173,5),(174,5),(175,5),(176,5),(177,5),(178,5),(179,5),(180,5),(181,5),(182,5),(183,5),(184,5),(185,5),(186,5),(187,5),(188,5),(189,5),(190,5),(191,5),(192,5),(193,5),(194,5),(195,5),(196,5),(197,5),(198,5),(199,5),(200,5),(201,5),(202,5),(203,5),(204,5),(205,5),(206,5),(207,5),(208,5),(209,5),(210,5),(211,5),(212,5),(213,5),(214,5),(215,5),(216,5),(217,5),(218,5),(219,5),(220,5),(221,5),(222,5),(223,5),(224,5),(225,5),(226,5),(227,5),(228,5),(229,5),(230,5),(231,5),(232,5),(233,5),(234,5),(235,5),(236,5),(237,5),(238,5),(239,5),(240,5),(241,5),(242,5),(243,5),(244,5),(245,5),(246,5),(247,5),(248,5),(249,5),(250,5),(251,5),(252,5),(253,5),(254,5),(255,5),(256,5),(257,5),(258,5),(259,5),(260,5),(261,5),(262,5),(263,5),(264,5),(265,5),(266,5),(267,5),(268,5),(269,5),(270,5),(271,5),(272,5),(273,5),(274,5),(275,5),(276,5),(277,5),(278,5),(279,5),(280,5),(281,5),(282,5),(283,5),(284,5),(285,5),(286,5),(287,5),(288,5),(289,5),(290,5),(291,5),(292,5),(293,5),(294,5),(295,5),(296,5),(297,5),(298,5),(299,5),(300,5),(301,5),(302,5),(303,5),(304,5),(305,5),(306,5),(307,5),(308,5),(309,5),(310,5),(311,5),(312,5),(313,5),(314,5),(315,5),(316,5),(317,5),(318,5),(319,5),(320,5),(321,5),(322,5),(323,5),(324,5),(325,5),(326,5),(327,5),(328,5),(329,5),(330,5),(331,5),(332,5),(333,5),(334,5),(335,5),(336,5),(337,5),(338,5),(339,5),(340,5),(341,5),(342,5),(343,5),(344,5),(345,5),(346,5),(347,5),(348,5),(349,5),(350,5),(351,5),(352,5),(353,5),(354,5),(355,5),(356,5),(357,5),(358,5),(359,5),(360,5),(361,5),(362,5),(363,5),(364,5),(365,5),(366,5),(367,5),(368,5),(369,5),(370,5),(371,5),(372,5),(373,5),(374,5),(375,5),(376,5),(377,5),(378,5),(379,5),(380,5),(381,5),(382,5),(383,5),(384,5),(385,5),(386,5),(387,5),(388,5),(389,5),(390,5),(391,5),(392,5),(393,5),(394,5),(395,5),(396,5),(397,5),(398,5),(399,5),(400,5),(401,5),(402,5),(403,5),(404,5),(405,5),(406,5),(407,5),(408,5),(409,5),(410,5),(411,5),(412,5),(413,5),(414,5),(415,5),(416,5),(417,5),(418,5),(419,5),(420,5),(421,5),(422,5),(423,5),(424,5),(425,5),(426,5),(427,5),(428,5),(429,5),(430,5),(431,5),(432,5),(433,5),(434,5),(435,5),(436,5),(437,5),(438,5);
 /*!40000 ALTER TABLE `role_has_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -9822,7 +9848,7 @@ CREATE TABLE `roles` (
   UNIQUE KEY `roles_name_guard_name_unique` (`name`,`guard_name`),
   KEY `roles_empresa_id_foreign` (`empresa_id`),
   CONSTRAINT `roles_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -9831,7 +9857,7 @@ CREATE TABLE `roles` (
 
 LOCK TABLES `roles` WRITE;
 /*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-INSERT INTO `roles` VALUES (3,'gestor_plataforma','Gestor Plataforma','web',NULL,0,1,'2025-12-03 16:07:06','2025-12-03 16:07:06'),(4,'admin','Admin','web',NULL,0,2,'2025-12-03 16:07:09','2025-12-03 16:07:09');
+INSERT INTO `roles` VALUES (3,'gestor_plataforma','Gestor Plataforma','web',NULL,0,1,'2025-12-03 16:07:06','2025-12-03 16:07:06'),(4,'admin','Admin','web',NULL,0,2,'2025-12-03 16:07:09','2025-12-03 16:07:09'),(5,'Admin#1','Admin','web',1,1,2,'2025-12-04 15:05:40','2025-12-04 15:05:40');
 /*!40000 ALTER TABLE `roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -10050,14 +10076,14 @@ CREATE TABLE `servicos` (
   `aliquota_pis` decimal(6,2) DEFAULT NULL,
   `aliquota_cofins` decimal(6,2) DEFAULT NULL,
   `aliquota_inss` decimal(6,2) DEFAULT NULL,
-  `imagem` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `imagem` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` tinyint(1) DEFAULT '1',
   `reserva` tinyint(1) DEFAULT '0',
   `padrao_reserva_nfse` tinyint(1) DEFAULT '0',
   `marketplace` tinyint(1) DEFAULT '0',
-  `codigo_tributacao_municipio` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `hash_delivery` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `descricao` text COLLATE utf8mb4_unicode_ci,
+  `codigo_tributacao_municipio` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hash_delivery` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `descricao` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `destaque_marketplace` tinyint(1) DEFAULT NULL,
   `aliquota_ir` decimal(7,2) DEFAULT NULL,
   `aliquota_csll` decimal(7,2) DEFAULT NULL,
@@ -10065,9 +10091,9 @@ CREATE TABLE `servicos` (
   `desconto_incondicional` decimal(16,7) DEFAULT NULL,
   `desconto_condicional` decimal(16,7) DEFAULT NULL,
   `outras_retencoes` decimal(16,7) DEFAULT NULL,
-  `estado_local_prestacao_servico` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `natureza_operacao` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `codigo_cnae` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `estado_local_prestacao_servico` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `natureza_operacao` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `codigo_cnae` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `prazo_garantia` int DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -10192,7 +10218,7 @@ CREATE TABLE `suprimento_caixas` (
   `valor` decimal(10,2) NOT NULL,
   `observacao` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `conta_empresa_id` int DEFAULT NULL,
-  `tipo_pagamento` varchar(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo_pagamento` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -10246,8 +10272,8 @@ CREATE TABLE `tamanho_pizzas` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `empresa_id` bigint unsigned NOT NULL,
   `nome` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `nome_en` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `nome_es` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nome_en` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nome_es` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `maximo_sabores` int NOT NULL,
   `quantidade_pedacos` int NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT '1',
@@ -10616,7 +10642,7 @@ CREATE TABLE `tributacao_clientes` (
   PRIMARY KEY (`id`),
   KEY `tributacao_clientes_cliente_id_foreign` (`cliente_id`),
   CONSTRAINT `tributacao_clientes_cliente_id_foreign` FOREIGN KEY (`cliente_id`) REFERENCES `clientes` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10625,6 +10651,7 @@ CREATE TABLE `tributacao_clientes` (
 
 LOCK TABLES `tributacao_clientes` WRITE;
 /*!40000 ALTER TABLE `tributacao_clientes` DISABLE KEYS */;
+INSERT INTO `tributacao_clientes` VALUES (11,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2025-12-04 15:29:28','2025-12-04 15:29:28');
 /*!40000 ALTER TABLE `tributacao_clientes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -10712,7 +10739,7 @@ CREATE TABLE `unidade_medidas` (
   PRIMARY KEY (`id`),
   KEY `unidade_medidas_empresa_id_foreign` (`empresa_id`),
   CONSTRAINT `unidade_medidas_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10721,6 +10748,7 @@ CREATE TABLE `unidade_medidas` (
 
 LOCK TABLES `unidade_medidas` WRITE;
 /*!40000 ALTER TABLE `unidade_medidas` DISABLE KEYS */;
+INSERT INTO `unidade_medidas` VALUES (64,1,'AMPOLA',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(65,1,'BALDE',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(66,1,'BANDEJ',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(67,1,'BARRA',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(68,1,'BISNAG',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(69,1,'BLOCO',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(70,1,'BOBINA',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(71,1,'BOMB',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(72,1,'CAPS',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(73,1,'CART',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(74,1,'CENTO',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(75,1,'CJ',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(76,1,'CM',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(77,1,'CM2',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(78,1,'CX',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(79,1,'CX2',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(80,1,'CX3',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(81,1,'CX5',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(82,1,'CX10',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(83,1,'CX15',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(84,1,'CX20',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(85,1,'CX25',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(86,1,'CX50',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(87,1,'CX100',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(88,1,'DISP',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(89,1,'DUZIA',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(90,1,'EMBAL',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(91,1,'FARDO',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(92,1,'FOLHA',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(93,1,'FRASCO',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(94,1,'GALAO',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(95,1,'GF',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(96,1,'GRAMAS',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(97,1,'JOGO',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(98,1,'KG',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(99,1,'KIT',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(100,1,'LATA',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(101,1,'LITRO',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(102,1,'M',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(103,1,'M2',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(104,1,'M3',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(105,1,'MILHEI',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(106,1,'ML',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(107,1,'MWH',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(108,1,'PACOTE',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(109,1,'PALETE',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(110,1,'PARES',1,'2025-12-04 15:08:15','2025-12-04 15:08:15'),(111,1,'PC',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(112,1,'POTE',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(113,1,'K',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(114,1,'RESMA',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(115,1,'ROLO',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(116,1,'SACO',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(117,1,'SACOLA',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(118,1,'TAMBOR',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(119,1,'TANQUE',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(120,1,'TON',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(121,1,'TUBO',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(122,1,'UN',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(123,1,'VASIL',1,'2025-12-04 15:08:16','2025-12-04 15:08:16'),(124,1,'VIDRO',1,'2025-12-04 15:08:16','2025-12-04 15:08:16');
 /*!40000 ALTER TABLE `unidade_medidas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -10747,15 +10775,15 @@ CREATE TABLE `users` (
   `escolher_localidade_venda` tinyint(1) DEFAULT '0',
   `suporte` tinyint(1) DEFAULT '0',
   `status` tinyint(1) DEFAULT '1',
-  `tema_padrao` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tema_padrao` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `plano_auto_cadastro` int DEFAULT NULL,
-  `finalizacao_pdv` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `finalizacao_pdv` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10764,7 +10792,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'bcprime','controlplus@master.com',NULL,'$2y$10$FKq0lfBuysShLpzvANJliuQF8bhGZv.rtshJ8/5k277LC2ssoq0LC',NULL,1,1,0,0,0,0,0,0,1,NULL,NULL,NULL,NULL,'2025-12-03 15:45:00','2025-12-03 15:45:00');
+INSERT INTO `users` VALUES (1,'bcprime','controlplus@master.com',NULL,'$2y$10$FKq0lfBuysShLpzvANJliuQF8bhGZv.rtshJ8/5k277LC2ssoq0LC',NULL,1,1,0,0,0,0,0,0,1,NULL,NULL,NULL,NULL,'2025-12-03 15:45:00','2025-12-03 15:45:00'),(2,'empresa teste','empresateste@gmail.com',NULL,'$2y$10$IfGsLJTmS/hQney5dPBy4esQsGlT3QBdFLmJAbBpqlIEa2Adt8m9y',NULL,1,1,0,0,0,0,0,0,1,NULL,NULL,NULL,NULL,'2025-12-04 15:05:40','2025-12-04 15:05:40');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -10815,7 +10843,7 @@ CREATE TABLE `usuario_empresas` (
   KEY `usuario_empresas_usuario_id_foreign` (`usuario_id`),
   CONSTRAINT `usuario_empresas_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON DELETE CASCADE,
   CONSTRAINT `usuario_empresas_usuario_id_foreign` FOREIGN KEY (`usuario_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10824,6 +10852,7 @@ CREATE TABLE `usuario_empresas` (
 
 LOCK TABLES `usuario_empresas` WRITE;
 /*!40000 ALTER TABLE `usuario_empresas` DISABLE KEYS */;
+INSERT INTO `usuario_empresas` VALUES (1,1,2,'2025-12-04 15:05:40','2025-12-04 15:05:40');
 /*!40000 ALTER TABLE `usuario_empresas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -10845,7 +10874,7 @@ CREATE TABLE `usuario_localizacaos` (
   KEY `usuario_localizacaos_localizacao_id_foreign` (`localizacao_id`),
   CONSTRAINT `usuario_localizacaos_localizacao_id_foreign` FOREIGN KEY (`localizacao_id`) REFERENCES `localizacaos` (`id`),
   CONSTRAINT `usuario_localizacaos_usuario_id_foreign` FOREIGN KEY (`usuario_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -10854,6 +10883,7 @@ CREATE TABLE `usuario_localizacaos` (
 
 LOCK TABLES `usuario_localizacaos` WRITE;
 /*!40000 ALTER TABLE `usuario_localizacaos` DISABLE KEYS */;
+INSERT INTO `usuario_localizacaos` VALUES (6,2,5,'2025-12-04 15:05:40','2025-12-04 15:05:40');
 /*!40000 ALTER TABLE `usuario_localizacaos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -10931,7 +10961,7 @@ CREATE TABLE `variacao_modelo_items` (
   `nome` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `vendizap_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `vendizap_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `variacao_modelo_items_variacao_modelo_id_foreign` (`variacao_modelo_id`),
   CONSTRAINT `variacao_modelo_items_variacao_modelo_id_foreign` FOREIGN KEY (`variacao_modelo_id`) REFERENCES `variacao_modelos` (`id`)
@@ -10961,7 +10991,7 @@ CREATE TABLE `variacao_modelos` (
   `empresa_id` bigint unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `vendizap_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `vendizap_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `variacao_modelos_empresa_id_foreign` (`empresa_id`),
   CONSTRAINT `variacao_modelos_empresa_id_foreign` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`)
@@ -11243,4 +11273,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-12-03 19:40:01
+-- Dump completed on 2025-12-05 15:07:01

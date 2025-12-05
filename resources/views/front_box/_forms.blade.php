@@ -1,5 +1,5 @@
 @section('css')
-    <link rel="stylesheet" type="text/css" href="/css/pdv.css">
+    {{-- <link rel="stylesheet" type="text/css" href="/css/pdv.css"> --}}
 @endsection
 
 <input type="hidden" id="abertura" value="{{ $abertura }}" name="">
@@ -655,11 +655,11 @@
     window.open(path_url + 'suprimento-print/' + {{ Session::get('suprimento_id') }}, "_blank")
     @endif
 
-                        $('.btn-novo-cliente').click(() => {
-                            $('.modal-select-cliente .btn-close').trigger('click')
-                            $('#modal_novo_cliente').modal('show')
+                                            $('.btn-novo-cliente').click(() => {
+                                                $('.modal-select-cliente .btn-close').trigger('click')
+                                                $('#modal_novo_cliente').modal('show')
 
-                        })
-                    </script>
+                                            })
+                                        </script>
 
-                @endsection
+                                @endsection
