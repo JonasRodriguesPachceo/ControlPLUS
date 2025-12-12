@@ -66,8 +66,8 @@ class ProdutoController extends Controller
         $this->utilIfood = $utilIfood;
 
         $this->middleware('permission:produtos_create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:produtos_edit', ['only' => ['edit', 'update']]);
-        $this->middleware('permission:produtos_view', ['only' => ['show', 'index']]);
+        $this->middleware('permission:produtos_edit', ['only' => ['edit', 'update', 'avaliacaoEdit', 'avaliacaoUpdate']]);
+        $this->middleware('permission:produtos_view', ['only' => ['show', 'index', 'avaliacaoIndex']]);
         $this->middleware('permission:produtos_delete', ['only' => ['destroy']]);
     }
 
@@ -99,6 +99,13 @@ class ProdutoController extends Controller
         }
 
         __setUltimoNumeroSequencial(request()->empresa_id, 'produtos', $numero);
+    }
+
+    private function produtoComAvaliacao($id)
+    {
+        $item = Produto::withoutGlobalScope(Produto::SCOPE_AVALIACAO)->findOrFail($id);
+        __validaObjetoEmpresa($item);
+        return $item;
     }
 
     public function index(Request $request)
@@ -292,8 +299,7 @@ class ProdutoController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $item = Produto::findOrFail($id);
-        __validaObjetoEmpresa($item);
+        $item = $this->produtoComAvaliacao($id);
         $empresa = Empresa::findOrFail(request()->empresa_id);
 
         $listaCTSCSOSN = Produto::listaCSOSN();
@@ -368,6 +374,8 @@ class ProdutoController extends Controller
             // $numeroSequencial = $last != null ? $last->numero_sequencial : 0;
             $numeroSequencial = __getUltimoNumeroSequencial($request->empresa_id, 'produtos');
             $numeroSequencial++;
+            $tipoProduto = $request->tipo_produto ?? Produto::TIPO_NOVO;
+            $emAvaliacao = $tipoProduto == Produto::TIPO_AVALIACAO;
             $request->merge([
                 'woocommerce_valor' => $request->woocommerce_valor > 0 ? __convert_value_bd($request->woocommerce_valor) : __convert_value_bd($request->valor_unitario),
                 'valor_unitario' => __convert_value_bd($request->valor_unitario),
@@ -415,7 +423,8 @@ class ProdutoController extends Controller
                 'categorias_woocommerce' => json_encode($categorias_woocommerce),
 
                 'woocommerce_descricao' => $request->woocommerce_descricao ?? '',
-                'numero_sequencial' => $numeroSequencial
+                'numero_sequencial' => $numeroSequencial,
+                'tipo_produto' => $tipoProduto
             ]);
 
             __setUltimoNumeroSequencial($request->empresa_id, 'produtos', $numeroSequencial);
@@ -451,7 +460,7 @@ class ProdutoController extends Controller
 
             $locais = isset($request->locais) ? $request->locais : [];
 
-            $produto = DB::transaction(function () use ($request, $locais) {
+            $produto = DB::transaction(function () use ($request, $locais, $emAvaliacao) {
                 $produto = Produto::create($request->all());
 
                 if($request->combo == 1 && $request->produto_combo_id){
@@ -486,7 +495,7 @@ class ProdutoController extends Controller
                         ];
                         $variacao = ProdutoVariacao::create($dataVariacao);
 
-                        if($request->estoque_variacao[$i] && sizeof($locais) <= 1){
+                        if(!$emAvaliacao && $request->estoque_variacao[$i] && sizeof($locais) <= 1){
                             $qtd = __convert_value_bd($request->estoque_variacao[$i]);
                             $this->utilEstoque->incrementaEstoque($produto->id, $qtd, $variacao->id);
                             $transacao = Estoque::where('produto_id', $produto->id)->orderBy('id', 'desc')->first();
@@ -498,7 +507,7 @@ class ProdutoController extends Controller
                     }
                 }else{
 
-                    if($request->estoque_inicial && sizeof($locais) <= 1){
+                    if(!$emAvaliacao && $request->estoque_inicial && sizeof($locais) <= 1){
 
                         $this->utilEstoque->incrementaEstoque($produto->id, $request->estoque_inicial, null);
                         $transacao = Estoque::where('produto_id', $produto->id)->orderBy('id', 'desc')->first();
@@ -585,8 +594,10 @@ if(sizeof($locais) >= 2){
             'localizacao_id' => $locais[$i]
         ]);
     }
-    session()->flash("flash_success", "Produto cadastrado, informe o estoque de cada localização!");
-    return redirect()->route('estoque-localizacao.define', [$produto->id]);
+    if(!$emAvaliacao){
+        session()->flash("flash_success", "Produto cadastrado, informe o estoque de cada localização!");
+        return redirect()->route('estoque-localizacao.define', [$produto->id]);
+    }
 }else{
 
     if(sizeof($locais) == 1){
@@ -705,10 +716,9 @@ private function insereEmListaDePrecos($produto){
 
 public function update(Request $request, $id)
 {
-    $item = Produto::findOrFail($id);
-    __validaObjetoEmpresa($item);
-    try {
-        $file_name = $item->imagem;
+        $item = $this->produtoComAvaliacao($id);
+        try {
+            $file_name = $item->imagem;
 
         if ($request->hasFile('image')) {
             $this->util->unlinkImage($item, '/produtos');
@@ -787,6 +797,9 @@ public function update(Request $request, $id)
             ]);
         }
 
+        $tipoProduto = $request->get('tipo_produto', $item->tipo_produto);
+        $emAvaliacao = $tipoProduto == Produto::TIPO_AVALIACAO;
+
         $item->fill($request->all())->save();
 
         if($request->variavel){
@@ -833,7 +846,7 @@ public function update(Request $request, $id)
                     $dataVariacao['imagem'] = $file_name;
                     $variacao = ProdutoVariacao::create($dataVariacao);
 
-                    if($request->estoque_variacao[$i] && sizeof($locais) <= 1){
+                    if(!$emAvaliacao && $request->estoque_variacao[$i] && sizeof($locais) <= 1){
                         $qtd = __convert_value_bd($request->estoque_variacao[$i]);
                         $this->utilEstoque->incrementaEstoque($item->id, $qtd, $variacao->id);
                         $transacao = Estoque::where('produto_id', $item->id)->orderBy('id', 'desc')->first();
@@ -965,16 +978,74 @@ public function update(Request $request, $id)
     if (isset($request->redirect_ecommerce)) {
         return redirect()->route('produtos-ecommerce.index');
     }
-    if (isset($request->redirect_mercadolivre)) {
-        return redirect()->route('mercado-livre-produtos.index');
+        if (isset($request->redirect_mercadolivre)) {
+            return redirect()->route('mercado-livre-produtos.index');
+        }
+        return redirect()->route('produtos.index');
     }
-    return redirect()->route('produtos.index');
-}
+
+    public function avaliacaoIndex(Request $request)
+    {
+        $nome = $request->get('nome');
+
+        $data = Produto::somenteAvaliacao()
+        ->where('empresa_id', $request->empresa_id)
+        ->when(!empty($nome), function ($q) use ($nome) {
+            return $q->where(function($t) use ($nome)
+            {
+                $t->where('nome', 'LIKE', "%$nome%")
+                ->orWhere('codigo_barras', 'LIKE', "%$nome%")
+                ->orWhere('referencia', 'LIKE', "%$nome%");
+            });
+        })
+        ->with(['locais.localizacao'])
+        ->orderBy('created_at', 'desc')
+        ->paginate(__itensPagina());
+
+        return view('produtos.avaliacao', compact('data', 'nome'));
+    }
+
+    public function avaliacaoEdit($id)
+    {
+        $item = $this->produtoComAvaliacao($id);
+        if ($item->tipo_produto !== Produto::TIPO_AVALIACAO) {
+            session()->flash('flash_warning', 'Produto não está pendente de avaliação.');
+            return redirect()->route('produtos.avaliacao.index');
+        }
+
+        return view('produtos.avaliacao_form', compact('item'));
+    }
+
+    public function avaliacaoUpdate(Request $request, $id)
+    {
+        $item = $this->produtoComAvaliacao($id);
+        if ($item->tipo_produto !== Produto::TIPO_AVALIACAO) {
+            session()->flash('flash_warning', 'Produto não está pendente de avaliação.');
+            return redirect()->route('produtos.avaliacao.index');
+        }
+
+        $request->validate([
+            'avaliacao_observacao' => 'nullable|string',
+            'avaliacao_concluida' => 'nullable|boolean'
+        ]);
+
+        $item->avaliacao_observacao = $request->avaliacao_observacao;
+
+        if ($request->boolean('avaliacao_concluida')) {
+            $item->tipo_produto = Produto::TIPO_NOVO;
+        }
+
+        $item->save();
+
+        __createLog($request->empresa_id, 'Produto', 'avaliacao', $item->nome);
+        session()->flash('flash_success', 'Avaliação atualizada!');
+
+        return redirect()->route('produtos.avaliacao.index');
+    }
 
 public function destroy($id)
 {
-    $item = Produto::findOrFail($id);
-    __validaObjetoEmpresa($item);
+    $item = $this->produtoComAvaliacao($id);
     try {
         $descricaoLog = $item->nome;
 
@@ -1032,7 +1103,7 @@ public function destroySelecet(Request $request)
 {
     $removidos = 0;
     for($i=0; $i<sizeof($request->item_delete); $i++){
-        $item = Produto::findOrFail($request->item_delete[$i]);
+        $item = $this->produtoComAvaliacao($request->item_delete[$i]);
         $woocommerceClient = $this->utilWocommerce->getConfig($item->empresa_id);
         $descricaoLog = $item->nome;
 
@@ -1077,7 +1148,7 @@ public function desactiveSelecet(Request $request)
 {
     $alterados = 0;
     for($i=0; $i<sizeof($request->item_delete); $i++){
-        $item = Produto::findOrFail($request->item_delete[$i]);
+        $item = $this->produtoComAvaliacao($request->item_delete[$i]);
         $descricaoLog = $item->nome;
 
         try {
@@ -1113,6 +1184,7 @@ private function __validate(Request $request)
         'valor_unitario' => 'required',
         'codigo_barras' => [new ValidaCodigoBarrasUnico($request->empresa_id)],
         'referencia_balanca' => [new ValidaReferenciaBalanca($request->empresa_id)],
+        'tipo_produto' => 'required|in:novo,avaliacao',
 
     ];
 
@@ -1134,6 +1206,7 @@ private function __validate(Request $request)
         'descricao.max' => 'Máximo de 255 caracteres',
         'descricao_es.max' => 'Máximo de 255 caracteres',
         'descricao_en.max' => 'Máximo de 255 caracteres',
+        'tipo_produto.required' => 'Campo Obrigatório',
     ];
     $this->validate($request, $rules, $messages);
 }
@@ -1459,8 +1532,7 @@ private function incluiDigito($code)
 
 
 public function show($id){
-    $item = Produto::findOrFail($id);
-    __validaObjetoEmpresa($item);
+    $item = $this->produtoComAvaliacao($id);
     $data = MovimentacaoProduto::where('produto_id', $id)
     ->orderBy('id', 'desc')
     ->get();
@@ -1488,7 +1560,7 @@ public function movimentacao($id){
 }
 
 public function removeImagem($id){
-    $item = Produto::findOrFail($id);
+    $item = $this->produtoComAvaliacao($id);
     try{
         $this->util->unlinkImage($item, '/produtos');
         $item->imagem = '';
@@ -1501,14 +1573,12 @@ public function removeImagem($id){
 }
 
 public function galeria($id){
-    $item = Produto::findOrFail($id);
-    __validaObjetoEmpresa($item);
+    $item = $this->produtoComAvaliacao($id);
     return view('produtos.galeria', compact('item'));
 }
 
 public function storeImage(Request $request, $id){
-    $item = Produto::findOrFail($id);
-    __validaObjetoEmpresa($item);
+    $item = $this->produtoComAvaliacao($id);
     if ($request->hasFile('image')) {
 
         $file_name = $this->util->uploadImage($request, '/produtos');
@@ -1539,8 +1609,7 @@ public function destroyImage($id){
 
 public function duplicar(Request $request, $id)
 {
-    $item = Produto::findOrFail($id);
-    __validaObjetoEmpresa($item);
+    $item = $this->produtoComAvaliacao($id);
     $empresa = Empresa::findOrFail(request()->empresa_id);
 
     $listaCTSCSOSN = Produto::listaCSOSN();
@@ -2298,7 +2367,7 @@ private function atualizaAnuncio($request, $produto){
 
 public function etiqueta(Request $request, $id)
 {
-    $item = Produto::findOrFail($id);
+    $item = $this->produtoComAvaliacao($id);
     $modelos = ModeloEtiqueta::where('empresa_id', $item->empresa_id)->get();
     return view('produtos.etiqueta', compact('item', 'modelos'));
 }
@@ -2315,7 +2384,7 @@ public function etiquetaStore(Request $request, $id){
         }
     }
 
-    $item = Produto::findOrFail($id);
+    $item = $this->produtoComAvaliacao($id);
 
     $nome = $item->nome;
     $codigo = $item->codigo_barras;
@@ -2441,7 +2510,7 @@ public function reajuste(Request $request){
 public function reajusteUpdate(Request $request){
     try{
         for($i=0; $i<sizeof($request->produto_id); $i++){
-            $item = Produto::findOrFail($request->produto_id[$i]);
+            $item = $this->produtoComAvaliacao($request->produto_id[$i]);
 
             if(isset($request->locais)){
                 $item->locais()->delete();
@@ -2542,7 +2611,7 @@ public function vinculaImagens(){
 public function vincularImagens(Request $request){
     try{
         for($i=0; $i<sizeof($request->produto_id); $i++){
-            $produto = Produto::findOrFail($request->produto_id[$i]);
+            $produto = $this->produtoComAvaliacao($request->produto_id[$i]);
             $img = explode("upload_temp", $request->diretorio[$i]);
             $filename = str_replace("/", "", $img[1]);
             $produto->imagem = $filename;

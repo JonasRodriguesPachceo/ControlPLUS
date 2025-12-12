@@ -422,6 +422,9 @@
                                         <li>
                                             <a href="{{ route('produtos.index', ['status=1']) }}">Listar</a>
                                         </li>
+                                        <li>
+                                            <a href="{{ route('produtos.avaliacao.index') }}">Produtos para Avaliação</a>
+                                        </li>
                                     @endcan
                                     @can('produtos_create')
                                         <li>

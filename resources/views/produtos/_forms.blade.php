@@ -42,6 +42,15 @@
                     ->attrs(['data-contador' => true, 'maxlength' => 120])
                     !!}
                 </div>
+                <div class="col-md-2">
+                    {!!Form::select('tipo_produto', 'Tipo de produto', [
+                        \App\Models\Produto::TIPO_NOVO => 'Novo',
+                        \App\Models\Produto::TIPO_AVALIACAO => 'Avaliação'
+                    ])
+                    ->attrs(['class' => 'form-select'])
+                    ->value(old('tipo_produto', isset($item) ? $item->tipo_produto : \App\Models\Produto::TIPO_NOVO))
+                    !!}
+                </div>
                 <div class="col-md-2 col-produto">
                     {!!Form::tel('valor_compra', 'Valor de compra')
                     ->required()

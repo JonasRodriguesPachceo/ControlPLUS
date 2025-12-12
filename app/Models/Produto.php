@@ -9,6 +9,10 @@ class Produto extends Model
 {
 	use HasFactory;
 
+	public const TIPO_NOVO = 'novo';
+	public const TIPO_AVALIACAO = 'avaliacao';
+	public const SCOPE_AVALIACAO = 'produto_avaliacao';
+
 	protected $fillable = [
 		'empresa_id', 'nome', 'codigo_barras', 'ncm', 'cest', 'unidade', 'perc_icms', 'perc_pis',
 		'perc_cofins', 'perc_ipi', 'cst_csosn', 'cst_pis', 'cst_cofins', 'cst_ipi', 'valor_unitario',
@@ -32,10 +36,24 @@ class Produto extends Model
 		'espessura', '_id_import', 'observacao', 'observacao2', 'observacao3', 'observacao4', 'tipo_producao',
 		'numero_sequencial', 'valor_prazo', 'ifood_id', 'vendizap_id', 'vendizap_valor', 'destaque_cardapio', 'oferta_cardapio',
 		'sub_variacao_modelo_id', 'peso_bruto', 'local_armazenamento', 'pICMSEfet', 'pRedBCEfet',
-		'cst_ibscbs', 'cclass_trib', 'perc_ibs_uf', 'perc_ibs_mun', 'perc_cbs', 'perc_dif', 'tipo_item_sped', 'prazo_garantia'
+		'cst_ibscbs', 'cclass_trib', 'perc_ibs_uf', 'perc_ibs_mun', 'perc_cbs', 'perc_dif', 'tipo_item_sped', 'prazo_garantia',
+		'tipo_produto', 'avaliacao_observacao'
 	];
 
 	protected $appends = [ 'imgApp' ];
+
+	protected static function booted()
+	{
+		static::addGlobalScope(self::SCOPE_AVALIACAO, function ($query) {
+			return $query->where('tipo_produto', '!=', self::TIPO_AVALIACAO);
+		});
+	}
+
+	public function scopeSomenteAvaliacao($query)
+	{
+		return $query->withoutGlobalScope(self::SCOPE_AVALIACAO)
+			->where('tipo_produto', self::TIPO_AVALIACAO);
+	}
 
 	public function _ncm(){
 		return $this->belongsTo(Ncm::class, 'ncm', 'codigo');

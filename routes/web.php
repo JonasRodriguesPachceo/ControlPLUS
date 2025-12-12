@@ -716,6 +716,10 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::resource('unidades-medida', 'UnidadeMedidaController');
     Route::delete('categoria-produtos-destroy-select', 'CategoriaProdutoController@destroySelecet')->name('categoria-produtos.destroy-select');
 
+    Route::get('produtos-avaliacao', 'ProdutoController@avaliacaoIndex')->name('produtos.avaliacao.index');
+    Route::get('produtos-avaliacao/{id}', 'ProdutoController@avaliacaoEdit')->name('produtos.avaliacao.edit');
+    Route::put('produtos-avaliacao/{id}', 'ProdutoController@avaliacaoUpdate')->name('produtos.avaliacao.update');
+
     Route::resource('produtos', 'ProdutoController');
     Route::delete('produtos-destroy-select', 'ProdutoController@destroySelecet')->name('produtos.destroy-select');
     Route::post('produtos-desactive-select', 'ProdutoController@desactiveSelecet')->name('produtos.desactive-select');
