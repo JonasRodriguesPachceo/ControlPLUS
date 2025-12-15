@@ -62,18 +62,22 @@ use Illuminate\Support\Str;
 use App\Utils\FilaEnvioUtil;
 use App\Models\Garantia;
 use App\Models\ProdutoUnico;
+use App\Models\TradeinCreditMovement;
+use App\Utils\TradeinCreditUtil;
 
 class FrontBoxController extends Controller
 {
     protected $util;
     protected $utilWhatsApp;
     protected $filaEnvioUtil;
+    protected $tradeinCreditUtil;
 
-    public function __construct(EstoqueUtil $util, WhatsAppUtil $utilWhatsApp, FilaEnvioUtil $filaEnvioUtil)
+    public function __construct(EstoqueUtil $util, WhatsAppUtil $utilWhatsApp, FilaEnvioUtil $filaEnvioUtil, TradeinCreditUtil $tradeinCreditUtil)
     {
         $this->util = $util;
         $this->utilWhatsApp = $utilWhatsApp;
         $this->filaEnvioUtil = $filaEnvioUtil;
+        $this->tradeinCreditUtil = $tradeinCreditUtil;
     }
 
     public function faturaPadraoCliente(Request $request){
@@ -707,6 +711,24 @@ class FrontBoxController extends Controller
         return 0;
     }
 
+    private function collectTradeinPagamentos(Request $request): array
+    {
+        $total = 0;
+        if ($request->tipo_pagamento == TradeinCreditMovement::PAYMENT_CODE) {
+            $total += __convert_value_bd($request->valor_total);
+        }
+
+        if ($request->tipo_pagamento_row) {
+            for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
+                if ($request->tipo_pagamento_row[$i] == TradeinCreditMovement::PAYMENT_CODE) {
+                    $total += __convert_value_bd($request->valor_integral_row[$i]);
+                }
+            }
+        }
+
+        return ['total' => $total];
+    }
+
     private function processaCodigoUnicoSaida($produtoId, $quantidade, $jsonCodigos, $nfceId, ItemNfce $itemNfce)
     {
         if(!$jsonCodigos){
@@ -966,10 +988,12 @@ class FrontBoxController extends Controller
                     }
                 }
 
-                if ($request->tipo_pagamento == '06') {
-                    ContaReceber::create([
-                        'nfe_id' => null,
-                        'nfce_id' => $nfce->id,
+            $tradeinResumo = $this->collectTradeinPagamentos($request);
+
+            if ($request->tipo_pagamento == '06') {
+                ContaReceber::create([
+                    'nfe_id' => null,
+                    'nfce_id' => $nfce->id,
                         'data_vencimento' => date('Y-m-d', strtotime('+30 days')),
                         'data_recebimento' => date('Y-m-d', strtotime('+30 days')),
                         'descricao' => 'Venda PDV ' . $nfce->numero_sequencial,
@@ -987,11 +1011,16 @@ class FrontBoxController extends Controller
                     ]);
                 }
 
+                $tradeinResumo = $this->collectTradeinPagamentos($request);
+
                 if ($request->tipo_pagamento_row) {
                     for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
                         // if ($request->tipo_pagamento_row[$i] == '06') {
                         $vencimento = $request->data_vencimento_row[$i];
                         $dataAtual = date('Y-m-d');
+                        if($request->tipo_pagamento_row[$i] == TradeinCreditMovement::PAYMENT_CODE){
+                            continue;
+                        }
                         if(strtotime($vencimento) > strtotime($dataAtual)){
                             ContaReceber::create([
                                 'nfe_id' => null,
@@ -1064,6 +1093,17 @@ class FrontBoxController extends Controller
                         $this->rateioCashBack($request->valor_cashback, $nfce);
 
                     }
+                }
+
+                if ($tradeinResumo['total'] > 0) {
+                    $nfce->loadMissing('cliente');
+                    $this->tradeinCreditUtil->consumirCreditoVenda(
+                        $nfce,
+                        $nfce->cliente,
+                        $nfce->cliente_cpf_cnpj,
+                        $tradeinResumo['total'],
+                        TradeinCreditMovement::ORIGEM_VENDA_NFCE
+                    );
                 }
 
                 if($request->valor_credito){
@@ -1798,6 +1838,9 @@ public function storeComanda(Request $request)
 
                     $vencimento = $request->data_vencimento_row[$i];
                     $dataAtual = date('Y-m-d');
+                    if($request->tipo_pagamento_row[$i] == TradeinCreditMovement::PAYMENT_CODE){
+                        continue;
+                    }
                     if(strtotime($vencimento) > strtotime($dataAtual)){
                         ContaReceber::create([
                             'nfe_id' => null,
@@ -1958,6 +2001,8 @@ public function storeNfe(Request $request)
                 }
             }
 
+            $tradeinResumo = $this->collectTradeinPagamentos($request);
+
             if ($request->tipo_pagamento == '06') {
                 ContaReceber::create([
                     'nfce_id' => null,
@@ -1982,6 +2027,9 @@ public function storeNfe(Request $request)
 
                     $vencimento = $request->data_vencimento_row[$i];
                     $dataAtual = date('Y-m-d');
+                    if($request->tipo_pagamento_row[$i] == TradeinCreditMovement::PAYMENT_CODE){
+                        continue;
+                    }
                     if(strtotime($vencimento) > strtotime($dataAtual)){
                         ContaReceber::create([
                             'nfce_id' => null,
@@ -2040,12 +2088,34 @@ public function storeNfe(Request $request)
                 }
             }
 
+            if ($tradeinResumo['total'] > 0) {
+                $nfe->loadMissing('cliente');
+                $this->tradeinCreditUtil->consumirCreditoVenda(
+                    $nfe,
+                    $nfe->cliente,
+                    $nfe->cliente_cpf_cnpj,
+                    $tradeinResumo['total'],
+                    TradeinCreditMovement::ORIGEM_VENDA_NFE
+                );
+            }
+
             if(isset($request->valor_cashback) && $request->valor_cashback == 0 && $request->permitir_credito){
                 $this->saveCashBack($nfe);
             }else{
                 if(isset($request->valor_cashback) && $request->valor_cashback > 0){
                     $this->rateioCashBack($request->valor_cashback, $nfe);
                 }
+            }
+
+            if ($tradeinResumo['total'] > 0) {
+                $nfce->loadMissing('cliente');
+                $this->tradeinCreditUtil->consumirCreditoVenda(
+                    $nfce,
+                    $nfce->cliente,
+                    $nfce->cliente_cpf_cnpj,
+                    $tradeinResumo['total'],
+                    TradeinCreditMovement::ORIGEM_VENDA_NFCE
+                );
             }
 
             if($request->valor_credito){

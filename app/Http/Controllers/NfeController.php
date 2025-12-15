@@ -52,8 +52,10 @@ use App\Utils\EmailUtil;
 use Mail;
 use Illuminate\Support\Str;
 use App\Utils\SiegUtil;
+use App\Utils\TradeinCreditUtil;
 use App\Utils\FilaEnvioUtil;
 use App\Models\ItemProducao;
+use App\Models\TradeinCreditMovement;
 
 class NfeController extends Controller
 {
@@ -61,13 +63,15 @@ class NfeController extends Controller
     protected $emailUtil;
     protected $siegUtil;
     protected $filaEnvioUtil;
+    protected $tradeinCreditUtil;
 
-    public function __construct(EstoqueUtil $util, EmailUtil $emailUtil, SiegUtil $siegUtil, FilaEnvioUtil $filaEnvioUtil)
+    public function __construct(EstoqueUtil $util, EmailUtil $emailUtil, SiegUtil $siegUtil, FilaEnvioUtil $filaEnvioUtil, TradeinCreditUtil $tradeinCreditUtil)
     {
         $this->util = $util;
         $this->emailUtil = $emailUtil;
         $this->siegUtil = $siegUtil;
         $this->filaEnvioUtil = $filaEnvioUtil;
+        $this->tradeinCreditUtil = $tradeinCreditUtil;
 
         if (!is_dir(public_path('xml_nfe'))) {
             mkdir(public_path('xml_nfe'), 0777, true);
@@ -544,6 +548,7 @@ class NfeController extends Controller
                 $config = Empresa::find($request->empresa_id);
 
                 $tipoPagamento = $request->tipo_pagamento;
+                $tradeinTotal = 0;
 
                 $caixa = __isCaixaAberto();
 
@@ -753,6 +758,9 @@ class NfeController extends Controller
                 if($request->tipo_pagamento){
                     if ($request->tipo_pagamento[0] != '' && $request->valor_fatura[0] != '') {
                         for ($i = 0; $i < sizeof($tipoPagamento); $i++) {
+                            if ($tipoPagamento[$i] == TradeinCreditMovement::PAYMENT_CODE) {
+                                $tradeinTotal += __convert_value_bd($request->valor_fatura[$i]);
+                            }
                             FaturaNfe::create([
                                 'nfe_id' => $nfe->id,
                                 'tipo_pagamento' => $tipoPagamento[$i],
@@ -764,6 +772,9 @@ class NfeController extends Controller
                         if ($request->tpNF == 1) {
                             if ($request->gerar_conta_receber) {
                                 for ($i = 0; $i < sizeof($tipoPagamento); $i++) {
+                                    if ($tipoPagamento[$i] == TradeinCreditMovement::PAYMENT_CODE) {
+                                        continue;
+                                    }
                                     ContaReceber::create([
                                         'empresa_id' => $request->empresa_id,
                                         'nfe_id' => $nfe->id,
@@ -779,6 +790,9 @@ class NfeController extends Controller
                             }
                         } else {
                             for ($i = 0; $i < sizeof($tipoPagamento); $i++) {
+                                if ($tipoPagamento[$i] == TradeinCreditMovement::PAYMENT_CODE) {
+                                    continue;
+                                }
                                 if ($request->gerar_conta_pagar) {
                                     ContaPagar::create([
                                         'empresa_id' => $request->empresa_id,
@@ -795,6 +809,11 @@ class NfeController extends Controller
                             }
                         }
                     }
+                }
+
+                if (isset($request->is_compra) && $tradeinTotal > 0) {
+                    $fornecedorModel = $fornecedor_id ? Fornecedor::find($fornecedor_id) : null;
+                    $this->tradeinCreditUtil->registrarCreditoCompra($nfe, $fornecedorModel, $tradeinTotal);
                 }
 
                 if ($request->funcionario_id != null) {

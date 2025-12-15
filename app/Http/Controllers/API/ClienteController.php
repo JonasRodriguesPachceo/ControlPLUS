@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Cliente;
 use App\Models\ContaReceber;
 use App\Models\CashBackConfig;
+use App\Models\TradeinCreditMovement;
 use Illuminate\Http\Request;
 
 class ClienteController extends Controller
@@ -13,6 +14,11 @@ class ClienteController extends Controller
     public function find($id)
     {
         $item = Cliente::with(['cidade', 'listaPreco', 'tributacao', 'fatura'])->findOrFail($id);
+        $documento = TradeinCreditMovement::sanitizeDocumento($item->cpf_cnpj);
+        $item->setAttribute('tradein_credit', [
+            'documento' => $documento,
+            'saldo' => $documento ? TradeinCreditMovement::saldoDisponivel($item->empresa_id, $documento) : 0,
+        ]);
         return response()->json($item, 200);
     }
 

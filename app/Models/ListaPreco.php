@@ -44,6 +44,7 @@ class ListaPreco extends Model
             '15' => 'Boleto Bancário',
             '16' => 'Depósito Bancário',
             '17' => 'Pagamento Instantâneo (PIX)',
+            TradeinCreditMovement::PAYMENT_CODE => TradeinCreditMovement::PAYMENT_LABEL,
             '90' => 'Sem Pagamento',
             // '99' => 'Outros',
         ];

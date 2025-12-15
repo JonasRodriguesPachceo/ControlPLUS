@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Utils\TradeinCreditUtil;
 
 class Nfce extends Model
 {
@@ -133,6 +134,7 @@ class Nfce extends Model
             '15' => 'Boleto Bancário',
             '16' => 'Depósito Bancário',
             '17' => 'Pagamento Instantâneo (PIX)',
+            TradeinCreditMovement::PAYMENT_CODE => TradeinCreditMovement::PAYMENT_LABEL,
             '90' => 'Sem Pagamento',
             // '99' => 'Outros',
 
@@ -159,6 +161,7 @@ class Nfce extends Model
             '15' => 'Boleto Bancário',
             '16' => 'Depósito Bancário',
             '17' => 'Pix',
+            TradeinCreditMovement::PAYMENT_CODE => TradeinCreditMovement::PAYMENT_LABEL,
         ];
     }
 
@@ -207,6 +210,7 @@ class Nfce extends Model
             'Boleto Bancário' => '15',
             'Depósito Bancário' => '16',
             'Pagamento Instantâneo (PIX)' => '17',
+            TradeinCreditMovement::PAYMENT_LABEL => TradeinCreditMovement::PAYMENT_CODE,
             'Sem Pagamento' => '90',
             'Outros' => '99',
         ];
@@ -215,5 +219,14 @@ class Nfce extends Model
         } catch (\Exception $e) {
             return $values["Dinheiro"];
         }
+    }
+
+    protected static function booted()
+    {
+        static::updated(function (Nfce $nfce) {
+            if ($nfce->isDirty('estado') && $nfce->estado == 'cancelado' && $nfce->getOriginal('estado') != 'cancelado') {
+                app(TradeinCreditUtil::class)->estornarPorNfce($nfce);
+            }
+        });
     }
 }

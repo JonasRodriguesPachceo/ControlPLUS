@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Utils\TradeinCreditUtil;
 
 class Nfe extends Model
 {
@@ -192,6 +193,7 @@ class Nfe extends Model
             '17' => 'Pagamento Instantâneo (PIX)',
             '18' => 'Transferência bancária, Carteira Digital',
             '19' => 'Programa de fidelidade, Cashback, Crédito Virtual',
+            TradeinCreditMovement::PAYMENT_CODE => TradeinCreditMovement::PAYMENT_LABEL,
             // '20' => 'Pagamento Instantâneo (PIX) – Estático',
             // '21' => 'Crédito em Loja',
             // '22' => 'Pagamento Eletrônico não Informado - falha de hardware do sistema emissor',
@@ -229,6 +231,7 @@ class Nfe extends Model
             'Boleto Bancário' => '15',
             'Depósito Bancário' => '16',
             'Pagamento Instantâneo (PIX)' => '17',
+            TradeinCreditMovement::PAYMENT_LABEL => TradeinCreditMovement::PAYMENT_CODE,
             'Sem Pagamento' => '90',
             // 'Outros' => '99',
         ];
@@ -299,5 +302,14 @@ class Nfe extends Model
             '2' => 'Importação por conta e ordem',
             '3' => 'Importação por encomenda'
         ];
+    }
+
+    protected static function booted()
+    {
+        static::updated(function (Nfe $nfe) {
+            if ($nfe->isDirty('estado') && $nfe->estado == 'cancelado' && $nfe->getOriginal('estado') != 'cancelado' && $nfe->tpNF == 1) {
+                app(TradeinCreditUtil::class)->estornarPorNfe($nfe);
+            }
+        });
     }
 }
