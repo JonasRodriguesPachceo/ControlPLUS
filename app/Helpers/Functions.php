@@ -169,7 +169,7 @@ function valor_por_extenso($valor = 0, $maiusculas = false)
         return ($rt ? $rt : "zero");
     } else {
 
-        if ($rt) $rt = ereg_replace(" E ", " e ", ucwords($rt));
+        if ($rt) $rt = preg_replace(" E ", " e ", ucwords($rt));
         return (($rt) ? ($rt) : "Zero");
     }
 }
