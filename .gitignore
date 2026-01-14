@@ -118,3 +118,7 @@ docker-data/
 
 control_plus.zip
 *.zip
+
+# dumps / large sql
+/db/*.sql
+*.sql

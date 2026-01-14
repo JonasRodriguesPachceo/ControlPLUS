@@ -74,7 +74,7 @@
                                 </div>
                             </div>
                             <br>
-                            <a href="https://wa.me/5543920004769">WhatsApp <strong>43920004769</strong></a>
+                            <a href="https://api.whatsapp.com/send/?phone=5541985117177&text&type=phone_number&app_absent=0">WhatsApp <strong>43920004769</strong></a>
                         </div>
                 @endif
                 <h4 class="mt-0">Login</h4>

@@ -432,7 +432,7 @@
                     </div>
                     <div class="modal-body">
                         <h4>Marcos Mello - Slym Software</h4>
-                        <a href="https://wa.me/5543920004769">WhatsApp <strong>43920004769</strong></a>
+                        <a href="https://api.whatsapp.com/send/?phone=5541985117177&text&type=phone_number&app_absent=0">WhatsApp <strong>43920004769</strong></a>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>

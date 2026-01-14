@@ -127,6 +127,16 @@ class EmpresaUtil
             $localizacao = $empresa->toArray();
             $localizacao['descricao'] = 'BL0001';
             $localizacao['empresa_id'] = $empresa->id;
+            $localizacao['logo'] = $localizacao['logo'] ?? '';
+            $localizacao['tributacao'] = match ($empresa->tributacao) {
+                'MEI' => 'MEI',
+                'Simples Nacional' => 'Simples Nacional',
+                'Simples Nacional, excesso sublimite de receita bruta' => 'Simples Nacional',
+                'Regime Normal' => 'Regime Normal',
+                default => 'Regime Normal',
+            };
+
+
 
             $localizacao = Localizacao::create($localizacao);
 

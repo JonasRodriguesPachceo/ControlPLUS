@@ -28,7 +28,9 @@ RUN apt-get update && apt-get install -y \
     zip \
     soap \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
+    && apt-get install -y nodejs npm \
+    && node -v \
+    && npm -v \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
