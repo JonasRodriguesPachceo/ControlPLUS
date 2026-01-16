@@ -51,7 +51,7 @@
 
             <!-- Logo -->
             <div class="auth-brand text-center text-lg-start logo-mob">
-                <span><img style="width: 400px" src="/logo.jpg" alt="dark logo"></span>
+                <span><img style="width: 400px" src="/superstore_logo.png" alt="dark logo"></span>
                 <h4 class="text-center text-muted" style="margin-top: -70px">{{ env('APP_DESCRIPTION') }}</h4>
             </div>
 
@@ -74,7 +74,9 @@
                                 </div>
                             </div>
                             <br>
-                            <a href="https://api.whatsapp.com/send/?phone=5541985117177&text&type=phone_number&app_absent=0">WhatsApp <strong>43920004769</strong></a>
+                            <a
+                                href="https://api.whatsapp.com/send/?phone=5541985117177&text&type=phone_number&app_absent=0">WhatsApp
+                                <strong>43920004769</strong></a>
                         </div>
                 @endif
                 <h4 class="mt-0">Login</h4>

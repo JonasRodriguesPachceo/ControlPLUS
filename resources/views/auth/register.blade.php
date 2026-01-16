@@ -53,7 +53,7 @@
                 <!-- Logo -->
                 <div class="auth-brand text-center text-lg-start logo-mob">
                     <a href="index.html" class="logo-dark">
-                        <span><img style="width: 400px" src="/logo.jpg" alt="dark logo"></span>
+                        <span><img style="width: 400px" src="/superstore_logo.png" alt="dark logo"></span>
 
                     </a>
 

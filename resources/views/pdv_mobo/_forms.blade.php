@@ -86,7 +86,7 @@
 
     <div class="pdv-sidebar-header">
         <div class="logo-box">
-            <img src="/logo.jpg" class="logo-sidebar">
+            <img src="/superstore_logo.png" class="logo-sidebar">
         </div>
         <button id="close-sidebar" class="close-btn">
             <i class="ri-close-line"></i>

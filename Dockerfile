@@ -4,35 +4,21 @@ ARG UID=1000
 ARG GID=33
 
 # Sistema + extensões PHP + Node 18
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    curl \
-    libzip-dev \
-    libpng-dev \
-    libjpeg62-turbo-dev \
-    libfreetype6-dev \
-    libicu-dev \
-    libonig-dev \
-    libxml2-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git unzip curl \
+    libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
+    libicu-dev libonig-dev libxml2-dev \
     zip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
-    bcmath \
-    exif \
-    gd \
-    intl \
-    pcntl \
-    pdo_mysql \
-    sockets \
-    zip \
-    soap \
+    bcmath exif gd intl pcntl pdo_mysql sockets zip soap \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs npm \
+    && apt-get install -y --no-install-recommends nodejs \
     && node -v \
     && npm -v \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Ajusta UID/GID do www-data para bater com o host (rob: dockershared)
 RUN groupmod -g ${GID} www-data \

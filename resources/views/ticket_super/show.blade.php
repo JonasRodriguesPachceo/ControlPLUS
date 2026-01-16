@@ -46,7 +46,7 @@
                         <div class="row">
                             <div class="col-md-2 col-6" style="text-align: right;">
                                 @if ($m->resposta)
-                                    <img class="logo1" src="/logo.jpg">
+                                    <img class="logo1" src="/superstore_logo.png">
                                 @else
                                     <img class="logo1" src="{{ $item->empresa->img }}">
                                 @endif

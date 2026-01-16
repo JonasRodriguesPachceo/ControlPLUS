@@ -685,7 +685,7 @@
                 alt="Logo" class="mb-2">
         @else
             <img style="margin-top: -75px;"
-                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}"
+                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}"
                 alt="Logo" class="mb-2">
         @endif
 
@@ -708,7 +708,8 @@
         @endif
         @if ($item->funcionario)
             <h5 style="margin-left: 15px; margin-top: -15px;">Funcionário:
-                <strong>{{ $item->funcionario->nome }}</strong></h5>
+                <strong>{{ $item->funcionario->nome }}</strong>
+            </h5>
         @endif
     </div>
     <table>
@@ -770,7 +771,7 @@
                 </td>
                 <td class="text-right">
 
-                    <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}"
+                    <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}"
                         alt="Logo" class="mr-3">
                 </td>
             </tr>

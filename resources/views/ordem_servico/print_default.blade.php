@@ -15,7 +15,7 @@
                 @if ($config->logo != '')
                     <img class="logo" src="/uploads/logos/{{ $config->logo }}" style="height: 50px">
                 @else
-                    <img class="logo" src="/imgs/logo.jpg" style="height: 50px">
+                    <img class="logo" src="/imgs/superstore_logo.png" style="height: 50px">
                 @endif
                 <p class="">Email: {{ env('MAILMASTER') }}</p>
             </div>

@@ -134,4 +134,4 @@ key:
 	$(COMPOSE) exec -T $(APP_SERVICE) php artisan key:generate || true
 
 migrate-seed:
-# 	$(COMPOSE) exec -T $(APP_SERVICE) php artisan migrate --seed
+	$(COMPOSE) exec -T $(APP_SERVICE) php artisan migrate --seed

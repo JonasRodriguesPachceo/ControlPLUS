@@ -2,7 +2,7 @@
     <!-- Brand Logo Light -->
     <a href="/" class="logo logo-light">
         <span class="logo-lg">
-            <img class="logo-painel" src="/logo.jpg" alt="logo">
+            <img class="logo-painel" src="/superstore_logo.png" alt="logo">
         </span>
         <span class="logo-sm">
             <img src="/favicon.ico" alt="small logo">
@@ -12,7 +12,7 @@
     <!-- Brand Logo Dark -->
     <a href="/" class="logo logo-dark">
         <span class="logo-lg">
-            <img class="logo-painel" src="/logo.jpg" alt="dark logo">
+            <img class="logo-painel" src="/superstore_logo.png" alt="dark logo">
         </span>
         <span class="logo-sm">
             <img src="/favicon.ico" alt="small logo">
