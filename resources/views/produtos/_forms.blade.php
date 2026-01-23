@@ -12,7 +12,7 @@
 <div id="basicwizard">
     <ul class="nav nav-pills nav-justified form-wizard-header mb-4 m-2">
         <li class="nav-item">
-            <a href="#tab-identificacao" data-bs-toggle="tab" data-toggle="tab"  class="nav-link rounded-0 py-1"> 
+            <a href="#tab-identificacao" data-bs-toggle="tab" data-toggle="tab"  class="nav-link rounded-0 py-1">
                 <i class="ri-product-hunt-fill fw-normal fs-18 align-middle me-1"></i>
                 <span class="d-none d-sm-inline">Identificação</span>
             </a>
@@ -208,7 +208,7 @@
                     ->attrs()
                     !!}
                 </div>
-                
+
                 <div class="col-md-2">
                     {!!Form::select('unidade', 'Unidade', $unidades->pluck('nome', 'nome')->all())
                     ->required()
@@ -240,7 +240,7 @@
                 </div>
 
                 <div class="col-md-2">
-                    {!!Form::select('tipo_unico', 'Tipo único', ['0' => 'Não', '1' => 'Sim'])->attrs(['class' => 'form-select tooltipp'])
+                    {!!Form::select('tipo_unico', 'Tipo único', ['1' => 'Sim', '0' => 'Não'])->attrs(['class' => 'form-select tooltipp'])
                     !!}
                     <div class="text-tooltip d-none">
                         Marcar como sim se for usar identificação única para cada item na compra e venda
@@ -488,7 +488,7 @@
                                         <span>{{ $c->produtoDoCombo->nome }}</span>
                                     </td>
                                     <td style="width: 120px">
-                                        <input type="tel" class="form-control qtd-combo quantidade" name="quantidade_combo[]" 
+                                        <input type="tel" class="form-control qtd-combo quantidade" name="quantidade_combo[]"
                                         value="{{ $c->quantidade }}">
                                     </td>
                                     <td>
@@ -748,7 +748,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="tab-content b-0 mb-0">
         <div class="tab-pane" id="tab-outros">
             <div class="row g-2">
@@ -1089,7 +1089,7 @@
                                     <div class="col-md-4">
                                         {!!Form::select('mercado_livre_categoria', 'Categoria do anúncio')
                                         ->attrs(['class' => 'form-select select2 input-ml'])
-                                        ->options((isset($item) && $item->mercado_livre_categoria) ? 
+                                        ->options((isset($item) && $item->mercado_livre_categoria) ?
                                         [$item->mercado_livre_categoria => $item->categoriaMercadoLivre->nome] : [])
                                         !!}
                                     </div>
@@ -1407,7 +1407,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="row">
-                                    
+
                                 </div>
                             </div>
                         </div>
