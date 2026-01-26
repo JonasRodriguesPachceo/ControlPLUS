@@ -16,6 +16,7 @@ use Mail;
 use NFePHP\DA\NFe\Danfce;
 use App\Utils\SiegUtil;
 use App\Utils\EstoqueUtil;
+use App\Utils\Fiscal\FiscalValidator;
 
 class NFCePainelController extends Controller
 {
@@ -33,6 +34,23 @@ class NFCePainelController extends Controller
         if (!is_dir(public_path('xml_nfce_cancelada'))) {
             mkdir(public_path('xml_nfce_cancelada'), 0777, true);
         }
+    }
+
+    public function consultaFiscal(Request $request)
+    {
+
+        $nfe = Nfce::with('itens')->findOrFail($request->nfe_id);
+
+        $empresa = $nfe->empresa;
+
+        $result = app(FiscalValidator::class)
+        ->validate($nfe, $empresa);
+
+        return response()->json([
+            'status' => $result['status'],
+            'risco' => $result['risco'],
+            'mensagens' => $result['mensagens']
+        ]);
     }
 
     public function emitir(Request $request){

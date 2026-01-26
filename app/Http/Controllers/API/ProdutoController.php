@@ -154,7 +154,7 @@ class ProdutoController extends Controller
                 }else{
                     $p->estoque_atual = 0;
                 }
-                
+
             }else{
                 $p->estoque_atual = 0;
             }
@@ -216,24 +216,48 @@ class ProdutoController extends Controller
         return response()->json($data, 200);
     }
 
+    // public function pesquisaComEstoque(Request $request){
+    //     $data = Produto::orderBy('nome', 'desc')
+    //     ->select('produtos.*')
+    //     ->with('estoque')
+    //     ->where('empresa_id', $request->empresa_id)
+    //     ->when(!is_numeric($request->pesquisa), function ($q) use ($request) {
+    //         return $q->where('nome', 'LIKE', "%$request->pesquisa%");
+    //     })
+    //     ->when(is_numeric($request->pesquisa), function ($q) use ($request) {
+    //         return $q->where('codigo_barras', 'LIKE', "%$request->pesquisa%");
+    //     })
+    //     ->join('estoques', 'estoques.produto_id', '=', 'produtos.id')
+    //     ->where('estoques.local_id', $request->local_saida_id)
+    //     ->distinct('produtos.id')
+    //     ->get();
+
+    //     return response()->json($data, 200);
+
+    // }
+
     public function pesquisaComEstoque(Request $request){
-        $data = Produto::orderBy('nome', 'desc')
+        $empresa_id = $request->empresa_id;
+        $pesquisa = $request->pesquisa;
+        $local_saida_id = $request->local_saida_id;
+
+        $data = Produto::query()
         ->select('produtos.*')
+        ->distinct()
         ->with('estoque')
-        ->where('empresa_id', $request->empresa_id)
-        ->when(!is_numeric($request->pesquisa), function ($q) use ($request) {
-            return $q->where('nome', 'LIKE', "%$request->pesquisa%");
-        })
-        ->when(is_numeric($request->pesquisa), function ($q) use ($request) {
-            return $q->where('codigo_barras', 'LIKE', "%$request->pesquisa%");
-        })
         ->join('estoques', 'estoques.produto_id', '=', 'produtos.id')
-        ->where('estoques.local_id', $request->local_saida_id)
-        ->distinct('produtos.id')
+        ->where('produtos.empresa_id', $empresa_id)
+        ->where('estoques.local_id', $local_saida_id)
+        ->when($pesquisa, function ($q) use ($pesquisa) {
+            if (is_numeric($pesquisa)) {
+                return $q->where('produtos.codigo_barras', 'LIKE', "%{$pesquisa}%");
+            }
+            return $q->where('produtos.nome', 'LIKE', "%{$pesquisa}%");
+        })
+        ->orderBy('produtos.nome', 'desc')
         ->get();
 
         return response()->json($data, 200);
-
     }
 
     public function pesquisaFiltro(Request $request)
@@ -241,6 +265,19 @@ class ProdutoController extends Controller
         $data = Produto::orderBy('nome', 'desc')
         ->where('empresa_id', $request->empresa_id)
         ->where('nome', 'like', "%$request->pesquisa%")
+        ->get();
+        return response()->json($data, 200);
+    }
+
+    public function pesquisaCodigoBarras(Request $request)
+    {
+        $data = Produto::orderBy('nome', 'desc')
+        ->where('empresa_id', $request->empresa_id)
+        ->where('nome', 'like', "%$request->pesquisa%")
+        ->whereNotNull('codigo_barras')
+        ->where('codigo_barras', '!=', '')
+        ->whereRaw('codigo_barras REGEXP "^[0-9]+$"')
+        ->where('status', 1)
         ->get();
         return response()->json($data, 200);
     }
@@ -357,7 +394,7 @@ class ProdutoController extends Controller
                 $item->ncm = $tributacao->ncm;
             }
             if($tributacao->codigo_beneficio_fiscal){
-                $item->codigo_beneficio_fiscal = $tributacaocodigo_beneficio_fiscalncm;
+                $item->codigo_beneficio_fiscal = $tributacao->codigo_beneficio_fiscal;
             }
         }
 
@@ -506,7 +543,7 @@ class ProdutoController extends Controller
             ->where('produto_localizacaos.localizacao_id', $local_id);
         })
         ->where('status', 1)
-        ->limit(50)->get();
+        ->limit(30)->get();
 
         $countLocais = Localizacao::where('empresa_id', $request->empresa_id)
         ->where('status', 1)->count();
@@ -526,7 +563,7 @@ class ProdutoController extends Controller
                 }
             }
         }
-        
+
         return view('produtos.cards', compact('produtos'));
     }
 
@@ -554,7 +591,7 @@ class ProdutoController extends Controller
             return response()->json(0, 200);
         }
         $qtdSabores = sizeof($sabores);
-        
+
         foreach($sabores as $s){
             $item = ProdutoPizzaValor::where('produto_id', (int)$s)
             ->where('tamanho_id', $tamanho_id)
@@ -640,7 +677,7 @@ class ProdutoController extends Controller
         if($item->precoComPromocao()){
             $item->valor_unitario = $item->precoComPromocao()->valor;
         }
-        
+
         return response()->json($item, 200);
     }
 

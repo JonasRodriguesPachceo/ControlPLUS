@@ -88,322 +88,332 @@
                     </div>
                     @endif
 
-                    <div class="col-md-12 mt-3 table-responsive">
-                        <h6>Total de registros: <strong>{{ sizeof($data) }}</strong></h6>
+                    <div class="col-md-12 mt-3">
                         <div class="table-responsive">
-                            <table class="table table-striped table-centered mb-0">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Produto</th>
-                                        @if(__countLocalAtivo() > 1)
-                                        <th>Disponibilidade</th>
-                                        @endif
-                                        <th>Categoria</th> 
-                                        <th>Valor de venda</th> 
-                                        <th>Valor de compra</th> 
-                                        <th>CST/CSOSN</th> 
-                                        <th>CST PIS</th> 
-                                        <th>CST COFINS</th> 
-                                        <th>CST IPI</th> 
-                                        <th>% ICMS</th> 
-                                        <th>% PIS</th> 
-                                        <th>% COFINS</th> 
-                                        <th>% IPI</th> 
-                                        <th>% RED. BC</th> 
-                                        <th>CFOP Saída estadual</th> 
-                                        <th>CFOP Saída outro estado</th>
-                                        <th>CFOP Entrada estadual</th> 
-                                        <th>CFOP Entrada outro estado</th>
+                            <div class="tabela-scroll" style="overflow-x:auto;">
 
-                                        <th>CST IBS/CBS</th>
-                                        <th>Classificação Tributária</th>
-                                        <th>% IBS UF</th>
-                                        <th>% IBS Municipal</th>
-                                        <th>% CBS</th>
-                                        <th>% Diferido</th>
+                                <h6>Total de registros: <strong>{{ sizeof($data) }}</strong></h6>
+                                <table class="table table-striped table-centered mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Produto</th>
+                                            @if(__countLocalAtivo() > 1)
+                                            <th>Disponibilidade</th>
+                                            @endif
+                                            <th>Categoria</th> 
+                                            <th>Valor de venda</th> 
+                                            <th>Valor de compra</th> 
+                                            <th>CST/CSOSN</th> 
+                                            <th>CST PIS</th> 
+                                            <th>CST COFINS</th> 
+                                            <th>CST IPI</th> 
+                                            <th>% ICMS</th> 
+                                            <th>% PIS</th> 
+                                            <th>% COFINS</th> 
+                                            <th>% IPI</th> 
+                                            <th>% RED. BC</th> 
+                                            <th>CFOP Saída estadual</th> 
+                                            <th>CFOP Saída outro estado</th>
+                                            <th>CFOP Entrada estadual</th> 
+                                            <th>CFOP Entrada outro estado</th>
 
-                                        <th>Código benefício</th>
-                                        <th>Modalidade BC-ST</th>
-                                        <th>% ICMS ST</th>
-                                        <th>% MVA ST</th>
-                                        <th>% Red BC ST</th>
-                                        <th>% Efetivo do ICMS</th>
-                                        <th>% Redução Efetivo do ICMS</th>
+                                            <th>CST IBS/CBS</th>
+                                            <th>Classificação Tributária</th>
+                                            <th>% IBS UF</th>
+                                            <th>% IBS Municipal</th>
+                                            <th>% CBS</th>
+                                            <th>% Diferido</th>
 
-                                        <th>Ativo</th>  
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($data as $item)
-                                    <tr>
-                                        <td>
-                                            <label style="width: 300px;">{{ $item->nome }}</label>
-                                        </td>
-                                        @if(__countLocalAtivo() > 1)
-                                        <td>
+                                            <th>Código benefício</th>
+                                            <th>Modalidade BC-ST</th>
+                                            <th>% ICMS ST</th>
+                                            <th>% MVA ST</th>
+                                            <th>% Red BC ST</th>
+                                            <th>% Efetivo do ICMS</th>
+                                            <th>% Redução Efetivo do ICMS</th>
 
-                                            <select required class="select2 form-control select2-multiple local" data-toggle="select2" name="locais[]" multiple="multiple">
-                                                @foreach(__getLocaisAtivoUsuario() as $local)
-                                                <option @if(in_array($local->id, (isset($item) ? $item->locais->pluck('localizacao_id')->toArray() : []))) selected @endif value="{{ $local->id }}">{{ $local->descricao }}</option>
-                                                @endforeach
-                                            </select>
-                                            <div style="width: 300px"></div>
-                                            @if($loop->first)
-                                            <a onclick="setLocal()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        @endif
-                                        <td>
-                                            <select name="categoria[]" class="select2 categoria">
-                                                <option value="">Selecione</option>
-                                                @foreach($categorias as $c)
-                                                <option @isset($item) @if($item->categoria_id == $c->id) selected @endif @endif value="{{ $c->id}}">{{ $c->nome }}</option>
-                                                @endforeach
-                                            </select>
-                                            <div style="width: 200px"></div>
+                                            <th>Ativo</th>  
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($data as $item)
+                                        <tr>
+                                            <td>
+                                                <label style="width: 300px;">{{ $item->nome }}</label>
+                                            </td>
+                                            @if(__countLocalAtivo() > 1)
+                                            <td>
 
-                                            @if($loop->first)
-                                            <a onclick="setCategoria()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                <select required class="select2 form-control select2-multiple local" data-toggle="select2" name="locais[]" multiple="multiple">
+                                                    @foreach(__getLocaisAtivoUsuario() as $local)
+                                                    <option @if(in_array($local->id, (isset($item) ? $item->locais->pluck('localizacao_id')->toArray() : []))) selected @endif value="{{ $local->id }}">{{ $local->descricao }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <div style="width: 300px"></div>
+                                                @if($loop->first)
+                                                <a onclick="setLocal()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
                                             @endif
-                                        </td>
-                                        <td>
-                                            <input type="hidden" name="produto_id[]" value="{{ $item->id }}">
-                                            <input type="hidden" class="valor_venda" value="{{ $item->valor_unitario }}">
-                                            <input required style="width: 150px" type="tel" class="form-control moeda valor_venda" name="valor_unitario[]" value="{{ __moeda($item->valor_unitario) }}">
-                                            @if($loop->first)
-                                            <a onclick="setValorVenda()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input required style="width: 150px" type="tel" class="form-control moeda valor_compra" name="valor_compra[]" value="{{ __moeda($item->valor_compra) }}">
-                                            @if($loop->first)
-                                            <a onclick="setValorCompra()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <select required class="select2 cst_csosn" name="cst_csosn[]" style="width: 450px">
-                                                @foreach(App\Models\Produto::listaCSTCSOSN() as $key => $v)
-                                                <option @if($key == $item->cst_csosn) selected @endif value="{{ $key }}">{{ $v }}</option>
-                                                @endforeach
-                                            </select>
-                                            @if($loop->first)
-                                            <a onclick="setCstCsosn()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
+                                            <td>
+                                                <select name="categoria[]" class="select2 categoria">
+                                                    <option value="">Selecione</option>
+                                                    @foreach($categorias as $c)
+                                                    <option @isset($item) @if($item->categoria_id == $c->id) selected @endif @endif value="{{ $c->id}}">{{ $c->nome }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <div style="width: 200px"></div>
 
-                                            <div style="width: 400px;"></div>
-                                        </td>
+                                                @if($loop->first)
+                                                <a onclick="setCategoria()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input type="hidden" name="produto_id[]" value="{{ $item->id }}">
+                                                <input type="hidden" class="valor_venda" value="{{ $item->valor_unitario }}">
+                                                <input required style="width: 150px" type="tel" class="form-control moeda valor_venda" name="valor_unitario[]" value="{{ __moeda($item->valor_unitario) }}">
+                                                @if($loop->first)
+                                                <a onclick="setValorVenda()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input required style="width: 150px" type="tel" class="form-control moeda valor_compra" name="valor_compra[]" value="{{ __moeda($item->valor_compra) }}">
+                                                @if($loop->first)
+                                                <a onclick="setValorCompra()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <select required class="select2 cst_csosn" name="cst_csosn[]" style="width: 450px">
+                                                    @foreach(App\Models\Produto::listaCSTCSOSN() as $key => $v)
+                                                    <option @if($key == $item->cst_csosn) selected @endif value="{{ $key }}">{{ $v }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @if($loop->first)
+                                                <br>
+                                                <a onclick="setCstCsosn()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
 
-                                        <td>
-                                            <select required class="select2 cst_pis" name="cst_pis[]">
-                                                @foreach(App\Models\Produto::listaCST_PIS_COFINS() as $key => $v)
-                                                <option @if($key == $item->cst_pis) selected @endif value="{{ $key }}">{{ $v }}</option>
-                                                @endforeach
-                                            </select>
-                                            @if($loop->first)
-                                            <a onclick="setCstPis()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                            <div style="width: 400px;"></div>
-                                        </td>
+                                                <div style="width: 400px;"></div>
+                                            </td>
 
-                                        <td>
-                                            <select required class="select2 cst_cofins" name="cst_cofins[]">
-                                                @foreach(App\Models\Produto::listaCST_PIS_COFINS() as $key => $v)
-                                                <option @if($key == $item->cst_cofins) selected @endif value="{{ $key }}">{{ $v }}</option>
-                                                @endforeach
-                                            </select>
-                                            @if($loop->first)
-                                            <a onclick="setCstCofins()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                            <div style="width: 400px;"></div>
-                                        </td>
+                                            <td>
+                                                <select required class="select2 cst_pis" name="cst_pis[]">
+                                                    @foreach(App\Models\Produto::listaCST_PIS_COFINS() as $key => $v)
+                                                    <option @if($key == $item->cst_pis) selected @endif value="{{ $key }}">{{ $v }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @if($loop->first)
+                                                <br>
+                                                <a onclick="setCstPis()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                                <div style="width: 400px;"></div>
+                                            </td>
 
-                                        <td>
-                                            <select required class="select2 cst_ipi" name="cst_ipi[]">
-                                                @foreach(App\Models\Produto::listaCST_IPI() as $key => $v)
-                                                <option @if($key == $item->cst_ipi) selected @endif value="{{ $key }}">{{ $v }}</option>
-                                                @endforeach
-                                            </select>
-                                            @if($loop->first)
-                                            <a onclick="setCstIpi()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                            <div style="width: 400px;"></div>
-                                        </td>
+                                            <td>
+                                                <select required class="select2 cst_cofins" name="cst_cofins[]">
+                                                    @foreach(App\Models\Produto::listaCST_PIS_COFINS() as $key => $v)
+                                                    <option @if($key == $item->cst_cofins) selected @endif value="{{ $key }}">{{ $v }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @if($loop->first)
+                                                <br>
+                                                <a onclick="setCstCofins()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                                <div style="width: 400px;"></div>
+                                            </td>
 
-                                        <td>
-                                            <input required style="width: 150px" type="tel" class="form-control percentual perc_icms" name="perc_icms[]" value="{{ $item->perc_icms }}">
-                                            @if($loop->first)
-                                            <a onclick="setPercIcms()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input required style="width: 150px" type="tel" class="form-control percentual perc_pis" name="perc_pis[]" value="{{ $item->perc_pis }}">
-                                            @if($loop->first)
-                                            <a onclick="setPercPis()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input required style="width: 150px" type="tel" class="form-control percentual perc_cofins" name="perc_cofins[]" value="{{ $item->perc_cofins }}">
-                                            @if($loop->first)
-                                            <a onclick="setPercCofins()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input required style="width: 150px" type="tel" class="form-control percentual perc_ipi" name="perc_ipi[]" value="{{ $item->perc_ipi }}">
-                                            @if($loop->first)
-                                            <a onclick="setPercIpi()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control percentual perc_red_bc" name="perc_red_bc[]" value="{{ $item->perc_red_bc }}">
-                                            @if($loop->first)
-                                            <a onclick="setPercRedBc()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
+                                            <td>
+                                                <select required class="select2 cst_ipi" name="cst_ipi[]">
+                                                    @foreach(App\Models\Produto::listaCST_IPI() as $key => $v)
+                                                    <option @if($key == $item->cst_ipi) selected @endif value="{{ $key }}">{{ $v }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @if($loop->first)
+                                                <br>
+                                                <a onclick="setCstIpi()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                                <div style="width: 400px;"></div>
+                                            </td>
 
-                                        <td>
-                                            <input required style="width: 150px" type="tel" class="form-control cfop cfop_saida_estadual" name="cfop_estadual[]" value="{{ $item->cfop_estadual }}">
-                                            @if($loop->first)
-                                            <a onclick="setCfopSaidaEstadual()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input required style="width: 150px" type="tel" class="form-control cfop cfop_saida_outro_estado" name="cfop_outro_estado[]" value="{{ $item->cfop_outro_estado }}">
-                                            @if($loop->first)
-                                            <a onclick="setCfopSaidaOutroEstado()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
+                                            <td>
+                                                <input required style="width: 150px" type="tel" class="form-control percentual perc_icms" name="perc_icms[]" value="{{ $item->perc_icms }}">
+                                                @if($loop->first)
+                                                <a onclick="setPercIcms()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input required style="width: 150px" type="tel" class="form-control percentual perc_pis" name="perc_pis[]" value="{{ $item->perc_pis }}">
+                                                @if($loop->first)
+                                                <a onclick="setPercPis()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input required style="width: 150px" type="tel" class="form-control percentual perc_cofins" name="perc_cofins[]" value="{{ $item->perc_cofins }}">
+                                                @if($loop->first)
+                                                <a onclick="setPercCofins()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input required style="width: 150px" type="tel" class="form-control percentual perc_ipi" name="perc_ipi[]" value="{{ $item->perc_ipi }}">
+                                                @if($loop->first)
+                                                <a onclick="setPercIpi()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control percentual perc_red_bc" name="perc_red_bc[]" value="{{ $item->perc_red_bc }}">
+                                                @if($loop->first)
+                                                <a onclick="setPercRedBc()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
 
-                                        <td>
-                                            <input required style="width: 150px" type="tel" class="form-control cfop cfop_entrada_estadual" name="cfop_entrada_estadual[]" value="{{ $item->cfop_entrada_estadual }}">
-                                            @if($loop->first)
-                                            <a onclick="setCfopEntradaEstadual()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input required style="width: 150px" type="tel" class="form-control cfop cfop_entrada_outro_estado" name="cfop_entrada_outro_estado[]" value="{{ $item->cfop_entrada_outro_estado }}">
-                                            @if($loop->first)
-                                            <a onclick="setCfopEntradaOutroEstado()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
+                                            <td>
+                                                <input required style="width: 150px" type="tel" class="form-control cfop cfop_saida_estadual" name="cfop_estadual[]" value="{{ $item->cfop_estadual }}">
+                                                @if($loop->first)
+                                                <a onclick="setCfopSaidaEstadual()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input required style="width: 150px" type="tel" class="form-control cfop cfop_saida_outro_estado" name="cfop_outro_estado[]" value="{{ $item->cfop_outro_estado }}">
+                                                @if($loop->first)
+                                                <a onclick="setCfopSaidaOutroEstado()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
 
-                                        <td>
-                                            <select class="select2 cst_ibscbs" name="cst_ibscbs[]">
-                                                @foreach(App\Models\Produto::listaCSTCbsIbs() as $key => $v)
-                                                <option @if($key == $item->cst_ibscbs) selected @endif value="{{ $key }}">{{ $v }}</option>
-                                                @endforeach
-                                            </select>
-                                            @if($loop->first)
-                                            <a onclick="setCstIbsCbs()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                            <div style="width: 400px;"></div>
-                                        </td>
+                                            <td>
+                                                <input required style="width: 150px" type="tel" class="form-control cfop cfop_entrada_estadual" name="cfop_entrada_estadual[]" value="{{ $item->cfop_entrada_estadual }}">
+                                                @if($loop->first)
+                                                <a onclick="setCfopEntradaEstadual()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input required style="width: 150px" type="tel" class="form-control cfop cfop_entrada_outro_estado" name="cfop_entrada_outro_estado[]" value="{{ $item->cfop_entrada_outro_estado }}">
+                                                @if($loop->first)
+                                                <a onclick="setCfopEntradaOutroEstado()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
 
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control cclass_trib" name="cclass_trib[]" value="{{ $item->cclass_trib }}">
-                                            @if($loop->first)
-                                            <a onclick="setclassTrib()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
+                                            <td>
+                                                <select class="select2 cst_ibscbs" name="cst_ibscbs[]">
+                                                    @foreach(App\Models\Produto::listaCSTCbsIbs() as $key => $v)
+                                                    <option @if($key == $item->cst_ibscbs) selected @endif value="{{ $key }}">{{ $v }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @if($loop->first)
+                                                <br>
+                                                <a onclick="setCstIbsCbs()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                                <div style="width: 400px;"></div>
+                                            </td>
 
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control percentual perc_ibs_uf" name="perc_ibs_uf[]" value="{{ $item->perc_ibs_uf }}">
-                                            @if($loop->first)
-                                            <a onclick="setPercIbsUf()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control cclass_trib" name="cclass_trib[]" value="{{ $item->cclass_trib }}">
+                                                @if($loop->first)
+                                                <a onclick="setclassTrib()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
 
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control percentual perc_ibs_mun" name="perc_ibs_mun[]" value="{{ $item->perc_ibs_mun }}">
-                                            @if($loop->first)
-                                            <a onclick="setPercIbsMun()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control percentual perc_cbs" name="perc_cbs[]" value="{{ $item->perc_cbs }}">
-                                            @if($loop->first)
-                                            <a onclick="setPercCbs()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control percentual perc_dif" name="perc_dif[]" value="{{ $item->perc_dif }}">
-                                            @if($loop->first)
-                                            <a onclick="setPercDif()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control percentual perc_ibs_uf" name="perc_ibs_uf[]" value="{{ $item->perc_ibs_uf }}">
+                                                @if($loop->first)
+                                                <a onclick="setPercIbsUf()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
 
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control codigo_beneficio_fiscal" name="codigo_beneficio_fiscal[]" value="{{ $item->codigo_beneficio_fiscal }}">
-                                            @if($loop->first)
-                                            <a onclick="setCodigoBenf()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <select class="select2 modBCST" name="modBCST[]">
-                                                @foreach(App\Models\Produto::modalidadesBCST() as $key => $v)
-                                                <option @if($key == $item->modBCST) selected @endif value="{{ $key }}">{{ $v }}</option>
-                                                @endforeach
-                                            </select>
-                                            @if($loop->first)
-                                            <a onclick="setModBCST()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control percentual perc_ibs_mun" name="perc_ibs_mun[]" value="{{ $item->perc_ibs_mun }}">
+                                                @if($loop->first)
+                                                <a onclick="setPercIbsMun()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control percentual perc_cbs" name="perc_cbs[]" value="{{ $item->perc_cbs }}">
+                                                @if($loop->first)
+                                                <a onclick="setPercCbs()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control percentual perc_dif" name="perc_dif[]" value="{{ $item->perc_dif }}">
+                                                @if($loop->first)
+                                                <a onclick="setPercDif()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
 
-                                            <div style="width: 250px;"></div>
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control codigo_beneficio_fiscal" name="codigo_beneficio_fiscal[]" value="{{ $item->codigo_beneficio_fiscal }}">
+                                                @if($loop->first)
+                                                <a onclick="setCodigoBenf()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <select class="select2 modBCST" name="modBCST[]">
+                                                    @foreach(App\Models\Produto::modalidadesBCST() as $key => $v)
+                                                    <option @if($key == $item->modBCST) selected @endif value="{{ $key }}">{{ $v }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @if($loop->first)
+                                                <br>
+                                                <a onclick="setModBCST()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
 
-                                        </td>
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control percentual pICMSST" name="pICMSST[]" value="{{ $item->pICMSST }}">
-                                            @if($loop->first)
-                                            <a onclick="setPICMSST()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control percentual pMVAST" name="pMVAST[]" value="{{ $item->pMVAST }}">
-                                            @if($loop->first)
-                                            <a onclick="setPMVAST()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
+                                                <div style="width: 250px;"></div>
 
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control percentual redBCST" name="redBCST[]" value="{{ $item->redBCST }}">
-                                            @if($loop->first)
-                                            <a onclick="setRedBCST()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control percentual pICMSEfet" name="pICMSEfet[]" value="{{ $item->pICMSEfet }}">
-                                            @if($loop->first)
-                                            <a onclick="setPICMSEfet()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <input style="width: 150px" type="tel" class="form-control percentual pRedBCEfet" name="pRedBCEfet[]" value="{{ $item->pRedBCEfet }}">
-                                            @if($loop->first)
-                                            <a onclick="setPRedBCEfet()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                        </td>
+                                            </td>
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control percentual pICMSST" name="pICMSST[]" value="{{ $item->pICMSST }}">
+                                                @if($loop->first)
+                                                <a onclick="setPICMSST()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control percentual pMVAST" name="pMVAST[]" value="{{ $item->pMVAST }}">
+                                                @if($loop->first)
+                                                <a onclick="setPMVAST()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
 
-                                        <td>
-                                            <select class="form-select status" name="status[]">
-                                                <option @if($item->status == 1) selected @endif value="1">Sim</option>
-                                                <option @if($item->status == 0) selected @endif value="0">Não</option>
-                                            </select>
-                                            @if($loop->first)
-                                            <a onclick="setStatus()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
-                                            @endif
-                                            <div style="width: 200px;"></div>
-                                        </td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="20" class="text-center">Filtre para buscar os produtos</td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control percentual redBCST" name="redBCST[]" value="{{ $item->redBCST }}">
+                                                @if($loop->first)
+                                                <a onclick="setRedBCST()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control percentual pICMSEfet" name="pICMSEfet[]" value="{{ $item->pICMSEfet }}">
+                                                @if($loop->first)
+                                                <a onclick="setPICMSEfet()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <input style="width: 150px" type="tel" class="form-control percentual pRedBCEfet" name="pRedBCEfet[]" value="{{ $item->pRedBCEfet }}">
+                                                @if($loop->first)
+                                                <a onclick="setPRedBCEfet()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                            </td>
+
+                                            <td>
+                                                <select class="form-select status" name="status[]">
+                                                    <option @if($item->status == 1) selected @endif value="1">Sim</option>
+                                                    <option @if($item->status == 0) selected @endif value="0">Não</option>
+                                                </select>
+                                                @if($loop->first)
+                                                <a onclick="setStatus()" style="font-size: 12px" href=#!>Definir para os demais itens</a>
+                                                @endif
+                                                <div style="width: 200px;"></div>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="40" class="text-center">Filtre para buscar os produtos</td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-
+                        <button type="button" id="scrollToggle2" class="scroll-btn-jidox hidden">
+                            <i class="ri-arrow-right-circle-line"></i>
+                        </button>
                     </div>
-
 
                     <div class="col-md-12">
                         <button type="submit" class="btn btn-success float-end mt-3">Salvar</button>

@@ -92,8 +92,12 @@
                                                 <i class="ri-delete-bin-line"></i>
                                             </button>
                                             @endcan
-                                            <a title="Imprimir" href="{{ route('ordem-producao.show', $item->id) }}" class="btn btn-dark btn-sm text-white">
-                                                <i class="ri-eye-line"></i>
+                                            <a title="Ver OP" href="{{ route('ordem-producao.show', $item->id) }}" class="btn btn-dark btn-sm text-white">
+                                                <i class="ri-file-text-line"></i>
+                                            </a>
+
+                                            <a title="Imprimir" target="_blank" href="{{ route('ordem-producao.imprimir', $item->id) }}" class="btn btn-primary btn-sm text-white">
+                                                <i class="ri-printer-line"></i>
                                             </a>
                                         </form>
                                     </td>

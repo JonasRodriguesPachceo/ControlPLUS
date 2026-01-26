@@ -29,6 +29,7 @@ class ProdutoDeliveryController extends Controller
     public function index(Request $request){
         $status = $request->status;
         $nome = $request->nome;
+        $categoria_id = $request->categoria_id;
 
         $data = Produto::where('empresa_id', $request->empresa_id)
         ->when(!empty($nome), function ($q) use ($nome) {
@@ -37,10 +38,19 @@ class ProdutoDeliveryController extends Controller
         ->when($status != '', function ($q) use ($status) {
             return $q->where('status', $status);
         })
+        ->when($categoria_id, function ($q) use ($categoria_id) {
+            return $q->where('categoria_id', $categoria_id);
+        })
         ->where('delivery', 1)
         ->paginate(__itensPagina());
 
-        return view('delivery.produtos.index', compact('data'));
+        $categorias = CategoriaProduto::where('empresa_id', $request->empresa_id)
+        ->orderBy('nome', 'asc')
+        ->where('status', 1)
+        ->where('categoria_id', null)
+        ->get();
+
+        return view('delivery.produtos.index', compact('data', 'categorias'));
 
     }
 

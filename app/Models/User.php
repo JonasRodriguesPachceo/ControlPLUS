@@ -32,7 +32,11 @@ class User extends Authenticatable
         'suporte',
         'status',
         'finalizacao_pdv',
-        'plano_auto_cadastro'
+        'plano_auto_cadastro',
+        'hora_inicio',
+        'hora_fim',
+        'dias_semana',
+        'bloquear_fora_horario'
     ];
 
     /**

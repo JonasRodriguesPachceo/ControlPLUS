@@ -16,6 +16,7 @@ use App\Models\FaturaNfce;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use App\Models\Funcionario;
+use App\Models\OrdemSeparacao;
 
 class OrcamentoController extends Controller
 {
@@ -49,14 +50,15 @@ class OrcamentoController extends Controller
         ->when(!empty($funcionario_id), function ($q) use ($funcionario_id) {
             return $q->where('funcionario_id', $funcionario_id);
         })
-        
         ->orderBy('created_at', 'desc')
         ->paginate(__itensPagina());
 
         $funcionarios = Funcionario::where('empresa_id', $request->empresa_id)
         ->where('status', 1)->get();
 
-        return view('orcamento.index', compact('data', 'funcionarios'));
+        $ordemSeparacao = OrdemSeparacao::where('empresa_id', $request->empresa_id)->count();
+
+        return view('orcamento.index', compact('data', 'funcionarios', 'ordemSeparacao'));
     }
 
 

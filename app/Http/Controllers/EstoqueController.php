@@ -7,6 +7,7 @@ use App\Models\Estoque;
 use App\Models\CategoriaProduto;
 use App\Utils\EstoqueUtil;
 use App\Models\RetiradaEstoque;
+use App\Models\Produto;
 use App\Models\ProdutoLocalizacao;
 use App\Models\Localizacao;
 use App\Models\ConfigGeral;
@@ -29,31 +30,35 @@ class EstoqueController extends Controller
 
     public function index(Request $request){
 
-        $locais = __getLocaisAtivoUsuario();
-        $locais = $locais->pluck(['id']);
+        $locais = __getLocaisAtivoUsuario()->pluck('id');
 
-        $local_id = $request->local_id;
+        $local_id    = $request->local_id;
         $categoria_id = $request->categoria_id;
-        $data = Estoque::select('estoques.*', 'produtos.nome as produto_nome', 'localizacaos.nome as localizacao_nome')
+
+        $data = Estoque::select(
+            'estoques.*',
+            'produtos.nome as produto_nome',
+            'localizacaos.nome as localizacao_nome'
+        )
         ->join('produtos', 'produtos.id', '=', 'estoques.produto_id')
         ->join('localizacaos', 'localizacaos.id', '=', 'estoques.local_id')
         ->where('produtos.empresa_id', request()->empresa_id)
+
         ->when(!empty($request->produto), function ($q) use ($request) {
-            return $q->where('produtos.nome', 'LIKE', "%$request->produto%");
+            return $q->where('produtos.nome', 'LIKE', "%{$request->produto}%");
+        })->when(!empty($request->codigo_barras), function ($q) use ($request) {
+            return $q->where('produtos.codigo_barras', 'LIKE', "%{$request->codigo_barras}%");
         })
+
         ->when($categoria_id, function ($q) use ($categoria_id) {
             return $q->where('produtos.categoria_id', $categoria_id);
         })
-        ->when($local_id, function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('estoques.local_id', $local_id);
+        ->when($local_id, function ($q) use ($local_id) {
+            return $q->where('estoques.local_id', $local_id);
         })
-        ->when(!$local_id, function ($query) use ($locais) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->whereIn('produto_localizacaos.localizacao_id', $locais);
+        ->when(!$local_id, function ($q) use ($locais) {
+            return $q->whereIn('estoques.local_id', $locais);
         })
-        // ->groupBy('produtos.id', 'localizacaos.id')
-        // ->orderBy('produtos.nome', 'asc')
         ->paginate(__itensPagina());
 
         $categorias = CategoriaProduto::where('empresa_id', $request->empresa_id)
@@ -66,7 +71,45 @@ class EstoqueController extends Controller
         ? 'card' 
         : 'tabela';
 
-        return view('estoque.index', compact('data', 'categorias', 'tipoExibe'));
+        $totalVenda = DB::table('estoques')
+        ->join('produtos', 'produtos.id', '=', 'estoques.produto_id')
+        ->where('produtos.empresa_id', $request->empresa_id)
+        ->select(DB::raw('SUM(estoques.quantidade * produtos.valor_unitario) as total'))
+        ->value('total') ?? 0;
+
+        // $totalCompra = DB::table('estoques')
+        // ->join('produtos', 'produtos.id', '=', 'estoques.produto_id')
+        // ->where('produtos.empresa_id', $request->empresa_id)
+        // ->select(DB::raw('SUM(estoques.quantidade * produtos.valor_compra) as total'))
+        // ->value('total') ?? 0;
+
+        $totalCompra = DB::table('estoques')
+        ->join('produtos', 'produtos.id', '=', 'estoques.produto_id')
+        ->leftJoin('produto_variacaos', 'produto_variacaos.id', '=', 'estoques.produto_variacao_id')
+        ->where('produtos.empresa_id', $request->empresa_id)
+        ->selectRaw('
+            SUM(
+            estoques.quantidade *
+            COALESCE(produtos.valor_compra)
+            ) as total
+            ')
+        ->value('total') ?? 0;
+
+        $totalVenda = DB::table('estoques')
+        ->join('produtos', 'produtos.id', '=', 'estoques.produto_id')
+        ->leftJoin('produto_variacaos', 'produto_variacaos.id', '=', 'estoques.produto_variacao_id')
+        ->where('produtos.empresa_id', $request->empresa_id)
+        ->selectRaw('
+            SUM(
+            estoques.quantidade *
+            COALESCE(produto_variacaos.valor, produtos.valor_unitario)
+            ) as total
+            ')
+        ->value('total') ?? 0;
+
+        $totalProdutos = Produto::where('empresa_id', $request->empresa_id)->count();
+
+        return view('estoque.index', compact('data', 'categorias', 'tipoExibe', 'totalVenda', 'totalCompra', 'totalProdutos'));
     }
 
     public function create()
@@ -350,5 +393,23 @@ class EstoqueController extends Controller
             session()->flash("flash_error", "Algo deu errado: " . $e->getMessage());
         }
         return redirect()->back();
+    }
+
+    public function categoria(Request $request){
+        $estoquePorCategoria = DB::table('estoques')
+        ->join('produtos', 'produtos.id', '=', 'estoques.produto_id')
+        ->join('categoria_produtos', 'categoria_produtos.id', '=', 'produtos.categoria_id')
+        ->where('produtos.empresa_id', $request->empresa_id)
+        ->where('produtos.status', 1)
+        ->groupBy('categoria_produtos.id', 'categoria_produtos.nome')
+        ->select(
+            'categoria_produtos.nome',
+            DB::raw('SUM(estoques.quantidade) as quantidade_total'),
+            DB::raw('SUM(estoques.quantidade * produtos.valor_unitario) as valor_venda'),
+            DB::raw('SUM(estoques.quantidade * produtos.valor_compra) as valor_compra')
+        )
+        ->get();
+
+        return view('estoque.por_categoria', compact('estoquePorCategoria'));
     }
 }

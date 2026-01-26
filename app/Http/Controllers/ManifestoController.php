@@ -409,6 +409,15 @@ class ManifestoController extends Controller
 
             $prod->codigo_beneficio_fiscal = '';
 
+            $rastro = [];
+            if($item->prod->rastro){
+                foreach($item->prod->rastro as $r){
+                    $rastro[] = (array)$r;
+                }
+            }
+
+            $prod->rastro = $rastro;
+
             array_push($itens, $prod);
         }
 

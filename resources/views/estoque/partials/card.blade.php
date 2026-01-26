@@ -15,6 +15,10 @@
             {{ $item->produto->nome }}
           </div>
         </h6>
+
+        <h5 class="text-primary fw-bold mb-0">
+          <i class="ri-barcode-line"></i> {{ $item->produto->codigo_barras ?? '--' }}
+        </h5>
         
         <h5 class="text-success fw-bold mb-0">
           R$ @if($item->produtoVariacao)
@@ -45,7 +49,7 @@
           @csrf
           @can('estoque_edit')
           <a title="Editar estoque" href="{{ route('estoque.edit', [$item->id]) }}" class="btn btn-dark btn-sm">
-            <i class="ri-pencil-fill"></i>
+            <i class="ri-edit-2-line"></i>
           </a>
           @endcan
           @can('produtos_edit')

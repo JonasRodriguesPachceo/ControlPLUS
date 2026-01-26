@@ -44,6 +44,18 @@
                         <i class="ri-file-upload-line"></i>
                         Upload
                     </a>
+
+                    <a href="{{ route('clientes.incompleto') }}" class="btn btn-secondary pull-right">
+                        <i class="ri-list-settings-fill"></i>
+                        Cadastro incompleto
+                    </a>
+                    @endcan
+
+                    @can('score_clientes_view')
+                    <a href="{{ route('clientes-score.index') }}" class="btn btn-primary pull-right">
+                        <i class="ri-medal-fill"></i>
+                        Score
+                    </a>
                     @endcan
 
                 </div>
@@ -73,6 +85,11 @@
                         </div>
                         <div class="col-md-2">
                             {!!Form::select('ordem', 'Ordenar por', ['razao_social' => 'Razão social', 'numero_sequencial' => 'Código', 'created_at' => 'Data de cadastro'])
+                            ->attrs(['class' => 'form-select'])
+                            !!}
+                        </div>
+                        <div class="col-md-2">
+                            {!!Form::select('valor_credito', 'Valor em crédito', ['' => 'Todos', '1' => 'Sim', '0' => 'Não'])
                             ->attrs(['class' => 'form-select'])
                             !!}
                         </div>

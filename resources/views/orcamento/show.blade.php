@@ -16,8 +16,8 @@
                 <hr class="mt-3">
                 <div class="row">
 
-                    <h4>Cliente: <strong style="color: steelblue">{{ $data->cliente_id ? $data->cliente->razao_social : 'Consumidor Final'}}</strong></h4>
-                    <h4>Data: <strong style="color: steelblue">{{ __data_pt($data->created_at) }}</strong></h4>
+                    <h4>Cliente: <strong class="text-primary">{{ $data->cliente_id ? $data->cliente->razao_social : 'Consumidor Final'}}</strong></h4>
+                    <h4>Data: <strong class="text-primary">{{ __data_pt($data->created_at) }}</strong></h4>
 
                     <h4>Total: <strong class="text-success">R$ {{ __moeda($data->total) }}</strong></h4>
                     @if($data->funcionario)
@@ -42,7 +42,13 @@
                                 @forelse($data->itens as $item)
                                 <tr>
                                     <td>{{ $item->descricao() }}</td>
-                                    <td>{{ $item->quantidade }}</td>
+                                    <td>
+                                        @if(!$item->produto->unidadeDecimal())
+                                        {{ number_format($item->quantidade, 0, '.', '') }}
+                                        @else
+                                        {{ number_format($item->quantidade, 3, '.', '') }}
+                                        @endif
+                                    </td>
                                     <td>{{ __moeda($item->valor_unitario) }}</td>
                                     <td>{{ __moeda($item->sub_total) }}</td>
                                 </tr>
@@ -81,14 +87,73 @@
                     </div>
                 </div>
                 <br>
-                <a href="{{ route('orcamentos.gerar-venda', [$data->id]) }}" class="btn btn-success">
+                <a href="#" class="btn btn-success btn-gerar" data-url="{{ route('orcamentos.gerar-venda', [$data->id]) }}">
                     Gerar venda NFe
                 </a>
-                <a href="{{ route('orcamentos.gerar-venda-nfce', [$data->id]) }}" class="btn btn-dark">
+
+                <a href="#" class="btn btn-dark btn-gerar" data-url="{{ route('orcamentos.gerar-venda-nfce', [$data->id]) }}">
                     Gerar venda NFCe
                 </a>
             </div>
         </div>
     </div>
 </div>
+@section('js')
+<script type="text/javascript">
+    $(document).on('click', '.btn-gerar', function (e) {
+        e.preventDefault();
+
+        let urlDestino = $(this).data('url');
+        let orcamentoId = {{ $data->id }};
+
+        $.ajax({
+            url: path_url + "api/orcamentos/verifica-faturas",
+            method: "GET",
+            data: {id: orcamentoId},
+            success: function (res) {
+
+                if (!res.status) {
+                    swal("Erro", res.msg, "error");
+                    return;
+                }
+
+                if (!res.temFaturas) {
+                    window.location.href = urlDestino;
+                    return;
+                }
+
+                let msg = 
+                "Este cliente possui:\n\n" +
+                res.quantidade + " fatura(s) em aberto\n" +
+                "Valor total: R$ " + res.valorTotal + "\n\n" +
+                "Deseja continuar mesmo assim?";
+
+                swal({
+                    title: "Faturas em aberto!",
+                    text: msg,
+                    icon: "warning",
+                    buttons: {
+                        cancel: "Cancelar",
+                        confirm: {
+                            text: "Continuar",
+                            value: true,
+                        },
+                    },
+                    dangerMode: true,
+                }).then((confirmado) => {
+                    if (confirmado) {
+                        window.location.href = urlDestino;
+                    }
+                });
+
+            },
+
+            error: function () {
+                swal("Erro", "Não foi possível verificar faturas em aberto.", "error");
+            }
+        });
+    });
+
+</script>
+@endsection
 @endsection

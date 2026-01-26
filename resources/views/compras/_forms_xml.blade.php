@@ -211,8 +211,8 @@
                                             <th>Subtotal</th>
                                             <th>Valor de venda</th>
                                             <th>Conversão para estoque
-                                                <button type="button" tabindex="0" class="btn btn-success btn-sm" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-content="Utilize se for vender em unidade diferente de compra, exemplo caixa com 12 e vender em unidade" title="Conversão para estoque e valor">
-                                                    <i class="ri-file-info-fill"></i>
+                                                <button type="button" tabindex="0" style="padding: 1px;" class="btn" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-content="Utilize se for vender em unidade diferente de compra, exemplo caixa com 12 e vender em unidade" title="Conversão para estoque e valor">
+                                                    <i class="ri-file-info-fill text-info" style="font-size: 15px;"></i>
                                                 </button>
                                             </th>
                                             <th>%ICMS</th>
@@ -277,23 +277,27 @@
 
                                                 <input type="hidden" class="_check" value="0">
 
-                                                <select class="form-select produto_id" name="produto_id[]">
-                                                    <option value="{{ $prod->id }}">
-                                                        {{ $prod->xProd }}
-                                                    </option>
-                                                </select>
-                                                <input type="hidden" value="{{ $key }}" class="_key">
-                                                <button data-key="{{ $key }}" title="Alterar dados do produto" style="margin-top: 3px;" class="btn btn-primary btn-sm btn-modal-altera" type="button">
-                                                    <i class="ri-box-1-fill"></i>
-                                                </button>
+
+                                                <div class="d-flex align-items-center grupo-produto">
+                                                    <div class="flex-grow-1" style="max-width: 350px;">
+                                                        <select class="form-select produto_id select2-produto" name="produto_id[]">
+                                                            <option value="{{ $prod->id }}">{{ $prod->xProd }}</option>
+                                                        </select>
+                                                        <input type="hidden" value="{{ $key }}" class="_key">
+                                                    </div>
+
+                                                    <button data-key="{{ $key }}" title="Alterar dados do produto" type="button"class="btn btn-primary ms-2 btn-modal-altera btn-produto-icone">
+                                                        <i class="ri-box-1-fill"></i>
+                                                    </button>
+                                                </div>
 
                                                 @if($prod->id == 0)
                                                 <span class="text-danger">*Produto será cadastrado no sistema</span>
                                                 @else
                                                 <span class="text-primary">*Produto já esta cadastrado no sistema</span>
                                                 @endif
-                                                <i class="ri-information-line" onclick="modalXml('{{ $prod->nomeXml }}', '{{ $prod->valorXml }}', '{{ $prod->cfopXml }}')"></i>
-                                                <div style="width: 400px"></div>
+                                                <i class="ri-information-line" style="font-size: 18px" onclick="modalXml('{{ $prod->nomeXml }}', '{{ $prod->valorXml }}', '{{ $prod->cfopXml }}')"></i>
+                                                <div style="width: 450px"></div>
                                             </td>
 
                                             <td class="td-padrao d-none">
@@ -306,7 +310,8 @@
                                             </td> 
 
                                             <td>
-                                                <input readonly style="width: 120px" value="{{ $prod->unidade }}" class="form-control unidade" type="text" name="unidade[]">
+                                                <input value="{{ json_encode($prod->rastro) }}" class="form-control" type="hidden" name="rastro[]">
+                                                <input readonly style="width: 120px;" value="{{ $prod->unidade }}" class="form-control unidade" type="text" name="unidade[]">
                                             </td> 
                                             <td>
                                                 <input readonly style="width: 120px" value="{{ __moedaInput($prod->quantidade) }}" class="form-control qtd" type="tel" name="quantidade[]" id="inp-quantidade">

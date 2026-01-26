@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Nfe;
+use App\Models\ContaReceber;
 use App\Models\Produto;
 use App\Models\ConfigGeral;
 
@@ -34,6 +36,34 @@ class OrcamentoController extends Controller
             return response()->json("ok", 200);
         }
         return response()->json("ok", 200);
+    }
+
+    public function verificaFaturas(Request $request){
+        $orcamento = Nfe::find($request->id);
+
+        if(!$orcamento){
+            return response()->json([
+                'status' => false,
+                'msg' => 'Orçamento não encontrado.'
+            ]);
+        }
+
+        $clienteId = $orcamento->cliente_id;
+
+        $faturas = ContaReceber::where('cliente_id', $clienteId)
+        ->where('status', 0)
+        ->get();
+
+        $quantidade = $faturas->count();
+        $valorTotal = $faturas->sum('valor_integral');
+
+        return response()->json([
+            'status'      => true,
+            'temFaturas'  => $quantidade > 0,
+            'quantidade'  => $quantidade,
+            'valorTotal'  => __moeda($valorTotal)
+        ]);
+
     }
 
 }

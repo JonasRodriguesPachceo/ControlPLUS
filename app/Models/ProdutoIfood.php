@@ -14,4 +14,8 @@ class ProdutoIfood extends Model
         'imagem', 'serving', 'nome', 'status', 'estoque', 'sellingOption_minimum', 'sellingOption_incremental', 
         'sellingOption_averageUnit', 'sellingOption_availableUnits', 'valor'
     ];
+
+    public function produto(){
+        return $this->belongsTo(Produto::class, 'produto_id');
+    }
 }

@@ -389,13 +389,6 @@ class NFCeService
 
 			$prod = $nfe->tagprod($stdProd); // fim tag de produtos
 
-			if(isset($i->infAdProd) && $i->infAdProd){
-				$stdInfAdProd = new \stdClass();
-				$stdInfAdProd->item = $itemCont;
-				$stdInfAdProd->infAdProd = $i->infAdProd;
-				$nfe->taginfAdProd($stdInfAdProd);
-			}
-
 			$stdImposto = new \stdClass();
 			$stdImposto->item = $itemCont;
 
@@ -490,13 +483,18 @@ class NFCeService
 				if($stdICMS->pICMS == 0){
 					$stdICMS->vBC = 0;
 				}
-				if($i->cst_csosn == '60'){
 
+				if($i->produto->pRedBCEfet > 0){
 					$stdICMS->pRedBCEfet = $i->produto->pRedBCEfet ?? 0;
+				}
 
+				if($i->produto->pICMSEfet > 0){
 					$stdICMS->vBCEfet = $stdProd->vProd - ($stdProd->vDesc ?? 0);
 					$stdICMS->pICMSEfet = $i->produto->pICMSEfet;
 					$stdICMS->vICMSEfet = $stdICMS->vBCEfet * ($stdICMS->pICMSEfet / 100);
+				}
+
+				if($i->cst_csosn == '60'){
 
 					if($i->pST > 0){
 						$stdICMS->pST = $i->pST;
@@ -557,6 +555,7 @@ class NFCeService
 			$stdCOFINS->vCOFINS = $this->format($stdProd->vProd * ($i->perc_cofins / 100));
 			$COFINS = $nfe->tagCOFINS($stdCOFINS);
 			//ibs e cbs
+
 			if($i->produto->cst_ibscbs && $i->produto->cclass_trib){
 
 				$stdIBSCBS = new \stdClass();
@@ -565,24 +564,18 @@ class NFCeService
 				$stdIBSCBS->cClassTrib = $i->produto->cclass_trib;
 				$stdIBSCBS->vBC = $stdProd->vProd;
 
-				// if($i->produto->perc_ibs_uf > 0){
 				$stdIBSCBS->gIBSUF_pIBSUF = $i->produto->perc_ibs_uf;
-				$stdIBSCBS->gIBSUF_vIBSUF = $stdIBSCBS->vBC * ($stdIBSCBS->gIBSUF_pIBSUF/100);
-				// }
+				$stdIBSCBS->gIBSUF_vIBSUF = $this->format($stdIBSCBS->vBC * ($stdIBSCBS->gIBSUF_pIBSUF/100));
 
-				// if($i->produto->perc_ibs_mun > 0){
 				$stdIBSCBS->gIBSMun_pIBSMun = $i->produto->perc_ibs_mun;
-				$stdIBSCBS->gIBSMun_vIBSMun = $stdIBSCBS->vBC * ($stdIBSCBS->gIBSMun_pIBSMun/100);
-				// }
+				$stdIBSCBS->gIBSMun_vIBSMun = $this->format($stdIBSCBS->vBC * ($stdIBSCBS->gIBSMun_pIBSMun/100));
 
-				// if($i->produto->perc_cbs > 0){
 				$stdIBSCBS->gCBS_pCBS = $i->produto->perc_cbs;
-				$stdIBSCBS->gCBS_vCBS = $stdIBSCBS->vBC * ($stdIBSCBS->gCBS_pCBS/100);
-				// }
+				$stdIBSCBS->gCBS_vCBS = $this->format($stdIBSCBS->vBC * ($stdIBSCBS->gCBS_pCBS/100));
 
 				if($i->produto->perc_dif > 0){
 					$stdIBSCBS->gIBSUF_pDif = $i->produto->perc_dif;
-					$stdIBSCBS->gIBSUF_vDif = $stdIBSCBS->vBC * ($stdIBSCBS->gIBSUF_pDif/100);
+					$stdIBSCBS->gIBSUF_vDif = $this->format($stdIBSCBS->vBC * ($stdIBSCBS->gIBSUF_pDif/100));
 				}
 
 				$IBSCBS = $nfe->tagIBSCBS($stdIBSCBS);
@@ -736,7 +729,6 @@ class NFCeService
 			$stdDetPag->indPag = 1;
 			$detPag = $nfe->tagdetPag($stdDetPag);
 		} else {
-
 			if (sizeof($item->fatura) > 0) {
 				foreach ($item->fatura as $ft) {
 
@@ -753,12 +745,11 @@ class NFCeService
 					if($ft->tipo_pagamento == '06'){
 						$stdDetPag->tPag = '05'; 
 					}
-
 					$stdDetPag->vPag = $this->format($ft->valor);
 
-					if($item->pedido){
-						$stdDetPag->vPag = $item->pedido->somaProdutos();
-					}
+					// if($item->pedido){
+					// 	$stdDetPag->vPag = $item->pedido->somaProdutos();
+					// }
 					$stdDetPag->indPag = 1;
 
 					if($ft->tipo_pagamento == '03' || $ft->tipo_pagamento == '04' || $ft->tipo_pagamento == '17'){

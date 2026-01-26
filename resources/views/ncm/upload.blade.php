@@ -18,10 +18,6 @@
         border-radius: 5px;
     }
 
-    .card-body strong{
-        color: #8833FF;
-    }
-
 </style>
 @endsection
 @section('content')
@@ -36,6 +32,16 @@
         </div>
     </div>
     <div class="card-body">
+
+        <div class="alert alert-info">
+            <i class="ri-information-line me-2"></i>
+            <strong>Atenção!</strong> A importação substituirá todos os NCMs existentes. Certifique-se de que o arquivo está no formato correto.
+            <div>
+                <strong>Formato esperado:</strong> 
+                <br>Código | Descrição
+                <br>Os dados devem estar nas colunas A e B, respectivamente.
+            </div>
+        </div>
         {!!Form::open()
         ->post()
         ->route('ncm.store-xls')

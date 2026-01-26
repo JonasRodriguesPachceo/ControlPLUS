@@ -113,6 +113,67 @@
             Para finalizar Venda PDV
         </div>
     </div>
+
+    <div class="col-md-2">
+        {!! Form::time('hora_inicio', 'Hora início')
+        ->attrs(['class' => 'form-control'])
+        ->value(isset($item) ? $item->hora_inicio : null)
+        !!}
+    </div>
+    <div class="col-md-2">
+        {!! Form::time('hora_fim', 'Hora fim')
+        ->attrs(['class' => 'form-control'])
+        ->value(isset($item) ? $item->hora_fim : null)
+        !!}
+    </div>
+
+    <div class="col-md-2">
+        {!! Form::select(
+        'bloquear_fora_horario',
+        'Bloquear fora do horário',
+        [1 => 'Sim', 0 => 'Não']
+        )
+        ->attrs(['class' => 'form-select'])
+        ->value(isset($item) ? $item->bloquear_fora_horario : 1)
+        !!}
+    </div>
+
+    <div class="col-md-12 mt-2">
+        <label class="form-label">Dias permitidos</label>
+        <div class="d-flex flex-wrap gap-3">
+            @php
+            $diasSemana = [
+            1 => 'Seg',
+            2 => 'Ter',
+            3 => 'Qua',
+            4 => 'Qui',
+            5 => 'Sex',
+            6 => 'Sáb',
+            7 => 'Dom',
+            ];
+
+            $diasSelecionados = isset($item) && $item->dias_semana
+            ? json_decode($item->dias_semana, true)
+            : [];
+            @endphp
+
+            @foreach($diasSemana as $num => $label)
+            <div class="form-check">
+                <input
+                class="form-check-input"
+                type="checkbox"
+                name="dias_semana[]"
+                value="{{ $num }}"
+                id="dia_{{ $num }}"
+                @if(in_array($num, $diasSelecionados)) checked @endif
+                >
+                <label class="form-check-label" for="dia_{{ $num }}">
+                    {{ $label }}
+                </label>
+            </div>
+            @endforeach
+        </div>
+    </div>
     
     <hr>
     <div class="card col-md-3 mt-3 form-input" style="width: 210px">

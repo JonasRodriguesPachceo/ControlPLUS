@@ -18,7 +18,13 @@
                         <li class="nav-item">
                             <a href="#tab-produtos" data-bs-toggle="tab" data-toggle="tab" class="nav-link rounded-0 py-1">
                                 <i class="ri-box-3-line fs-18 align-middle me-1"></i>
-                                <span class="d-none d-sm-inline">Produtos vendidos</span>
+                                <span class="d-none d-sm-inline">Produtos vendidos (totalizador)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#tab-produtos-pesquisa" data-bs-toggle="tab" data-toggle="tab" class="nav-link rounded-0 py-1">
+                                <i class="ri-search-line fs-18 align-middle me-1 pesquisa"></i>
+                                <span class="d-none d-sm-inline">Produtos vendidos (busca)</span>
                             </a>
                         </li>
                         <li class="nav-item">
@@ -32,8 +38,8 @@
                     <div class="tab-content b-0 mb-0">
                         <div class="tab-pane" id="tab-vendas">
 
-                            <div class="col-md-12 mt-3 table-responsive">
-                                <div class="table-responsive-sm">
+                            <div class="col-md-12 mt-3">
+                                <div class="table-responsive">
                                     <table class="table table-striped table-centered mb-0">
                                         <thead class="table-dark">
                                             <tr>
@@ -92,8 +98,8 @@
 
                     <div class="tab-content b-0 mb-0">
                         <div class="tab-pane" id="tab-produtos">
-                            <div class="col-md-12 mt-3 table-responsive">
-                                <div class="table-responsive-sm">
+                            <div class="col-md-12 mt-3">
+                                <div class="table-responsive">
                                     <table class="table table-striped table-centered mb-0">
                                         <thead class="table-dark">
                                             <tr>
@@ -128,12 +134,52 @@
                         </div>
                     </div>
 
-                    <!--  -->
+                    <div class="tab-content b-0 mb-0">
+                        <div class="tab-pane" id="tab-produtos-pesquisa">
+                            <div class="col-md-12 mt-3">
+                                <div class="row">
+                                    <div class="col-md-3"></div>
+                                    <div class="col-md-6">
+                                        <label>Pesquise o produto</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-white">
+                                                <i class="ri-search-line"></i>
+                                            </span>
+                                            <input 
+                                            type="text" 
+                                            id="inp-pesquisa" 
+                                            class="form-control border-start-0"
+                                            placeholder="Digite o nome do produto">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Código da venda</th>
+                                                    <th>Data da venda</th>
+                                                    <th>Descrição</th>
+                                                    <th>Código de barras</th>
+                                                    <th>Referência</th>
+                                                    <th>Quantidade</th>
+                                                    <th>Valor unitário</th>
+                                                    <th>Ações</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="tab-content b-0 mb-0">
                         <div class="tab-pane" id="tab-faturas">
-                            <div class="col-md-12 mt-3 table-responsive">
-                                <div class="table-responsive-sm">
+                            <div class="col-md-12 mt-3">
+                                <div class="table-responsive">
                                     <table class="table table-striped table-centered mb-0">
                                         <thead class="table-dark">
                                             <tr>
@@ -183,4 +229,29 @@
 @section('js')
 <script src="/assets/vendor/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js"></script>
 <script src="/assets/js/pages/demo.form-wizard.js"></script>
+<script type="text/javascript">
+    setTimeout(() => {
+        // $('.pesquisa').trigger('click')
+        $('#inp-pesquisa').val('')
+    }, 1000)
+
+    $('body').on('keyup', '#inp-pesquisa', function (e) {
+        let pesquisa = $(this).val()
+        if(pesquisa.length >= 1){
+            $.get(path_url + "api/clientes/produtos-historico", 
+            {
+                pesquisa: pesquisa,
+                cliente_id: '{{ $item->id }}'
+            })
+            .done((res) => {
+                // console.log(res)
+                $('#tab-produtos-pesquisa tbody').html(res)
+
+            })
+            .fail((err) => {
+                console.log(err)
+            })
+        }
+    })
+</script>
 @endsection

@@ -11,7 +11,7 @@ class Caixa extends Model
 
     protected $fillable = [
         'empresa_id', 'usuario_id', 'valor_abertura', 'data_fechamento', 'observacao', 'status', 'valor_fechamento', 'valor_dinheiro',
-        'valor_cheque', 'valor_outros', 'conta_empresa_id', 'local_id'
+        'valor_cheque', 'valor_outros', 'conta_empresa_id', 'local_id', 'numero_sequencial'
     ];
 
     public function usuario()

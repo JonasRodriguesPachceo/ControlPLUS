@@ -86,7 +86,45 @@
         !!}
     </div>
 
-    
+    <div class="alert alert-info py-2 mt-4">
+        <i class="ri-information-line"></i>
+        Caso necessite inclua mais produtos para gerar a etiqueta
+    </div>
+    <div class="col-md-6">
+        <div class="table-responsive">
+            <table class="table table-dynamic">
+                <thead class="table-light">
+                    <tr>
+                        <th>Produto</th>
+                        <th>Qtd. etiquetas</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="dynamic-form">
+                        <td>
+                            <select name="produto_add_id[]" class="form-select produto"></select>
+                            <div style="width: 280px;"></div>
+                        </td>
+                        <td style="width: 180px">
+                            <input type="tel" value="" data-mask="000" class="form-control quantidade_add" name="quantidade_add[]">
+                        </td>
+                        <td style="width: 80px">
+                            <button class="btn btn-danger btn-remove-tr">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-4">
+            <button type="button" class="btn btn-dark btn-add-tr px-2">
+                <i class="ri-add-fill"></i>
+                Adicionar Produto
+            </button>
+        </div>
+    </div>
     <hr class="mt-4">
     <div class="col-12" style="text-align: right;">
         <button type="submit" class="btn btn-success px-5" id="btn-store">Gerar</button>

@@ -25,6 +25,7 @@ use App\Services\NFCeService;
 use App\Utils\EstoqueUtil;
 use File;
 use App\Models\Contigencia;
+use App\Utils\Fiscal\FiscalValidator;
 
 class NfceController extends Controller
 {
@@ -153,7 +154,14 @@ class NfceController extends Controller
         ->paginate(__itensPagina());
         $contigencia = $this->getContigencia(request()->empresa_id);
 
-        return View('nfce.index', compact('data', 'contigencia'));
+        $usarDropdown = 0;
+        $config = ConfigGeral::where('empresa_id', $request->empresa_id)->first();
+
+        if($config){
+            $usarDropdown = $config->usar_dropdown_acoes;
+        }
+
+        return View('nfce.index', compact('data', 'contigencia', 'usarDropdown'));
     }
 
     public function create()
@@ -209,7 +217,7 @@ class NfceController extends Controller
     public function store(Request $request)
     {
         try {
-            DB::transaction(function () use ($request) {
+            $nfce = DB::transaction(function () use ($request) {
                 $cliente_id = $request->cliente_id;
                 $empresa = Empresa::findOrFail($request->empresa_id);
                 $caixa = __isCaixaAberto();
@@ -317,7 +325,17 @@ class NfceController extends Controller
                         }
                     }
                 }
+                return $nfce;
             });
+
+$result = app(FiscalValidator::class)
+->validate($nfce, $nfce->empresa);
+
+$nfce->update([
+    'fiscal_status' => $result['status'],
+    'fiscal_risco' => $result['risco'],
+    'fiscal_mensagens' => $result['mensagens']
+]);
 session()->flash("flash_success", "NFCe cadastrada!");
 } catch (\Exception $e) {
     // echo $e->getFile() . '<br>' . $e->getLine();
@@ -330,7 +348,7 @@ return redirect()->route('nfce.index');
 public function update(Request $request, $id)
 {
     try {
-        DB::transaction(function () use ($request, $id) {
+        $nfce = DB::transaction(function () use ($request, $id) {
             $item = Nfce::findOrFail($id);
             __validaObjetoEmpresa($item);
 
@@ -401,7 +419,18 @@ public function update(Request $request, $id)
                     ]);
                 }
             }
+            return $item;
         });
+
+        $result = app(FiscalValidator::class)
+        ->validate($nfce, $nfce->empresa);
+
+        $nfce->update([
+            'fiscal_status' => $result['status'],
+            'fiscal_risco' => $result['risco'],
+            'fiscal_mensagens' => $result['mensagens']
+        ]);
+
         session()->flash("flash_success", "NFCe alterada com sucesso!");
     } catch (\Exception $e) {
         // echo $e->getMessage() . '<br>' . $e->getLine();

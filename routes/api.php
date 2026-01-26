@@ -79,6 +79,7 @@ Route::group(['prefix' => 'nfe_painel'], function () {
     Route::post('/consulta-status-sefaz', 'NFePainelController@consultaStatusSefaz');
     Route::get('/find', 'NFePainelController@find');
     Route::post('/send-mail', 'NFePainelController@sendMail');
+    Route::get('/consulta-fiscal', 'NFePainelController@consultaFiscal');
 });
 
 Route::group(['prefix' => 'nfce_painel'], function () {
@@ -89,6 +90,7 @@ Route::group(['prefix' => 'nfce_painel'], function () {
     Route::post('/transmitir-contigencia', 'NFCePainelController@transmitirContigencia');
 
     Route::post('/send-mail', 'NFCePainelController@sendMail');
+    Route::get('/consulta-fiscal', 'NFCePainelController@consultaFiscal');
 });
 
 Route::group(['prefix' => 'cte_painel'], function () {
@@ -208,6 +210,7 @@ Route::group(['prefix' => 'vendas'], function () {
 
 Route::group(['prefix' => 'orcamentos'], function () {
     Route::get('/valida-desconto', 'OrcamentoController@validaDesconto');
+    Route::get('/verifica-faturas', 'OrcamentoController@verificaFaturas');
 });
 
 Route::group(['prefix' => 'metas'], function () {
@@ -223,6 +226,7 @@ Route::get('/produtos-composto', 'ProdutoController@pesquisaCompostos');
 Route::get('/produtos-combo', 'ProdutoController@pesquisaCombo');
 Route::get('/produtos-filtro', 'ProdutoController@pesquisaFiltro');
 Route::get('/produtos-reserva', 'ProdutoController@pesquisaReserva');
+Route::get('/produtos-filtro-codigo-barras', 'ProdutoController@pesquisaCodigoBarras');
 Route::group(['prefix' => 'produtos'], function () {
     Route::get('/', 'ProdutoController@pesquisa');
     Route::get('/com-estoque', 'ProdutoController@pesquisaComEstoque');
@@ -284,6 +288,7 @@ Route::group(['prefix' => 'clientes'], function () {
     Route::get('/pesquisa-delivery', 'ClienteController@pesquisaDelivery');
     Route::post('/store', 'ClienteController@store');
     Route::get('/consulta-debito', 'ClienteController@consultaDebitos');
+    Route::get('/produtos-historico', 'ClienteController@produtosHistorico');
 });
 
 Route::group(['prefix' => 'motoboys'], function () {
@@ -323,6 +328,7 @@ Route::group(['prefix' => 'interrupcao'], function () {
 
 Route::group(['prefix' => 'conta-receber'], function () {
     Route::get('/recorrencia', 'ContaReceberController@recorrencia');
+    Route::get('/faturas-cliente', 'ContaReceberController@faturasDoCliente');
 });
 
 Route::group(['prefix' => 'conta-pagar'], function () {
@@ -357,6 +363,7 @@ Route::group(['prefix' => 'frenteCaixa'], function () {
     Route::post('/store-comanda', 'FrontBoxController@storeComanda');
     Route::post('/storeNfe', 'FrontBoxController@storeNfe');
     Route::post('/suspender', 'FrontBoxController@suspender');
+    Route::post('/suspender-update', 'FrontBoxController@suspenderUpdate');
     Route::put('/update/{id}', 'FrontBoxController@update');
     Route::get('/buscaFuncionario/{id}', 'FrontBoxController@buscaFuncionario');
     Route::get('/venda-suspensas', 'FrontBoxController@vendasSuspensas');
@@ -573,6 +580,8 @@ Route::middleware(['authCardapio'])->group(function () {
     });
 });
 
+Route::post('/auth-app', 'Kotlin\\AuthController@auth');
+
 Route::middleware(['authApp'])->group(function () {
     // app garçom
     Route::group(['prefix' => 'app'], function () {
@@ -693,6 +702,7 @@ Route::group(['prefix' => 'pdv-mobo'], function () {
     Route::post('/suspender', 'PdvMoboController@suspender');
     Route::get('/vendas-suspensa', 'PdvMoboController@vendasSuspensa');
     Route::get('/vendas-diaria', 'PdvMoboController@vendasDiaria');
+    Route::get('/vendas-diaria-nfe', 'PdvMoboController@vendasDiariaNfe');
     Route::get('/produtos-categoria', 'PdvMoboController@produtosCategoria');
     Route::get('/produtos-codigo-barras', 'PdvMoboController@produtosCodigoBarras');
     Route::get('/comandas', 'PdvMoboController@comandas');

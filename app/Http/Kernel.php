@@ -39,6 +39,7 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\UploadFirewall::class,
         ],
 
         'api' => [
@@ -90,6 +91,8 @@ class Kernel extends HttpKernel
         'authApp' => \App\Http\Middleware\AuthApp::class,
         'impersonate' => \App\Http\Middleware\Impersonate::class,
         'impersonateContador' => \App\Http\Middleware\ImpersonateContador::class,
+        'validaHorarioAcesso' => \App\Http\Middleware\ValidaHorarioAcesso::class,
+        'ifoodTokenMiddleware' => \App\Http\Middleware\IfoodTokenMiddleware::class,
     ];
 
     protected $routeMiddleware = [

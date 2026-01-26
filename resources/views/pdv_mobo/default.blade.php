@@ -9,6 +9,7 @@
 
         <title>{{$title}}</title>
 
+        <link rel="shortcut icon" href="/logo-sm.png">
         <link href="/assets/vendor/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
         <link href="/assets/css/app.css" rel="stylesheet" type="text/css" id="app-style" />
         <link href="/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
@@ -16,7 +17,28 @@
         <link rel="stylesheet" type="text/css" href="/style_pdv_mobo.css">
         <link rel="stylesheet" type="text/css" href="/css/pdv_mobo_dark.css">
 
+        <link rel="manifest" href="/manifest.json">
+        <meta name="theme-color" content="#0f172a">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+        <meta name="mobile-web-app-capable" content="yes">
+
         @yield('css')
+
+        <style type="text/css">
+            .btn-print{
+                /*padding: 5px;*/
+
+                position: absolute;
+                top: 10px;
+                right: 110px;
+                color: #fff;
+                padding: 4px 12px;
+                font-size: 13px;
+                font-weight: 600;
+                z-index: 10;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            }
+        </style>
 
     </head>
     <body>
@@ -33,7 +55,7 @@
             </div>
         </div>
 
-       
+
 
         <div class="modal-loading loading-class"></div>
         

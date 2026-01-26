@@ -4,6 +4,13 @@
     .badge:hover{
         cursor: pointer;
     }
+
+    .descricao{
+        width: 220px;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
 </style>
 @endsection
 @section('content')
@@ -77,7 +84,7 @@
                 </div>
                 <div class="col-md-12 mt-3">
                     <div class="table-responsive">
-                     <table class="table table-striped table-centered mb-0">
+                       <table class="table table-striped table-centered mb-0">
                         <thead class="table-dark">
                             <tr>
                                 @can('conta_receber_delete')
@@ -115,7 +122,9 @@
                                 @endcan
 
                                 <td data-label="Cliente"><label style="width:400px">{{ $item->cliente ? $item->cliente->razao_social : '--' }}</label></td>
-                                <td data-label="Descrição"><label style="width:120px">{{ $item->descricao }}</label></td>
+                                <td data-label="Descrição">
+                                    <div class="descricao">{{ $item->descricao }}</div>
+                                </td>
 
                                 @if(__countLocalAtivo() > 1)
                                 <td data-label="Local" class="text-danger">{{ $item->localizacao->descricao }}</td>

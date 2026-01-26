@@ -131,7 +131,7 @@ class AgendamentoController extends Controller
             });
 
             $this->sendMessageWpp($agendamento);
-            __createLog($request->empresa_id, 'Agendamento', 'cadastrar', "Data: " . __data_pt($agendamento->data) . " - cliente: " . $agendamento->cliente->info);
+            __createLog($request->empresa_id, 'Agendamento', 'cadastrar', "Data: " . __data_pt($agendamento->data, 0) . " - cliente: " . $agendamento->cliente->info);
             session()->flash("flash_success", "Agendamento cadastrado!");
         } catch (\Exception $e) {
             // dd($e->getLine());

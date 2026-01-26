@@ -10,8 +10,10 @@ use App\Models\Empresa;
 use App\Models\ProdutoUnico;
 use App\Models\FaturaNfe;
 use App\Models\ItemNfe;
+use App\Models\Troca;
 use App\Models\ItemDimensaoNfe;
 use App\Models\ProdutoLocalizacao;
+use App\Models\RastroXml;
 use App\Models\NaturezaOperacao;
 use Illuminate\Http\Request;
 use App\Models\Nfe;
@@ -52,10 +54,10 @@ use App\Utils\EmailUtil;
 use Mail;
 use Illuminate\Support\Str;
 use App\Utils\SiegUtil;
-use App\Utils\TradeinCreditUtil;
 use App\Utils\FilaEnvioUtil;
 use App\Models\ItemProducao;
-use App\Models\TradeinCreditMovement;
+use App\Models\MovimentacaoProduto;
+use App\Utils\Fiscal\FiscalValidator;
 
 class NfeController extends Controller
 {
@@ -63,15 +65,13 @@ class NfeController extends Controller
     protected $emailUtil;
     protected $siegUtil;
     protected $filaEnvioUtil;
-    protected $tradeinCreditUtil;
 
-    public function __construct(EstoqueUtil $util, EmailUtil $emailUtil, SiegUtil $siegUtil, FilaEnvioUtil $filaEnvioUtil, TradeinCreditUtil $tradeinCreditUtil)
+    public function __construct(EstoqueUtil $util, EmailUtil $emailUtil, SiegUtil $siegUtil, FilaEnvioUtil $filaEnvioUtil)
     {
         $this->util = $util;
         $this->emailUtil = $emailUtil;
         $this->siegUtil = $siegUtil;
         $this->filaEnvioUtil = $filaEnvioUtil;
-        $this->tradeinCreditUtil = $tradeinCreditUtil;
 
         if (!is_dir(public_path('xml_nfe'))) {
             mkdir(public_path('xml_nfe'), 0777, true);
@@ -218,7 +218,12 @@ class NfeController extends Controller
         if($config != null && $config->status_wpp_link){
             $envioWppLink = 1;
         }
-        return view('nfe.index', compact('data', 'contigencia', 'somaGeral', 'envioWppLink'));
+
+        $usarDropdown = 0;
+        if($config){
+            $usarDropdown = $config->usar_dropdown_acoes;
+        }
+        return view('nfe.index', compact('data', 'contigencia', 'somaGeral', 'envioWppLink', 'usarDropdown'));
     }
 
     public function create(Request $request)
@@ -226,6 +231,12 @@ class NfeController extends Controller
         if (!__isCaixaAberto()) {
             session()->flash("flash_warning", "Abrir caixa antes de continuar!");
             return redirect()->route('caixa.create');
+        }
+
+        $ua = $request->header('User-Agent');
+
+        if (preg_match('/Android|iPhone|iPad|iPod|Mobile/i', $ua) && file_exists(public_path('style_pdv_mobo.css'))) {
+            return redirect()->route('pdv-mobo.index', ['modelo=pedido']);
         }
         $clientes = Cliente::where('empresa_id', request()->empresa_id)->count();
         if ($clientes == 0) {
@@ -277,7 +288,9 @@ class NfeController extends Controller
             }
         }
 
-        if($item->troca){
+        $troca = Troca::where('nfe_id', $id)->first();
+
+        if($troca != null){
             session()->flash("flash_warning", "Não é possível editar venda com uma troca!");
             return redirect()->back();
         }
@@ -548,7 +561,6 @@ class NfeController extends Controller
                 $config = Empresa::find($request->empresa_id);
 
                 $tipoPagamento = $request->tipo_pagamento;
-                $tradeinTotal = 0;
 
                 $caixa = __isCaixaAberto();
 
@@ -758,9 +770,6 @@ class NfeController extends Controller
                 if($request->tipo_pagamento){
                     if ($request->tipo_pagamento[0] != '' && $request->valor_fatura[0] != '') {
                         for ($i = 0; $i < sizeof($tipoPagamento); $i++) {
-                            if ($tipoPagamento[$i] == TradeinCreditMovement::PAYMENT_CODE) {
-                                $tradeinTotal += __convert_value_bd($request->valor_fatura[$i]);
-                            }
                             FaturaNfe::create([
                                 'nfe_id' => $nfe->id,
                                 'tipo_pagamento' => $tipoPagamento[$i],
@@ -772,9 +781,6 @@ class NfeController extends Controller
                         if ($request->tpNF == 1) {
                             if ($request->gerar_conta_receber) {
                                 for ($i = 0; $i < sizeof($tipoPagamento); $i++) {
-                                    if ($tipoPagamento[$i] == TradeinCreditMovement::PAYMENT_CODE) {
-                                        continue;
-                                    }
                                     ContaReceber::create([
                                         'empresa_id' => $request->empresa_id,
                                         'nfe_id' => $nfe->id,
@@ -790,9 +796,6 @@ class NfeController extends Controller
                             }
                         } else {
                             for ($i = 0; $i < sizeof($tipoPagamento); $i++) {
-                                if ($tipoPagamento[$i] == TradeinCreditMovement::PAYMENT_CODE) {
-                                    continue;
-                                }
                                 if ($request->gerar_conta_pagar) {
                                     ContaPagar::create([
                                         'empresa_id' => $request->empresa_id,
@@ -811,12 +814,7 @@ class NfeController extends Controller
                     }
                 }
 
-                if (isset($request->is_compra) && $tradeinTotal > 0) {
-                    $fornecedorModel = $fornecedor_id ? Fornecedor::find($fornecedor_id) : null;
-                    $this->tradeinCreditUtil->registrarCreditoCompra($nfe, $fornecedorModel, $tradeinTotal);
-                }
-
-                if ($request->funcionario_id != null) {
+                if ($request->funcionario_id != null && $request->orcamento == 0) {
 
                     $funcionario = Funcionario::findOrFail($request->funcionario_id);
                     $comissao = $funcionario->comissao;
@@ -897,6 +895,15 @@ class NfeController extends Controller
 
                 return $nfe;
             });
+
+$result = app(FiscalValidator::class)
+->validate($nfe, $nfe->empresa);
+
+$nfe->update([
+    'fiscal_status' => $result['status'],
+    'fiscal_risco' => $result['risco'],
+    'fiscal_mensagens' => $result['mensagens']
+]);
 session()->flash("flash_success", "Venda cadastrada!");
 } catch (\Exception $e) {
     // echo $e->getMessage() . '<br>' . $e->getLine();
@@ -1132,7 +1139,7 @@ public function update(Request $request, $id)
         // dd($request);
     try {
 
-        DB::transaction(function () use ($request, $id) {
+        $item = DB::transaction(function () use ($request, $id) {
             $item = Nfe::findOrFail($id);
             $transportadora_id = $request->transportadora_id;
             if ($request->transportadora_id == null) {
@@ -1347,7 +1354,19 @@ public function update(Request $request, $id)
                 }
             }
 
+            return $item;
         });
+
+$item = Nfe::findOrFail($id);
+
+$result = app(FiscalValidator::class)
+->validate($item, $item->empresa);
+
+$item->update([
+    'fiscal_status' => $result['status'],
+    'fiscal_risco' => $result['risco'],
+    'fiscal_mensagens' => $result['mensagens']
+]);
 session()->flash("flash_success", "Venda alterada com sucesso!");
 } catch (\Exception $e) {
     // echo $e->getMessage() . '<br>' . $e->getLine();
@@ -1403,6 +1422,7 @@ public function destroy($id)
 
                 ItemProducao::where('item_id', $i->id)->delete();
                 ItemDimensaoNfe::where('item_nfe_id', $i->id)->delete();
+                RastroXml::where('item_nfe_id', $i->id)->delete();
             }
         }
 
@@ -1422,6 +1442,7 @@ public function destroy($id)
 
         ContaPagar::where('nfe_id', $item->id)->delete();
         ContaReceber::where('nfe_id', $item->id)->delete();
+        MovimentacaoProduto::where('codigo_transacao', $item->id)->delete();
 
         $item->itens()->delete();
         $item->fatura()->delete();
@@ -1727,39 +1748,58 @@ public function importZip(){
     return view('nfe.import_zip');
 }
 
-public function importZipStore(Request $request){
-    if ($request->hasFile('file')) {
-
-        if (!is_dir(public_path('extract'))) {
-            mkdir(public_path('extract'), 0777, true);
-        }
-
-        $zip = new \ZipArchive();
-        $zip->open($request->file);
-        $destino = public_path('extract');
-
-        $this->clearFolder($destino);
-
-        if($zip->extractTo($destino) == TRUE){
-
-            $data = $this->preparaXmls($destino);
-            if(sizeof($data) == 0){
-                session()->flash('flash_error', "Algo errado com o arquivo!");
-                return redirect()->back();
-            }
-
-            return view('nfe.import_zip_view', compact('data'));
-
-        }else {
-            session()->flash('flash_error', "Erro ao desconpactar arquivo");
-            return redirect()->back();
-        }
-        $zip->close();
-    }else{
-        session()->flash('flash_error', 'Nenhum arquivo selecionado!');
-        return redirect()->back();
+public function importZipStore(Request $request)
+{
+    if (!$request->hasFile('file')) {
+        return back()->with('flash_error', 'Nenhum arquivo selecionado!');
     }
+
+    $file = $request->file('file');
+
+    // pasta SEGURA fora do public
+    $destino = storage_path('app/import_zip');
+
+    if (!is_dir($destino)) {
+        mkdir($destino, 0755, true);
+    }
+
+    $this->clearFolder($destino);
+
+    $zip = new \ZipArchive();
+
+    if ($zip->open($file->getRealPath()) !== true) {
+        return back()->with('flash_error', 'Erro ao abrir o ZIP');
+    }
+
+    // valida arquivos antes de extrair
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $nome = $zip->getNameIndex($i);
+
+        // bloqueia Zip Slip
+        if (str_contains($nome, '../')) {
+            $zip->close();
+            return back()->with('flash_error', 'ZIP inválido');
+        }
+
+        // bloqueia scripts
+        if (preg_match('/\.(php|phtml|phar|js|exe|sh)$/i', $nome)) {
+            $zip->close();
+            return back()->with('flash_error', 'Arquivo proibido no ZIP');
+        }
+    }
+
+    $zip->extractTo($destino);
+    $zip->close();
+
+    $data = $this->preparaXmls($destino);
+
+    if (count($data) === 0) {
+        return back()->with('flash_error', 'Nenhum XML válido encontrado');
+    }
+
+    return view('nfe.import_zip_view', compact('data'));
 }
+
 
 private function clearFolder($destino){
     $files = glob($destino."/*");

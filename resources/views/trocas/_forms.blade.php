@@ -1,22 +1,23 @@
 @section('css')
-    <style>
-        .active {
-            background: rgb(85, 114, 245) !important;
-            color: #fff !important;
-        }
+<style>
+    .active {
+        background: rgb(85, 114, 245) !important;
+        color: #fff !important;
+    }
 
-        #salvar_venda:hover {
-            cursor: pointer;
-        }
+    #salvar_venda:hover {
+        cursor: pointer;
+    }
 
-        .btn-cat {
-            height: 30px;
-            display: block;
-            min-width: 200px;
-        }
-    </style>
+    .btn-cat{
+        height: 30px;
+        display: block;
+        min-width: 200px;
+    }
 
-    {{-- <link rel="stylesheet" type="text/css" href="/css/pdv.css"> --}}
+</style>
+
+<link rel="stylesheet" type="text/css" href="/css/pdv.css">
 @endsection
 
 <input type="hidden" id="abertura" value="{{ $abertura }}" name="">
@@ -26,34 +27,33 @@
 <input type="hidden" id="lista_id" value="" name="lista_id">
 <input type="hidden" id="local_id" value="{{ $caixa->localizacao->id }}">
 
-@if ($isVendaSuspensa)
-    <input type="hidden" value="{{ $item->id }}" name="venda_suspensa_id">
+@if($isVendaSuspensa)
+<input type="hidden" value="{{ $item->id }}" name="venda_suspensa_id">
 @endif
 
 @isset($pedido)
-    @isset($isDelivery)
-        <input name="pedido_delivery_id" id="pedido_delivery_id" value="{{ $pedido->id }}" class="d-none">
-        <input id="pedido_desconto" value="{{ $pedido->desconto }}" class="d-none">
-        <input id="pedido_valor_entrega" value="{{ $pedido->valor_entrega }}" class="d-none">
-    @else
-        <input name="pedido_id" id="pedido_id" value="{{ $pedido->id }}" class="d-none">
-        @endif
-        @endif
+@isset($isDelivery)
+<input name="pedido_delivery_id" id="pedido_delivery_id" value="{{ $pedido->id }}" class="d-none">
+<input id="pedido_desconto" value="{{ $pedido->desconto }}" class="d-none">
+<input id="pedido_valor_entrega" value="{{ $pedido->valor_entrega }}" class="d-none">
+@else
+<input name="pedido_id" id="pedido_id" value="{{ $pedido->id }}" class="d-none">
+@endif
+@endif
 
-        @if (isset($config))
-            <input type="hidden" id="inp-abrir_modal_cartao" value="{{ $config != null ? $config->abrir_modal_cartao : 0 }}">
-            <input type="hidden" id="inp-senha_manipula_valor"
-                value="{{ $config != null ? $config->senha_manipula_valor : '' }}">
-        @else
-            <input type="hidden" id="inp-abrir_modal_cartao" value="0">
-            <input type="hidden" id="inp-senha_manipula_valor" value="">
-        @endif
+@if(isset($config))
+<input type="hidden" id="inp-abrir_modal_cartao" value="{{ $config != null ? $config->abrir_modal_cartao : 0 }}">
+<input type="hidden" id="inp-senha_manipula_valor" value="{{ $config != null ? $config->senha_manipula_valor : '' }}">
+@else
+<input type="hidden" id="inp-abrir_modal_cartao" value="0">
+<input type="hidden" id="inp-senha_manipula_valor" value="">
+@endif
 
-        @isset($agendamento)
-            <input name="agendamento_id" value="{{ $agendamento->id }}" class="d-none">
-            @endif
+@isset($agendamento)
+<input name="agendamento_id" value="{{ $agendamento->id }}" class="d-none">
+@endif
 
-            <input type="hidden" id="estoque_view" value="@can('estoque_view') 1 @else 0 @endif">
+<input type="hidden" id="estoque_view" value="@can('estoque_view') 1 @else 0 @endif">
 
 <div class="row">
     <div class="col-lg-4">
@@ -63,7 +63,7 @@
                     <div class="card-body" style="height: 89px;">
 
                         @isset($cliente)
-                        <h5 class="cliente_selecionado">Cliente:
+                        <h5 class="cliente_selecionado">Cliente: 
                             <strong class="text-primary">{{ $cliente->razao_social }}</strong>
                         </h5>
 
@@ -71,7 +71,7 @@
                         <div class="row">
                             <div class="col-md-9">
                                 <h5 class="cliente_selecionado">
-                                    Cliente: <strong class="text-primary">Consumidor final</strong>
+                                    Cliente: <strong class="text-primary">Consumidor final</strong> 
                                 </h5>
                             </div>
                             <div class="col-md-3">
@@ -89,7 +89,7 @@
                     </div>
                 </div>
             </div>
-
+            
         </div>
         <div class="card" style="height: 750px">
 
@@ -99,7 +99,7 @@
                 <div class="d-flex g m-2">
                     <button type="button" id="cat_todos" onclick="todos()" class="btn btn-cat">Todos</button>
                     @foreach ($categorias as $cat)
-                    <button type="button" class="btn btn_cat_{{ $cat->id }} btn-cat" onclick="selectCat('{{ $cat->id }}')">{{ $cat->nome }}</button>
+                    <button type="button" class="btn btn_cat_{{ $cat->id }} btn-cat" onclick="selectCat('{{ $cat->id }}')">{{$cat->nome}}</button>
                     @endforeach
                 </div>
             </div>
@@ -119,7 +119,7 @@
                 <div class="col-6 leitor_desativado d-none">
                     Leitor Desativado
                 </div>
-                @if (__countLocalAtivo() > 1 && $caixa->localizacao)
+                @if(__countLocalAtivo() > 1 && $caixa->localizacao)
                 <div class="col-5 text-end">
                     <strong class="text-danger" style="margin-right: 5px;">{{ $caixa->localizacao->descricao }}</strong>
                 </div>
@@ -143,7 +143,7 @@
                     </div>
                 </div>
                 <div class="col-md-2">
-                    {!! Form::tel('quantidade', 'Quantidade')->attrs(['data-mask' => '00000,000', 'data-mask-reverse' => 'true']) !!}
+                    {!! Form::tel('quantidade', 'Quantidade')->attrs(['data-mask' => '00000,000', 'data-mask-reverse' => "true"]) !!}
                 </div>
                 <div class="col-md-2">
                     {!! Form::tel('valor_unitario', 'Valor Unitário')->attrs(['class' => 'moeda value_unit']) !!}
@@ -189,7 +189,7 @@
                                     <img src="{{ $product->produto->img }}" style="width: 30px; height: 40px; border-radius: 10px;">
                                 </td>
                                 <td>
-                                    <input style="width: 350px" readonly type="text" name="produto_nome[]" class="form-control" value="{{ $product->produto->nome }} @if ($product->produtoVariacao != null) - {{ $product->produtoVariacao->descricao }} @endif">
+                                    <input style="width: 350px" readonly type="text" name="produto_nome[]" class="form-control" value="{{ $product->produto->nome }} @if($product->produtoVariacao != null) - {{ $product->produtoVariacao->descricao }} @endif">
                                 </td>
 
                                 <td class="datatable-cell">
@@ -234,7 +234,7 @@
                                         <div class="input-group-prepend">
                                             <button disabled id="btn-subtrai" class="btn btn-danger" type="button">-</button>
                                         </div>
-                                        <input readonly type="tel" name="quantidade_servico[]" class="form-control qtd-item" value="{{ number_format($servico->quantidade, 0) }}">
+                                        <input readonly type="tel" name="quantidade_servico[]" class="form-control qtd-item" value="{{ number_format($servico->quantidade,0) }}">
                                         <div class="input-group-append">
                                             <button disabled class="btn btn-success" id="btn-incrementa" type="button">+</button>
                                         </div>
@@ -264,7 +264,7 @@
                                     <img src="{{ $product->produto->img }}" style="width: 30px; height: 40px; border-radius: 10px;">
                                 </td>
                                 <td>
-                                    <input style="width: 350px" readonly type="text" name="produto_nome[]" class="form-control" value="{{ $product->produto->nome }} @if ($product->produtoVariacao != null) - {{ $product->produtoVariacao->descricao }} @endif">
+                                    <input style="width: 350px" readonly type="text" name="produto_nome[]" class="form-control" value="{{ $product->produto->nome }} @if($product->produtoVariacao != null) - {{ $product->produtoVariacao->descricao }} @endif">
                                 </td>
 
                                 <td class="datatable-cell">
@@ -443,8 +443,8 @@
                         <div class="card-body">
                             <div class="">
                                 <h4 class="text-muted">Valor original da venda: <strong class="text-primary">R$ {{ __moeda($item->total) }}</strong></h4>
-                                <h4 class="h-valor_pagar text-muted">Valor à pagar: <strong class="text-success valor_pagar">R$ {{ __moeda(0) }}</strong></h4>
-                                <h4 class="h-valor_restante d-none">Valor restante: <strong class="text-warning valor_restante">R$ {{ __moeda(0) }}</strong></h4>
+                                <h4 class="h-valor_pagar text-muted">Receber do cliente: <strong class="text-success valor_pagar">R$ {{ __moeda(0) }}</strong></h4>
+                                <h4 class="h-valor_restante text-muted d-none">Devolver ao cliente: <strong class="text-warning valor_restante">R$ {{ __moeda(0) }}</strong></h4>
                                 <h5>Data da venda: <strong class="text-danger">{{ __data_pt($item->created_at) }}</strong></h5>
                                 <!-- <h4>VALOR DE DIFERENÇA: <strong class="text-danger valor_diferenca">R$ {{ __moeda(0) }}</strong></h4> -->
                             </div>
@@ -456,7 +456,7 @@
                         <div class="card-body">
                             <div class="row">
 
-                                <a class="btn btn-danger btn-sm w-50 mt-2" href="{{ route('trocas.index') }}" style="margin-top: -20px">
+                                <a class="btn btn-danger btn-sm w-50 mt-2" href="{{ route('trocas.index')}}" style="margin-top: -20px">
                                     <i class="ri-arrow-left-s-line"></i>
                                     Sair da Troca
                                 </a>
@@ -498,11 +498,11 @@
 <script>
     var senhaAcao = "";
 
-    @if (isset($config) && strlen(trim($config->senha_manipula_valor)) > 1)
+    @if(isset($config) && strlen(trim($config->senha_manipula_valor)) > 1)
     senhaAcao = "{{ $config->senha_manipula_valor }}";
     @endif
 </script>
-@if ($msgTroca != '')
+@if($msgTroca != "")
 <script type="text/javascript">
     toastr.warning('{{ $msgTroca }}');
 </script>
@@ -515,18 +515,18 @@
 
 <script type="text/javascript">
 
-    @if (Session::has('sangria_id'))
+    @if(Session::has('sangria_id'))
     window.open(path_url + 'sangria-print/' + {{ Session::get('sangria_id') }}, "_blank")
     @endif
-    @if (Session::has('suprimento_id'))
+    @if(Session::has('suprimento_id'))
     window.open(path_url + 'suprimento-print/' + {{ Session::get('suprimento_id') }}, "_blank")
     @endif
 
-                $('.btn-novo-cliente').click(() => {
-                    $('.modal-select-cliente .btn-close').trigger('click')
-                    $('#modal_novo_cliente').modal('show')
+    $('.btn-novo-cliente').click(() => {
+        $('.modal-select-cliente .btn-close').trigger('click')
+        $('#modal_novo_cliente').modal('show')
 
-                })
-            </script>
+    })
+</script>
 
-        @endsection
+@endsection

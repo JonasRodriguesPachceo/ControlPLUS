@@ -17,11 +17,19 @@ class UserController extends Controller
 
     public function usuarios(Request $request){
         try {
+
+            if (!$request->ajax()) {
+                return response()->json([
+                    'message' => 'Requisição inválida'
+                ], 400);
+            }
+
             $data = User::where('usuario_empresas.empresa_id', $request->empresa_id)
             ->select('users.*')
             ->join('usuario_empresas', 'usuario_empresas.usuario_id', '=', 'users.id')
             ->where('users.name', 'LIKE', "%$request->pesquisa%")
             ->get();
+
             return response()->json($data, 200);
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 401);

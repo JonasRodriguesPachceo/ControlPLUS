@@ -23,18 +23,27 @@
                 !!}
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-2">
                 {!!Form::select('categoria_id', 'Categoria', ['' => 'Selecione'] + $categorias->pluck('nome', 'id')->all())
                 ->attrs(['class' => 'form-select select2'])
                 ->id('categoria1')
                 !!}
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-2">
                 {!!Form::select('marca_id', 'Marca', ['' => 'Selecione'] + $marcas->pluck('nome', 'id')->all())
                 ->attrs(['class' => 'form-select'])
                 !!}
             </div>
+            @if(__countLocalAtivo() > 1)
+            <div class="col-md-2">
+                {!!Form::select('local_id', 'Local', __getLocaisAtivoUsuario()->pluck('descricao', 'id')->all())
+                ->attrs(['class' => 'select2'])
+                !!}
+            </div>
+            @else
+            <input id="inp-local_id" type="hidden" value="{{ __getLocalAtivo() ? __getLocalAtivo()->id : '' }}" name="local_id">
+            @endif
 
 
             <div class="row mt-3">
@@ -62,7 +71,7 @@
                         <th>Categoria</th>
                         <th>Marca</th>
                         <th>Valor de venda</th>
-                        <th>Valor de venda</th>
+                        <th>Valor de compra</th>
                         <th>Estoque</th>
                     </tr>
                 </thead>
@@ -74,63 +83,61 @@
 </div>
 @section('js')
 <script>
-$("#form-busca").on("submit", function(e){
-    e.preventDefault();
+    $("#form-busca").on("submit", function(e){
+        e.preventDefault();
 
-    let dados = $(this).serialize();
+        let dados = $(this).serialize();
 
-    $.ajax({
-        url: "{{ route('produtos.buscar-ajuste') }}",
-        type: "GET",
-        data: dados,
-        success: function(res){
+        $.ajax({
+            url: "{{ route('produtos.buscar-ajuste') }}",
+            type: "GET",
+            data: dados,
+            success: function(res){
+                let tbody = $("#tbody-produtos");
+                tbody.html(res);
+            },
+            error: function(err){
+                console.log(err)
+                swal("Erro!", "Não foi possível buscar os produtos.", "error");
+            }
+        });
 
-            let tbody = $("#tbody-produtos");
-            tbody.html(res); // limpar
-
-
-        },
-        error: function(err){
-            console.log(err)
-            swal("Erro!", "Não foi possível buscar os produtos.", "error");
-        }
     });
 
-});
+    $(document).on("blur", ".input-edit", function(){
 
-$(document).on("blur", ".input-edit", function(){
-
-    let input = $(this);
-    let valor = input.val();
-    let campo = input.attr("name");
-    let id = input.closest("tr").data("id");
-    console.log(campo)
-    console.log(valor)
-    console.log(id)
-    $.ajax({
-        url: "{{ route('produtos.alterar-campo') }}",
-        type: "POST",
-        data: {
-            id: id,
-            campo: campo,
-            valor: valor,
-            _token: "{{ csrf_token() }}"
-        },
-        success: function(res){
-            input.addClass("border-success");
+        let input = $(this);
+        let valor = input.val();
+        let local_id = $('#inp-local_id').val();
+        let campo = input.attr("name");
+        let id = input.closest("tr").data("id");
+        
+        $.ajax({
+            url: "{{ route('produtos.alterar-campo') }}",
+            type: "POST",
+            data: {
+                id: id,
+                campo: campo,
+                valor: valor,
+                local_id: local_id,
+                _token: "{{ csrf_token() }}"
+            },
+            success: function(res){
+                input.addClass("border-success");
 
             // setTimeout(() => input.removeClass("border-success"), 800);
         },
-        error: function(){
-            input.addClass("border-danger");
+        error: function(err){
+            console.log(err)
 
+            input.addClass("border-danger");
             setTimeout(() => input.removeClass("border-danger"), 1000);
 
             swal("Erro", "Não foi possível atualizar o produto.", "error");
         }
     });
 
-});
+    });
 
 </script>
 

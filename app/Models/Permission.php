@@ -396,15 +396,31 @@ class Permission extends \Spatie\Permission\Models\Permission
             array('name' => 'promocao_produtos_edit', 'description' => 'Edita promoção de produtos'),
             array('name' => 'promocao_produtos_delete', 'description' => 'Deleta promoção de produtos'),
 
-            array('name' => 'gestao_producao_view', 'description' => 'Deleta gestão de custos'),
+            array('name' => 'gestao_producao_view', 'description' => 'Visualiza gestão de custos'),
             array('name' => 'gestao_producao_create', 'description' => 'Cria gestão de custos'),
             array('name' => 'gestao_producao_edit', 'description' => 'Edita gestão de custos'),
             array('name' => 'gestao_producao_delete', 'description' => 'Deleta gestão de custos'),
 
-            array('name' => 'garantias_view', 'description' => 'Deleta garantias'),
+            array('name' => 'garantias_view', 'description' => 'Visualiza garantias'),
             array('name' => 'garantias_create', 'description' => 'Cria garantias'),
             array('name' => 'garantias_edit', 'description' => 'Edita garantias'),
             array('name' => 'garantias_delete', 'description' => 'Deleta garantias'),
+
+            array('name' => 'fechamento_mensal_view', 'description' => 'Visualiza fechamento mensal'),
+            array('name' => 'fechamento_mensal_create', 'description' => 'Cria fechamento mensal'),
+
+            array('name' => 'config_custo_view', 'description' => 'Visualiza configuração de custo'),
+            array('name' => 'config_custo_create', 'description' => 'Cria configuração de custo'),
+            array('name' => 'config_custo_edit', 'description' => 'Edita configuração de custo'),
+            array('name' => 'config_custo_delete', 'description' => 'Deleta configuração de custo'),
+
+            array('name' => 'ordem_separacao_view', 'description' => 'Visualiza ordem de separação'),
+            array('name' => 'ordem_separacao_create', 'description' => 'Cria ordem de separação'),
+            array('name' => 'ordem_separacao_edit', 'description' => 'Edita ordem de separação'),
+            array('name' => 'ordem_separacao_delete', 'description' => 'Deleta ordem de separação'),
+
+            array('name' => 'score_clientes_view', 'description' => 'Visualiza score de clientes'),
+
         ];
     }
 }

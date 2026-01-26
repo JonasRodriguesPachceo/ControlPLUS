@@ -615,6 +615,7 @@ $(document).on("change", ".produto_id", function () {
             $perc_red_bc.val(e.perc_red_bc)
             $cfop_estadual.val(cfop)
             $ncm.val(e.ncm)
+            $codben.val(e.codigo_beneficio_fiscal)
             $cst_csosn.val(e.cst_csosn).change()
             $cst_pis.val(e.cst_pis).change()
             $cst_cofins.val(e.cst_cofins).change()
@@ -927,6 +928,18 @@ $(document).on("blur", "#dimensao_quantidade", function () {
         })
     }
 
+    $(document).on('change', '.tipo_pagamento', function () {
+
+        let primeiroSelect = $('.tipo_pagamento').first();
+        if (!$(this).is(primeiroSelect)) {
+            return;
+        }
+
+        if($(this).val()){
+            $('.valor_fatura').val(convertFloatToMoeda(total_venda))
+        }
+    });
+
     $('body').on('blur', '.valor_unit', function () {
 
         $qtd = $(this).closest('td').prev().find('input');
@@ -1062,7 +1075,15 @@ $(document).on("blur", "#dimensao_quantidade", function () {
 
         $.get(path_url + "api/clientes/find/" + cliente)
         .done((res) => {
-            // console.log(res)
+            if(res.inadimplente == true){
+                $('.cliente_id').val()
+                swal(
+                    "Atenção",
+                    "Este cliente está inadimplente, não é permitido vender!",
+                    "warning"
+                    );
+                return;
+            }
             $('#inp-cliente_nome').val(res.razao_social)
             $('#inp-nome_fantasia').val(res.nome_fantasia)
             $('#inp-cliente_cpf_cnpj').val(res.cpf_cnpj)

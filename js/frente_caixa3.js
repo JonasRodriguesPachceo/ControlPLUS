@@ -61,6 +61,8 @@ $(document).on("keydown", function(e) {
 });
 
 $(function(){
+
+	atualizarBotaoOffline()
 	produtos = JSON.parse($('#produtos-hidden').val())
 	setTimeout(() => {
 		$('#inp-codigo-barras').focus()
@@ -141,6 +143,21 @@ if($('#venda_id').val() == 0){
 	// });
 }
 
+$("#btnVendasOffline").on("click", function() {
+	verificaVendasOff()
+});
+
+function atualizarBotaoOffline() {
+	let vendas = JSON.parse(localStorage.getItem("vendas-off-slym")) || [];
+
+	if (vendas.length > 0) {
+		$("#btnVendasOffline").fadeIn();
+		$("#btnVendasOffline .badge").text(vendas.length);
+	} else {
+		$("#btnVendasOffline").fadeOut();
+	}
+}
+
 function verificaVendasOff(){
 	// localStorage.setItem("vendas-off-slym", "[]")
 	let vendasOff = JSON.parse(localStorage.getItem("vendas-off-slym")) || [];
@@ -206,28 +223,38 @@ $(document).on("click", ".btn-remove-venda", function () {
 })
 
 $(document).on("click", ".btn-salvar-vendas", function () {
+
+	if (travaSalvar) {
+		console.log("Clique duplo bloqueado!");
+		return;
+	}
+
+	travaSalvar = true;
+	setTimeout(() => {
+		travaSalvar = false;
+	}, 1200);
+
 	let vendasOff = JSON.parse(localStorage.getItem("vendas-off-slym")) || [];
-	falhas = []
+	let falhas = [];
+
 	let promessas = vendasOff.map((x) => {
 		let url = path_url + 'api/frenteCaixa/storepdv3';
 
 		return $.post(url, x)
 		.done(() => {
 			toastr.success("Venda " + x._id + " salva no servidor!");
+
+			vendasOff = vendasOff.filter(v => v._id !== x._id);
+			localStorage.setItem("vendas-off-slym", JSON.stringify(vendasOff));
 		})
 		.fail(() => {
-			toastr.error("Falha ao salvar venda " + x._id);
-			falhas.push(x)
+			toastr.error("Falha ao salvar venda: " + x._id);
+			falhas.push(x);
 		});
 	});
 
-	Promise.all(promessas).then((resultados) => {
-		// console.log(falhas)
-		if(falhas.length > 0){
-			localStorage.setItem("vendas-off-slym", JSON.stringify(falhas));
-		}else{
-			localStorage.setItem("vendas-off-slym", "[]")
-		}
+	Promise.all(promessas).then(() => {
+		localStorage.setItem("vendas-off-slym", JSON.stringify(falhas));
 		$('.modal-vendas-off').modal('hide');
 	});
 })
@@ -460,7 +487,6 @@ $(document).on("input", "#inp-valor_recebido", function () {
 	let total = convertMoedaToFloat($('.total-venda').text())
 	let valor_recebido = convertMoedaToFloat($(this).val())
 	$('.valor-troco').text("R$ " + convertFloatToMoeda(valor_recebido-total))
-
 })
 
 $(document).on("input", ".valor_integral_row", function () {
@@ -651,10 +677,10 @@ function montaHtml(){
 }
 
 $(document).on('input', '.mask-num-up', function () {
-    this.value = this.value
-        .replace(/[^0-9,%]/g, '')
-        .replace(/,+/g, ',')
-        .replace(/%+/g, '%')
+	this.value = this.value
+	.replace(/[^0-9,%]/g, '')
+	.replace(/,+/g, ',')
+	.replace(/%+/g, '%')
 });
 
 var naoAlteraQtd = 0
@@ -1107,7 +1133,18 @@ $("body").on("click", "#btn-suspender", function () {
 	});
 })
 
+let travaSalvar = false;
 function salvarVenda(suspender = 0){
+
+	if (travaSalvar) {
+		console.log("Clique duplo bloqueado!");
+		return;
+	}
+
+	travaSalvar = true;
+	setTimeout(() => {
+		travaSalvar = false;
+	}, 1200);
 
 	if($("#definir_vendedor_pdv").val() == 1 && !$('#vendedor').val()){
 		openModalVendedor()
@@ -1190,19 +1227,29 @@ function salvarVenda(suspender = 0){
 		}
 	}).fail((err) => {
 		if(!$('.d-offline').hasClass('d-none')){
-			let vendasOff = JSON.parse(localStorage.getItem("vendas-off-slym")) || [];
+			try {
+				let vendasOff = JSON.parse(localStorage.getItem("vendas-off-slym")) || [];
 
-			vendasOff.push(json)
-			// console.log(vendasOff)
-			localStorage.setItem("vendas-off-slym", JSON.stringify(vendasOff))
-			swal("Erro", "Não foi possível salvar esta venda no servidor, armazenado local para enviar depois!", "warning")
-			limpaFormulario()
+				vendasOff = vendasOff.filter(v => v._id !== json._id);
+				vendasOff.push(json)
+				localStorage.setItem("vendas-off-slym", JSON.stringify(vendasOff))
+				toastr.warning("Não foi possível salvar esta venda no servidor, armazenado local para enviar depois!")
+
+				limpaFormulario()
+			} catch (e) {
+				console.error("Erro ao salvar venda offline", e);
+				toastr.err("Falha ao salvar venda offline. Verifique o armazenamento!")
+			}
 
 		}else{
 			swal("Erro", "Algo deu errado ao salvar venda!", "error")
 		}
 		console.log(err)
 	})
+
+	setTimeout(() => {
+		atualizarBotaoOffline()
+	}, 2000)
 }
 
 function gerarNfce(venda) {
@@ -1220,8 +1267,13 @@ function gerarNfce(venda) {
 	})
 	.fail((err) => {
 		console.log(err)
-
-		swal("Algo deu errado", err.responseJSON, "error")
+		limpaFormulario()
+		swal("Algo deu errado", err.responseJSON, "error").then(() => {
+			toastr.warning(
+				'A NFCe foi rejeitada, porém a venda foi concluída com sucesso. Você pode transmiti-la posteriormente na lista de vendas do PDV.'
+				);
+			imprimirNaoFiscal(venda.id)
+		})
 	})
 }
 

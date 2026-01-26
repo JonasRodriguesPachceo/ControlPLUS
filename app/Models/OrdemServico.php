@@ -13,7 +13,7 @@ class OrdemServico extends Model
         'descricao', 'cliente_id', 'usuario_id', 'empresa_id', 'valor', 'data_inicio', 'data_entrega', 'funcionario_id', 
         'forma_pagamento', 'codigo_sequencial', 'caixa_id', 'local_id', 'adiantamento', 'veiculo_id', 'hash_link',
         'tipo_servico', 'diagnostico_cliente', 'diagnostico_tecnico', 'defeito_encontrado', 'equipamento', 'numero_serie',
-        'cor'
+        'cor', 'marca', 'modelo'
     ];
 
     public function servicos(){

@@ -3,17 +3,16 @@
 	@if($valor > 0)
 	<div class="row">
 		<div class="card">
-			<div class="card-header">
+			
+			<div class="card-body">
 				<div class="row">
 					<div class="col-12 col-md-6">
-						<h4 class="text-success">{{ App\Models\Nfce::getTipoPagamento($key) }}</h4>
+						<h5 class="text-success">{{ App\Models\Nfce::getTipoPagamento($key) }}</h5>
 					</div>
 					<div class="col-12 col-md-6">
-						<h4><strong>R$ {{ __moeda($valor) }}</strong></h4>
+						<h5><strong>R$ {{ __moeda($valor) }}</strong></h5>
 					</div>
 				</div>
-			</div>
-			<div class="card-body">
 				<div class="row line-row">
 					<div class="col-12 appends">
 						<div class="dynamic-form row mt-4">

@@ -7,6 +7,9 @@ use App\Models\Cliente;
 use App\Models\ContaReceber;
 use App\Models\CategoriaConta;
 use App\Models\Frete;
+use App\Models\Nfe;
+use App\Models\Nfce;
+use App\Models\Troca;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Utils\ContaEmpresaUtil;
@@ -15,6 +18,7 @@ use App\Utils\UploadUtil;
 use Dompdf\Dompdf;
 use App\Exports\ContaReceberExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class ContaReceberController extends Controller
 {
@@ -400,6 +404,19 @@ class ContaReceberController extends Controller
         return view('conta-receber.receive_select', compact('data'));
     }
 
+    public function receivePdv(Request $request)
+    {
+        $recebidos = 0;
+        $data = [];
+        for($i=0; $i<sizeof($request->contas); $i++){
+            $item = ContaReceber::findOrFail($request->contas[$i]);
+            $data[] = $item;
+        }
+
+        $redirectPdv = 1;
+        return view('conta-receber.receive_select', compact('data', 'redirectPdv'));
+    }
+
     public function pay($id)
     {
         if (!__isCaixaAberto()) {
@@ -418,6 +435,12 @@ class ContaReceberController extends Controller
     {
         $usuario = Auth::user()->id;
         $caixa = Caixa::where('usuario_id', $usuario)->where('status', 1)->first();
+
+        if ($caixa == null) {
+            session()->flash("flash_warning", "Abrir caixa antes de continuar!");
+            return redirect()->route('caixa.create');
+        }
+        
         $item = ContaReceber::findOrFail($id);
 
         try {
@@ -486,9 +509,15 @@ class ContaReceberController extends Controller
     public function receiveSelect(Request $request){
         for ($i = 0; $i < sizeof($request->conta_id); $i++) {
             $item = ContaReceber::findOrFail($request->conta_id[$i]);
-
+            $usuario = Auth::user()->id;
+            $caixa = Caixa::where('usuario_id', $usuario)->where('status', 1)->first();
+            if ($caixa == null) {
+                session()->flash("flash_warning", "Abrir caixa antes de continuar!");
+                return redirect()->route('caixa.create');
+            }
             $item->valor_recebido = __convert_value_bd($request->valor_recebido[$i]);
             $item->status = 1;
+            $item->caixa_id = $caixa->id;
             $item->data_recebimento = $request->data_recebimento[$i];
             $item->tipo_pagamento = $request->tipo_pagamento[$i];
 
@@ -510,6 +539,7 @@ class ContaReceberController extends Controller
 
                     $descricao .= " VALOR TOTAL VENDA R$ " . __moeda($item->nfe->total);
                 }
+
                 $data = [
                     'conta_id' => $request->conta_empresa_id[$i],
                     'descricao' => $descricao,
@@ -528,6 +558,9 @@ class ContaReceberController extends Controller
 
             session()->flash("flash_success", "Contas recebidas!");
         }
+        if(isset($request->redirect_pdv)){
+            return redirect()->route('frontbox.create');
+        }
         return redirect()->route('conta-receber.index');
     }
 
@@ -545,5 +578,99 @@ class ContaReceberController extends Controller
         header("Content-Disposition: ; filename=Pedido.pdf");
         $domPdf->stream("Comprovante.pdf", array("Attachment" => false));
 
+    }
+
+    public function ajustar(Request $request){
+        $tipo = $request->tipo;
+        $venda_id = $request->venda_id;
+        $troca_id = $request->troca_id;
+
+        if($tipo == 'nfce'){
+            $venda = Nfce::findOrFail($venda_id);
+        }else{
+            $venda = Nfe::findOrFail($venda_id);
+        }
+
+        $troca = Troca::findOrFail($troca_id);
+        $contas = $venda->contaReceber;
+
+        return view('conta-receber.ajustar_parcelas_troca', compact('troca', 'venda', 'contas'));
+    }
+
+    public function ajustarSave(Request $request){
+        DB::beginTransaction();
+
+        try {
+
+            $valores = $request->valor ?? [];
+            $datas = $request->data_vencimento ?? [];
+            $tiposPagamento = $request->tipo_pagamento ?? [];
+            $ids = $request->conta_id ?? [];
+            $utimaConta = null;
+
+            $padraoDescricao = null;
+
+            for ($i = 0; $i < sizeof($valores); $i++) {
+
+                $valor = __convert_value_bd($valores[$i]);
+
+                if ($valor <= 0) {
+                    continue;
+                }
+
+                if(!$ids[$i] || $ids[$i] == '0'){
+                    //criar conta
+
+                    if($utimaConta){
+                        ContaReceber::create([
+                            'empresa_id' => $utimaConta->empresa_id,
+                            'tipo_pagamento' => $tiposPagamento[$i],
+                            'data_vencimento' => $datas[$i],
+                            'valor_integral' => $valor,
+                            'status' => 0,
+                            'nfe_id' => $utimaConta->nfe_id,
+                            'nfce_id' => $utimaConta->nfce_id,
+                            'local_id' => $utimaConta->local_id,
+                            'cliente_id' => $utimaConta->cliente_id,
+                            'categoria_id' => $utimaConta->categoria_id,
+                            'descricao' => $padraoDescricao . " Parcela " . $i+1 . " de " . sizeof($valores),
+                        ]);
+                    }
+
+                }else{
+                    $utimaConta = $conta = ContaReceber::findOrFail($ids[$i]);
+                    if($padraoDescricao == null){
+                        $padraoDescricao = explode("Parcela", $utimaConta->descricao);
+                        $padraoDescricao = $padraoDescricao[0];
+                    }
+
+                    if ($valor <= 0) {
+                        if ($conta->status == 1) {
+                            continue;
+                        }
+                        $conta->delete();
+                        continue;
+                    }
+
+
+                    $conta->valor_integral = $valor;
+                    $conta->data_vencimento = $datas[$i];
+                    $conta->tipo_pagamento = $tiposPagamento[$i];
+                    $conta->descricao = $padraoDescricao . " Parcela " . $i+1 . " de " . sizeof($valores);
+                    $conta->save();
+                }
+
+            }
+
+            DB::commit();
+            session()->flash("flash_success", "Contas ajustadas com sucesso!");
+            return redirect()->route('trocas.index');
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            session()->flash("flash_error", "Algo deu errado: " . $e->getMessage());
+            return redirect()->back();
+        }
     }
 }

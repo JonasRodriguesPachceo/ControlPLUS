@@ -30,6 +30,7 @@ class SangriaController extends Controller
                 session()->flash("flash_error", "Informe um valor maior que zero");
                 return redirect()->back();
             }
+
             if (__convert_value_bd($request->valor) <= $this->somaTotalEmCaixa()) {
                 $sangria = SangriaCaixa::create([
                     'caixa_id' => $request->caixa_id,
@@ -50,7 +51,6 @@ class SangriaController extends Controller
                     ];
                     $itemContaEmpresa = ItemContaEmpresa::create($data);
                     $this->util->atualizaSaldo($itemContaEmpresa);
-
                     $data = [
                         'conta_id' => $request->conta_empresa_sangria_id,
                         'descricao' => "Sangria de caixa",

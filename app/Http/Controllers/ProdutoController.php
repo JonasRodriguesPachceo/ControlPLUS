@@ -109,7 +109,7 @@ class ProdutoController extends Controller
     }
 
     public function index(Request $request)
-    {   
+    {
         $this->setNumeroSequencial();
         $this->insertUnidadesMedida($request->empresa_id);
         $locais = __getLocaisAtivoUsuario();
@@ -123,6 +123,42 @@ class ProdutoController extends Controller
         $com_imagem = $request->get('com_imagem');
         $status = $request->get('status');
         $gerenciar_estoque = $request->get('gerenciar_estoque');
+        $sem_custo = $request->get('sem_custo');
+        $parados_90 = $request->get('parados_90');
+
+        $produtosParados = null;
+
+        if($parados_90 == 1){
+
+            $dataLimite = now()->subDays(90);
+
+            $produtosParados = DB::table('produtos')
+            ->leftJoin('estoques', 'estoques.produto_id', '=', 'produtos.id')
+            ->select('produtos.id')
+            ->leftJoin(DB::raw("
+                (
+                SELECT produto_id, MAX(created_at) AS ultima_venda
+                FROM (
+                SELECT produto_id, created_at FROM item_nves
+                UNION ALL
+                SELECT produto_id, created_at FROM item_nfces
+                ) vendas
+                GROUP BY produto_id
+                ) ultimas_vendas
+                "), 'ultimas_vendas.produto_id', '=', 'produtos.id')
+
+            ->where('produtos.empresa_id', $request->empresa_id)
+            ->where('produtos.status', 1)
+            ->where('produtos.gerenciar_estoque', 1)
+            ->where('estoques.quantidade', '>', 0)
+
+            ->where(function ($q) use ($dataLimite) {
+                $q->whereNull('ultimas_vendas.ultima_venda')
+                ->orWhere('ultimas_vendas.ultima_venda', '<', $dataLimite);
+            })
+            ->get();
+            $produtosParados = $produtosParados->pluck('id')->toArray();
+        }
 
         $data = Produto::where('empresa_id', request()->empresa_id)
         ->select('produtos.*')
@@ -142,7 +178,7 @@ class ProdutoController extends Controller
             return $q->where('marca_id', $request->marca_id);
         })
         ->when(!empty($request->categoria_id), function ($q) use ($request) {
-            return $q->where(function($t) use ($request) 
+            return $q->where(function($t) use ($request)
             {
                 $t->where('categoria_id', $request->categoria_id)->orWhere('sub_categoria_id', $request->categoria_id);
             });
@@ -192,6 +228,13 @@ class ProdutoController extends Controller
         ->when($ordem, function ($query) use ($ordem) {
             return $query->orderBy($ordem, $ordem == 'created_at' ? 'desc' : 'asc');
         })
+        ->when($sem_custo == 1, function ($q) use ($request) {
+            return $q->where('valor_compra', 0)->where('status', 1)
+            ->where('gerenciar_estoque', 1);
+        })
+        ->when($parados_90 == 1, function ($q) use ($produtosParados) {
+            return $q->whereIn('produto_id', $produtosParados);
+        })
         ->distinct('produtos.id')
         ->paginate(__itensPagina());
 
@@ -206,11 +249,16 @@ class ProdutoController extends Controller
 
         $configGeral = ConfigGeral::where('empresa_id', $request->empresa_id)
         ->first();
-        $tipoExibe = $configGeral && $configGeral->produtos_exibe_tabela == 0 
-        ? 'card' 
+        $tipoExibe = $configGeral && $configGeral->produtos_exibe_tabela == 0
+        ? 'card'
         : 'tabela';
 
-        return view('produtos.index', compact('data', 'categorias', 'empresa', 'tipoExibe', 'marcas'));
+        $usarDropdown = 0;
+        if($configGeral){
+            $usarDropdown = $configGeral->usar_dropdown_acoes;
+        }
+
+        return view('produtos.index', compact('data', 'categorias', 'empresa', 'tipoExibe', 'marcas', 'usarDropdown'));
     }
 
     public function create(Request $request)
@@ -291,8 +339,8 @@ class ProdutoController extends Controller
 
         $unidades = UnidadeMedida::where('empresa_id', request()->empresa_id)
         ->where('status', 1)->get();
-        return view('produtos.create', 
-            compact('listaCTSCSOSN', 'padroes', 'categorias', 'cardapio', 'marcas', 'delivery', 'variacoes', 
+        return view('produtos.create',
+            compact('listaCTSCSOSN', 'padroes', 'categorias', 'cardapio', 'marcas', 'delivery', 'variacoes',
                 'padraoTributacao', 'ecommerce', 'configMercadoLivre', 'mercadolivre', 'configGeral', 'nuvemshop',
                 'reserva', 'woocommerce', 'categoriasWoocommerce', 'unidades', 'ifood', 'categoriasProdutoIfood', 'vendizap'));
     }
@@ -300,7 +348,7 @@ class ProdutoController extends Controller
     public function edit(Request $request, $id)
     {
         $item = $this->produtoComAvaliacao($id);
-        $empresa = Empresa::findOrFail(request()->empresa_id);
+                $empresa = Empresa::findOrFail(request()->empresa_id);
 
         $listaCTSCSOSN = Produto::listaCSOSN();
         if ($empresa->tributacao == 'Regime Normal') {
@@ -346,9 +394,9 @@ class ProdutoController extends Controller
         ->first();
         $categoriasProdutoIfood = CategoriaProdutoIfood::where('empresa_id', request()->empresa_id)->get();
 
-        return view('produtos.edit', 
+        return view('produtos.edit',
             compact('item', 'listaCTSCSOSN', 'padroes', 'categorias', 'cardapio', 'marcas', 'delivery', 'variacoes',
-                'ecommerce', 'mercadolivre', 'configMercadoLivre', 'categoriasWoocommerce', 'unidades', 'configGeral', 
+                'ecommerce', 'mercadolivre', 'configMercadoLivre', 'categoriasWoocommerce', 'unidades', 'configGeral',
                 'categoriasProdutoIfood'));
     }
 
@@ -413,7 +461,7 @@ class ProdutoController extends Controller
                 'perc_ibs_mun' => $request->perc_ibs_mun ?? 0,
                 'perc_cbs' => $request->perc_cbs ?? 0,
                 'perc_dif' => $request->perc_dif ?? 0,
-                
+
                 'cfop_estadual' => $request->cfop_estadual ?? '',
                 'cfop_outro_estado' => $request->cfop_outro_estado ?? '',
                 'sub_categoria_id' => $request->sub_categoria_id ?? null,
@@ -502,7 +550,7 @@ class ProdutoController extends Controller
                             $tipo = 'incremento';
                             $codigo_transacao = $transacao->id;
                             $tipo_transacao = 'alteracao_estoque';
-                            $this->utilEstoque->movimentacaoProduto($produto->id, $qtd, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, $variacao->id);      
+                            $this->utilEstoque->movimentacaoProduto($produto->id, $qtd, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, $variacao->id);
                         }
                     }
                 }else{
@@ -564,6 +612,7 @@ class ProdutoController extends Controller
                 if($request->ifood){
                     $resp = $this->criaProdutoIfood($request, $produto);
                     if(isset($resp->id)){
+                        session()->flash("flash_success", "Produto Ifood");
                     }
                 }
 
@@ -572,7 +621,7 @@ class ProdutoController extends Controller
                 }
 
                 if($request->nuvemshop){
-                    $resp = $this->utilNuvemShop->create($request, $produto); 
+                    $resp = $this->utilNuvemShop->create($request, $produto);
                 }
 
 
@@ -590,24 +639,24 @@ session()->flash("flash_success", "Produto cadastrado!");
 if(sizeof($locais) >= 2){
     for($i=0; $i<sizeof($locais); $i++){
         ProdutoLocalizacao::updateOrCreate([
-            'produto_id' => $produto->id, 
+            'produto_id' => $produto->id,
             'localizacao_id' => $locais[$i]
         ]);
     }
     if(!$emAvaliacao){
-        session()->flash("flash_success", "Produto cadastrado, informe o estoque de cada localização!");
-        return redirect()->route('estoque-localizacao.define', [$produto->id]);
+    session()->flash("flash_success", "Produto cadastrado, informe o estoque de cada localização!");
+    return redirect()->route('estoque-localizacao.define', [$produto->id]);
     }
 }else{
 
     if(sizeof($locais) == 1){
         ProdutoLocalizacao::updateOrCreate([
-            'produto_id' => $produto->id, 
+            'produto_id' => $produto->id,
             'localizacao_id' => $locais[0]
         ]);
     }else{
         ProdutoLocalizacao::updateOrCreate([
-            'produto_id' => $produto->id, 
+            'produto_id' => $produto->id,
             'localizacao_id' => $request->local_id
         ]);
     }
@@ -667,7 +716,11 @@ if($request->adicionar_outro){
     return redirect()->route('produtos.duplicar',[$produto->id]);
 }
 
-return redirect()->route('produtos.index');
+if($request->ifood){
+    return redirect()->route('ifood-produtos.index');
+}
+
+return redirect()->route('produtos.index', ['status=1']);
 }
 
 private function insereEmListaDePrecos($produto){
@@ -716,9 +769,10 @@ private function insereEmListaDePrecos($produto){
 
 public function update(Request $request, $id)
 {
-        $item = $this->produtoComAvaliacao($id);
-        try {
-            $file_name = $item->imagem;
+    $item = $this->produtoComAvaliacao($id);
+    __validaObjetoEmpresa($item);
+    try {
+        $file_name = $item->imagem;
 
         if ($request->hasFile('image')) {
             $this->util->unlinkImage($item, '/produtos');
@@ -814,7 +868,7 @@ public function update(Request $request, $id)
                     'descricao' => $request->descricao_variacao[$i],
                     'valor' => __convert_value_bd($request->valor_venda_variacao[$i]),
                     'codigo_barras' => $request->codigo_barras_variacao[$i],
-                    'referencia' => $request->referencia_variacao[$i],        
+                    'referencia' => $request->referencia_variacao[$i],
                 ];
                 if(isset($request->variacao_id[$i])){
                     $variacao = ProdutoVariacao::findOrfail($request->variacao_id[$i]);
@@ -846,14 +900,14 @@ public function update(Request $request, $id)
                     $dataVariacao['imagem'] = $file_name;
                     $variacao = ProdutoVariacao::create($dataVariacao);
 
-                    if(!$emAvaliacao && $request->estoque_variacao[$i] && sizeof($locais) <= 1){
+                    if($request->estoque_variacao[$i] && sizeof($locais) <= 1){
                         $qtd = __convert_value_bd($request->estoque_variacao[$i]);
                         $this->utilEstoque->incrementaEstoque($item->id, $qtd, $variacao->id);
                         $transacao = Estoque::where('produto_id', $item->id)->orderBy('id', 'desc')->first();
                         $tipo = 'incremento';
                         $codigo_transacao = $transacao->id;
                         $tipo_transacao = 'alteracao_estoque';
-                        $this->utilEstoque->movimentacaoProduto($item->id, $qtd, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, $variacao->id);      
+                        $this->utilEstoque->movimentacaoProduto($item->id, $qtd, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, $variacao->id);
                     }
                     $variacaoDelete[] = $variacao->id;
                 }
@@ -950,7 +1004,7 @@ public function update(Request $request, $id)
             }
             for($i=0; $i<sizeof($request->locais); $i++){
                 ProdutoLocalizacao::updateOrCreate([
-                    'produto_id' => $item->id, 
+                    'produto_id' => $item->id,
                     'localizacao_id' => $request->locais[$i]
                 ]);
             }
@@ -978,9 +1032,9 @@ public function update(Request $request, $id)
     if (isset($request->redirect_ecommerce)) {
         return redirect()->route('produtos-ecommerce.index');
     }
-        if (isset($request->redirect_mercadolivre)) {
-            return redirect()->route('mercado-livre-produtos.index');
-        }
+    if (isset($request->redirect_mercadolivre)) {
+        return redirect()->route('mercado-livre-produtos.index');
+    }
         return redirect()->route('produtos.index');
     }
 
@@ -1041,11 +1095,12 @@ public function update(Request $request, $id)
         session()->flash('flash_success', 'Avaliação atualizada!');
 
         return redirect()->route('produtos.avaliacao.index');
-    }
+}
 
 public function destroy($id)
 {
     $item = $this->produtoComAvaliacao($id);
+    __validaObjetoEmpresa($item);
     try {
         $descricaoLog = $item->nome;
 
@@ -1069,7 +1124,7 @@ public function destroy($id)
             // $item->itemNfe()->delete();
             // $item->estoque()->delete();
             $item->galeria()->delete();
-            
+
             // $item->itemNfce()->delete();
             $item->itemCarrinhos()->delete();
             $item->composicao()->delete();
@@ -1119,7 +1174,7 @@ public function destroySelecet(Request $request)
             $item->locais()->delete();
             \App\Models\ImpressoraPedidoProduto::where('produto_id', $item->id)->delete();
             \App\Models\EstoqueAtualProduto::where('produto_id', $item->id)->delete();
-            
+
             if($item->estoque){
                 $item->estoque->delete();
             }
@@ -1148,7 +1203,7 @@ public function desactiveSelecet(Request $request)
 {
     $alterados = 0;
     for($i=0; $i<sizeof($request->item_delete); $i++){
-        $item = $this->produtoComAvaliacao($request->item_delete[$i]);
+        $item = Produto::findOrFail($request->item_delete[$i]);
         $descricaoLog = $item->nome;
 
         try {
@@ -1263,7 +1318,7 @@ public function storeModelo(Request $request)
                                 if(isset($request->locais)){
                                     foreach($locais as $l){
                                         $local = ProdutoLocalizacao::updateOrCreate([
-                                            'produto_id' => $item->id, 
+                                            'produto_id' => $item->id,
                                             'localizacao_id' => $l
                                         ]);
 
@@ -1274,13 +1329,13 @@ public function storeModelo(Request $request)
                                             $tipo = 'incremento';
                                             $codigo_transacao = $transacao->id;
                                             $tipo_transacao = 'alteracao_estoque';
-                                            $this->utilEstoque->movimentacaoProduto($item->id, $data['estoque'], $tipo, 
+                                            $this->utilEstoque->movimentacaoProduto($item->id, $data['estoque'], $tipo,
                                                 $codigo_transacao, $tipo_transacao, \Auth::user()->id);
                                         }
                                     }
                                 }else{
                                     $local = ProdutoLocalizacao::updateOrCreate([
-                                        'produto_id' => $item->id, 
+                                        'produto_id' => $item->id,
                                         'localizacao_id' => $request->local_id
                                     ]);
 
@@ -1291,7 +1346,7 @@ public function storeModelo(Request $request)
                                         $tipo = 'incremento';
                                         $codigo_transacao = $transacao->id;
                                         $tipo_transacao = 'alteracao_estoque';
-                                        $this->utilEstoque->movimentacaoProduto($item->id, $data['estoque'], $tipo, 
+                                        $this->utilEstoque->movimentacaoProduto($item->id, $data['estoque'], $tipo,
                                             $codigo_transacao, $tipo_transacao, \Auth::user()->id);
                                     }
                                 }
@@ -1328,7 +1383,7 @@ public function storeModelo(Request $request)
                                 if(isset($request->locais)){
                                     foreach($locais as $l){
                                         $local = ProdutoLocalizacao::updateOrCreate([
-                                            'produto_id' => $produtoDuplicado->id, 
+                                            'produto_id' => $produtoDuplicado->id,
                                             'localizacao_id' => $l
                                         ]);
                                     }
@@ -1574,11 +1629,13 @@ public function removeImagem($id){
 
 public function galeria($id){
     $item = $this->produtoComAvaliacao($id);
+    __validaObjetoEmpresa($item);
     return view('produtos.galeria', compact('item'));
 }
 
 public function storeImage(Request $request, $id){
     $item = $this->produtoComAvaliacao($id);
+    __validaObjetoEmpresa($item);
     if ($request->hasFile('image')) {
 
         $file_name = $this->util->uploadImage($request, '/produtos');
@@ -1610,6 +1667,7 @@ public function destroyImage($id){
 public function duplicar(Request $request, $id)
 {
     $item = $this->produtoComAvaliacao($id);
+    __validaObjetoEmpresa($item);
     $empresa = Empresa::findOrFail(request()->empresa_id);
 
     $listaCTSCSOSN = Produto::listaCSOSN();
@@ -1648,8 +1706,8 @@ public function duplicar(Request $request, $id)
     ->first();
     $categoriasProdutoIfood = CategoriaProdutoIfood::where('empresa_id', request()->empresa_id)->get();
 
-    return view('produtos.duplicar', 
-        compact('item', 'listaCTSCSOSN', 'padroes', 'categorias', 'cardapio', 'marcas', 'delivery', 'variacoes', 
+    return view('produtos.duplicar',
+        compact('item', 'listaCTSCSOSN', 'padroes', 'categorias', 'cardapio', 'marcas', 'delivery', 'variacoes',
             'ecommerce', 'configMercadoLivre', 'categoriasWoocommerce', 'unidades', 'configGeral', 'categoriasProdutoIfood'));
 }
 
@@ -1675,7 +1733,6 @@ private function criaProdutoIfood($request, $produto){
     if($request->codigo_barras){
         $data['ean'] = $request->codigo_barras;
     }
-
     if($produto->imagem){
         $pathImage = public_path('uploads/produtos/'.$produto->imagem);
         if(file_exists($pathImage)){
@@ -1686,12 +1743,16 @@ private function criaProdutoIfood($request, $produto){
     }
 
     // dd($data);
-
     $config = IfoodConfig::
     where('empresa_id', $request->empresa_id)
     ->first();
 
     $productIfood = $this->utilIfood->storeProduct($config, $data);
+
+    if(isset($productIfood->id)){
+        $produto->ifood_id = $productIfood->id;
+        $produto->save();
+    }
 
     if(isset($productIfood->error)){
         session()->flash("flash_error", $productIfood->error->details[0]->message);
@@ -1714,11 +1775,10 @@ private function criaProdutoIfood($request, $produto){
         ];
 
         $stock = $this->utilIfood->addStockProduct($config, $dataEstoque);
-        // dd($stock);
     }
 
-    return $this->utilIfood->associationProductCategory($config, $categoria->ifood_id, $productIfood->id, $dataAssociation);
-
+    $association = $this->utilIfood->associationProductCategory($config, $categoria->ifood_id, $productIfood->id, $dataAssociation);
+    return $productIfood;
 }
 
 private function criaProdutoVendiZap($request, $produto){
@@ -1785,7 +1845,7 @@ private function setarEstoqueVendiZap($produto, $config){
             foreach($produto->variacoes as $v){
                 if($v->estoque){
                     $nome = explode(" ", $v->descricao);
-                    
+
                     // dd($nome);
 
                     $variacao_id = null;
@@ -2041,8 +2101,8 @@ private function criaProdutoWoocommerce($request, $produto){
         }
 
         if($produto->imagem){
-            $data['images'][] = 
-            [   
+            $data['images'][] =
+            [
                 'src' => env('APP_URL') . '/uploads/produtos/'.$produto->imagem
             ];
         }
@@ -2070,7 +2130,7 @@ private function criaProdutoWoocommerce($request, $produto){
             ];
 
         }
-        
+
         // dd($data);
 
         $product = $woocommerceClient->post("products", $data);
@@ -2368,6 +2428,11 @@ private function atualizaAnuncio($request, $produto){
 public function etiqueta(Request $request, $id)
 {
     $item = $this->produtoComAvaliacao($id);
+
+    if(!$item->codigo_barras){
+        session()->flash('flash_error', 'Produto sem código de barras definido');
+        return redirect()->route('produtos.index');
+    }
     $modelos = ModeloEtiqueta::where('empresa_id', $item->empresa_id)->get();
     return view('produtos.etiqueta', compact('item', 'modelos'));
 }
@@ -2376,15 +2441,15 @@ public function etiquetaStore(Request $request, $id){
     if (!is_dir(public_path('barcode'))) {
         mkdir(public_path('barcode'), 0777, true);
     }
-    $files = glob(public_path("barcode/*")); 
+    $files = glob(public_path("barcode/*"));
 
-    foreach($files as $file){ 
+    foreach($files as $file){
         if(is_file($file)) {
-            unlink($file); 
+            unlink($file);
         }
     }
 
-    $item = $this->produtoComAvaliacao($id);
+    $item = Produto::findOrFail($id);
 
     $nome = $item->nome;
     $codigo = $item->codigo_barras;
@@ -2413,6 +2478,31 @@ public function etiquetaStore(Request $request, $id){
     ];
     $generatorPNG = new \Picqer\Barcode\BarcodeGeneratorPNG();
 
+    $adds = [];
+    if($request->produto_add_id){
+        for($i=0; $i<sizeof($request->produto_add_id); $i++){
+            if($request->produto_add_id[$i] && $request->quantidade_add[$i]){
+                $prod = Produto::findOrFail($request->produto_add_id[$i]);
+                $adds[] = [
+                    'nome_empresa' => $request->nome_empresa ? true : false,
+                    'nome_produto' => $request->nome_produto ? true : false,
+                    'valor_produto' => $request->valor_produto ? true : false,
+                    'cod_produto' => $request->codigo_produto ? true : false,
+                    'tipo' => $request->tipo,
+                    'codigo_barras_numerico' => $request->codigo_barras_numerico ? true : false,
+                    'nome' => $prod->nome,
+                    'codigo' => $prod->numero_sequencial,
+                    'valor' => $prod->valor_unitario,
+                    'unidade' => $prod->unidade,
+                    'valor_atacado' => $prod->valor_atacado,
+                    'referencia' => $prod->referencia,
+                    'empresa' => $item->empresa->nome,
+                    'quantidade' => $request->quantidade_add[$i],
+                ];
+            }
+        }
+    }
+
     $bar_code = $generatorPNG->getBarcode($codigo, $generatorPNG::TYPE_EAN_13);
 
     $rand = rand(1000, 9999);
@@ -2431,8 +2521,8 @@ public function etiquetaStore(Request $request, $id){
     $tamanho_codigo = $request->tamanho_codigo_barras;
 
     return view('produtos.etiqueta_print', compact('altura', 'largura', 'rand', 'codigo', 'quantidade', 'distancia_topo',
-        'distancia_lateral', 'quantidade_por_linhas', 'tamanho_fonte', 'tamanho_codigo', 'data', 'distancia_entre_linhas', 'referencia', 
-        'valor_atacado'));
+        'distancia_lateral', 'quantidade_por_linhas', 'tamanho_fonte', 'tamanho_codigo', 'data', 'distancia_entre_linhas', 'referencia',
+        'valor_atacado', 'adds'));
 
 }
 
@@ -2516,7 +2606,7 @@ public function reajusteUpdate(Request $request){
                 $item->locais()->delete();
                 for($j=0; $j<sizeof($request->locais); $j++){
                     ProdutoLocalizacao::updateOrCreate([
-                        'produto_id' => $item->id, 
+                        'produto_id' => $item->id,
                         'localizacao_id' => $request->locais[$j]
                     ]);
                 }
@@ -2557,7 +2647,7 @@ public function reajusteUpdate(Request $request){
             $item->redBCST = $request->redBCST[$i];
             $item->pICMSEfet = $request->pICMSEfet[$i];
             $item->pRedBCEfet = $request->pRedBCEfet[$i];
-            
+
             $item->save();
         }
 
@@ -2589,7 +2679,6 @@ public function uploadMultiple(Request $request){
     }
 
     return redirect()->route('produtos.vincula-imagens');
-    
 }
 
 public function vinculaImagens(){
@@ -2631,8 +2720,8 @@ public function vincularImagens(Request $request){
 
 private function clearFolder($destino){
     $files = glob($destino."/*");
-    foreach($files as $file){ 
-        if(is_file($file)) unlink($file); 
+    foreach($files as $file){
+        if(is_file($file)) unlink($file);
     }
 }
 
@@ -2679,7 +2768,7 @@ public function ibpt(Request $request){
                     $dataIbpt = [
                         'produto_id' => $p->id,
                         'codigo' => $resp->Codigo,
-                        'uf' => $resp->UF, 
+                        'uf' => $resp->UF,
                         'descricao' => $resp->Descricao,
                         'nacional' => $resp->Nacional,
                         'estadual' => $resp->Estadual,
@@ -2720,6 +2809,7 @@ public function alterarValorEstoque(){
 
 public function buscarAjuste(Request $request){
 
+    $local_id = $request->local_id;
     $query = Produto::query();
 
     if ($request->nome) {
@@ -2738,9 +2828,14 @@ public function buscarAjuste(Request $request){
         $query->where('marca_id', $request->marca_id);
     }
 
-    $produtos = $query->where('empresa_id', $request->empresa_id)->take(50)->get();
+    if ($request->local_id) {
+        $query->join('estoques', 'estoques.produto_id', '=', 'produtos.id')
+        ->where('local_id', $request->local_id);
+    }
 
-    return view('produtos.partials.tabela_ajuste', compact('produtos'));
+    $produtos = $query->select('produtos.*')->where('empresa_id', $request->empresa_id)->take(50)->get();
+
+    return view('produtos.partials.tabela_ajuste', compact('produtos', 'local_id'));
 }
 
 public function alterarCampo(Request $request)
@@ -2753,6 +2848,7 @@ public function alterarCampo(Request $request)
 
     $campo = $request->campo;
     $valor = $request->valor;
+    $local_id = $request->local_id;
 
     // atualizar
     if($campo == 'valor_venda'){
@@ -2763,21 +2859,34 @@ public function alterarCampo(Request $request)
         $produto->valor_compra = __convert_value_bd($valor);
     }
 
-    $produto->percentual_lucro = ($produto->valor_unitario / $produto->valor_compra)*100;
+    if($produto->valor_compra > 0 && $produto->valor_unitario > 0){
+        $produto->percentual_lucro = ($produto->valor_unitario / $produto->valor_compra)*100;
+    }else{
+        $produto->percentual_lucro = 100;
+    }
     $produto->save();
 
     if($campo == 'quantidade_estoque'){
         $estoque = $produto->estoque;
         if($estoque == null){
-            $this->utilEstoque->incrementaEstoque($produto->id, $valor, null);
+
+            $this->utilEstoque->incrementaEstoque($produto->id, $valor, null, $local_id);
             $transacao = Estoque::where('produto_id', $produto->id)->orderBy('id', 'desc')->first();
             $tipo = 'incremento';
             $codigo_transacao = $transacao->id;
             $tipo_transacao = 'alteracao_estoque';
-            $this->utilEstoque->movimentacaoProduto($produto->id, $valor, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, null);  
+            $this->utilEstoque->movimentacaoProduto($produto->id, $valor, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, $local_id);
         }else{
-            $estoque->quantidade = $valor;
-            $estoque->save();
+            if($local_id){
+                $estoque = Estoque::where('produto_id', $produto->id)->where('local_id', $local_id)->first();
+            }
+
+            if($estoque){
+                // return response()->json($estoque, 401);
+
+                $estoque->quantidade = $valor;
+                $estoque->save();
+            }
         }
     }
 

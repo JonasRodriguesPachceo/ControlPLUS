@@ -25,6 +25,9 @@
           <i class="ri-price-tag-3-line text-success"></i> {{ $item->cpf_cnpj ?? '--' }}
         </p>
         <h5 class="text-muted fw-bold mb-0">
+          <i class="ri-money-dollar-circle-line text-success"></i> {{ __moeda($item->valor_credito) }}
+        </h5>
+        <h5 class="text-muted fw-bold mb-0">
           <i class="ri-phone-line text-success"></i> {{ $item->telefone }}
         </h5>
 

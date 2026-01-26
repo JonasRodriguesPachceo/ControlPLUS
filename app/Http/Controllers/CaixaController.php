@@ -33,8 +33,28 @@ class CaixaController extends Controller
 
     }
 
+    private function setNumeroSequencial(){
+        $data = Caixa::where('empresa_id', request()->empresa_id)
+        ->where('numero_sequencial', null)
+        ->get();
+
+        $last = Caixa::where('empresa_id', request()->empresa_id)
+        ->orderBy('numero_sequencial', 'desc')
+        ->where('numero_sequencial', '>', 0)->first();
+
+        $numero = $last != null ? $last->numero_sequencial : 0;
+        $numero++;
+
+        foreach($data as $d){
+            $d->numero_sequencial = $numero;
+            $d->save();
+            $numero++;
+        }
+    }
+
     public function index()
     {
+        $this->setNumeroSequencial();
 
         $item = Caixa::where('usuario_id', Auth::user()->id)->where('status', 1)->first();
         if ($item == null) {
@@ -84,7 +104,7 @@ class CaixaController extends Controller
         ->get();
         // dd($ordens);
 
-        $compras = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 0)
+        $compras = Nfe::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 0)
         ->where('orcamento', 0)
         ->where('finNFe', 1)
         ->get();
@@ -165,8 +185,8 @@ class CaixaController extends Controller
         ->where('nfces.caixa_id', $item->id)
         ->where('fatura_nfces.tipo_pagamento', '05')
         ->sum('fatura_nfces.valor');
-
         if ($item != null) {
+
             $contasEmpresa = ContaEmpresa::where('empresa_id', request()->empresa_id)
             ->where('status', 1)
             ->get();
@@ -259,26 +279,39 @@ class CaixaController extends Controller
         $tipos = $this->preparaTipos();
 
         foreach ($vendas as $v) {
-            if ($v->estado != 'cancelado') {
-                $troco = false;
-                if ($v->fatura && sizeof($v->fatura) > 0) {
-                    if ($v->fatura) {
-                        foreach ($v->fatura as $f) {
-                            if(isset($tipos[trim($f->tipo_pagamento)])){
-                                if($f->tipo_pagamento == '01' && $troco == false){
-                                    $f->valor -= $v->troco;
-                                    $troco = true;
-                                }
-                                $tipos[trim($f->tipo_pagamento)] += $f->valor;
-                            }
-                        }
+            if ($v->estado == 'cancelado') continue;
+
+            $trocoAplicado = false;
+
+            if ($v->fatura && count($v->fatura) > 0) {
+
+                foreach ($v->fatura as $f) {
+
+                    $tipo = trim($f->tipo_pagamento);
+
+                    if (!isset($tipos[$tipo])) {
+                        continue; 
                     }
+
+                    $valor = $f->valor;
+                    if ($tipo == '01' && !$trocoAplicado) {
+
+                        $valor -= $v->troco;
+                        if ($valor < 0) {
+                            $valor = 0;
+                        }
+
+                        $trocoAplicado = true;
+                    }
+
+                    $tipos[$tipo] += $valor;
                 }
             }
         }
 
         return $tipos;
     }
+
 
     private function somaTiposContas($contas)
     {
@@ -314,9 +347,15 @@ class CaixaController extends Controller
         return view('caixa.create', compact('item'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    private function getLastNumeroSequencial($empresa_id){
+        $last = Caixa::where('empresa_id', $empresa_id)
+        ->orderBy('numero_sequencial', 'desc')
+        ->where('numero_sequencial', '>', 0)->first();
+        $numero = $last != null ? $last->numero_sequencial : 0;
+        $numero++;
+        return $numero;
+    }
+    
     public function store(Request $request)
     {
         try {
@@ -326,6 +365,7 @@ class CaixaController extends Controller
                 'observacao' => $request->observacao ?? '',
                 'status' => 1,
                 'valor_fechamento' => 0,
+                'numero_sequencial' => $this->getLastNumeroSequencial($request->empresa_id)
             ]);
             $item = Caixa::create($request->all());
 
@@ -511,6 +551,176 @@ class CaixaController extends Controller
         }
     }
 
+    public function fecharEmpresa($id)
+    {
+
+        $item = Caixa::FindOrFail($id);
+        if ($item == null) {
+            session()->flash('flash_warning', 'Não há caixa aberto no momento!');
+            return redirect()->route('caixa.create');
+        }
+
+        $valor_abertura = $item->valor_abertura;
+
+        $somaTiposPagamento = [];
+        $contas = [];
+
+        $idsReceber = ContaReceber::where('empresa_id', request()->empresa_id)->pluck('nfce_id')->toArray();
+        // dd($idsReceber);
+        $nfce = Nfce::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)
+        ->where('estado', '!=', 'cancelado')
+        ->get();
+
+        $nfe = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 1)
+        ->where('orcamento', 0)
+        ->where('finNFe', 1)
+        ->where('estado', '!=', 'cancelado')
+        ->get();
+
+        $contasReceber = ContaReceber::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)
+        ->where('status', 1)->get();
+
+        $contasPagar = ContaPagar::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)
+        ->where('status', 1)->get();
+
+        $trocas = Troca::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)
+        ->get();
+
+        $trocasPagasPorCliente = Troca::where('empresa_id', request()->empresa_id)
+        ->where('caixa_id', $item->id)
+        ->whereColumn('valor_troca', '>', 'valor_original')
+        ->selectRaw('SUM(ABS(valor_troca - valor_original)) as total')
+        ->value('total');
+
+        $trocasPagasAoCliente = Troca::where('empresa_id', request()->empresa_id)
+        ->where('caixa_id', $item->id)
+        ->whereColumn('valor_troca', '<', 'valor_original')
+        ->selectRaw('SUM(ABS(valor_original - valor_troca)) as total')
+        ->value('total');
+
+        $ordens = OrdemServico::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)
+        ->get();
+        // dd($ordens);
+
+        $compras = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 0)
+        ->where('orcamento', 0)
+        ->where('finNFe', 1)
+        ->get();
+
+        $totalVendas = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 1)
+        ->where('orcamento', 0)
+        ->where('finNFe', 1)
+        ->join('fatura_nves', 'fatura_nves.nfe_id', '=', 'nves.id')
+        ->sum('total');
+
+        $totalVendas += Nfce::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)
+        ->where('estado', '!=', 'cancelado')
+        // ->whereNotIn('id', $idsReceber)
+        ->sum('total');
+
+        // $vendas = $this->agrupaDados($nfce, $nfe, $ordens, $compras);
+
+        $nfce->map(function($d){
+            $d->tipo = 'PDV';
+            return $d;
+        });
+
+        $nfe->map(function($d){
+            $d->tipo = 'Pedido';
+            return $d;
+        });
+        $vendas = $nfce->concat($nfe)->sortByDesc('created_at')->values();
+        $somaTiposPagamento = $this->somaTiposPagamento($vendas);
+
+        $somaServicos = ItemServicoNfce::join('nfces', 'nfces.id', '=', 'item_servico_nfces.nfce_id')
+        ->where('nfces.empresa_id', request()->empresa_id)->where('nfces.caixa_id', $item->id)
+        ->sum('sub_total') +
+        OrdemServico::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)
+        ->sum('valor');
+
+        $suprimentos = SuprimentoCaixa::where('caixa_id', $item->id)->get();
+        $sangrias = SangriaCaixa::where('caixa_id', $item->id)->get();
+
+        $somaVendas = $vendas->sum('total');
+        $somaCompras = $compras->sum('total');
+        $somaContasReceber = $contasReceber->sum('valor_recebido');
+        $somaContasPagar = $contasPagar->sum('valor_pago');
+        $somaSuprimentos = $suprimentos->sum('valor');
+        $somaSangrias = $sangrias->sum('valor');
+
+        $somaPendentesCrediario = FaturaNfe::join('nves', 'nves.id', '=', 'fatura_nves.nfe_id')
+        ->where('nves.empresa_id', request()->empresa_id)
+        ->where('nves.caixa_id', $item->id)
+        ->where('fatura_nves.tipo_pagamento', '06')
+        ->sum('fatura_nves.valor');
+
+        $somaPendentesCrediario += FaturaNfce::join('nfces', 'nfces.id', '=', 'fatura_nfces.nfce_id')
+        ->where('nfces.empresa_id', request()->empresa_id)
+        ->where('nfces.caixa_id', $item->id)
+        ->where('fatura_nfces.tipo_pagamento', '06')
+        ->sum('fatura_nfces.valor');
+
+        $somaPendentBoleto = FaturaNfe::join('nves', 'nves.id', '=', 'fatura_nves.nfe_id')
+        ->where('nves.empresa_id', request()->empresa_id)
+        ->where('nves.caixa_id', $item->id)
+        ->where('fatura_nves.tipo_pagamento', '15')
+        ->sum('fatura_nves.valor');
+
+        $somaPendentBoleto += FaturaNfce::join('nfces', 'nfces.id', '=', 'fatura_nfces.nfce_id')
+        ->where('nfces.empresa_id', request()->empresa_id)
+        ->where('nfces.caixa_id', $item->id)
+        ->where('fatura_nfces.tipo_pagamento', '15')
+        ->sum('fatura_nfces.valor');
+
+        $somaPendentesCreditoLoja = FaturaNfe::join('nves', 'nves.id', '=', 'fatura_nves.nfe_id')
+        ->where('nves.empresa_id', request()->empresa_id)
+        ->where('nves.caixa_id', $item->id)
+        ->where('fatura_nves.tipo_pagamento', '05')
+        ->sum('fatura_nves.valor');
+
+        $somaPendentesCreditoLoja += FaturaNfce::join('nfces', 'nfces.id', '=', 'fatura_nfces.nfce_id')
+        ->where('nfces.empresa_id', request()->empresa_id)
+        ->where('nfces.caixa_id', $item->id)
+        ->where('fatura_nfces.tipo_pagamento', '05')
+        ->sum('fatura_nfces.valor');
+
+        if ($item != null) {
+            $contasEmpresa = ContaEmpresa::where('empresa_id', request()->empresa_id)
+            ->where('status', 1)
+            ->get();
+            return view('caixa.fechar_empresa', compact(
+                'item',
+                'vendas',
+                'somaTiposPagamento',
+                'valor_abertura',
+                'somaServicos',
+                'totalVendas',
+                'compras',
+                'suprimentos',
+                'sangrias',
+                'trocas',
+                'contasReceber',
+                'contasPagar',
+                'contasEmpresa',
+
+                'somaVendas',
+                'somaCompras',
+                'somaContasReceber',
+                'somaSuprimentos',
+                'trocasPagasPorCliente',
+                'trocasPagasAoCliente',
+                'somaSangrias',
+                'somaContasPagar',
+                'somaPendentesCrediario',
+                'somaPendentBoleto',
+                'somaPendentesCreditoLoja',
+            ));
+        } else {
+            session()->flash('flash_warning', 'Não há caixa aberto no momento!');
+            return redirect()->back();
+        }
+    }
+
     /**
      * Display the specified resource.
      */
@@ -597,93 +807,93 @@ class CaixaController extends Controller
     //     ));
     // }
 
-    public function fecharEmpresa(string $id)
-    {
+    // public function fecharEmpresa(string $id)
+    // {
 
-        $item = Caixa::FindOrFail($id);
-        $somaTiposPagamento = [];
+    //     $item = Caixa::FindOrFail($id);
+    //     $somaTiposPagamento = [];
 
-        $nfce = Nfce::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)
-        ->where('estado', '!=', 'cancelado')
-        // ->where('tipo_pagamento', '!=', '06')
-        ->get();
-        // $nfe = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)
-        // ->where('tpNF', 1)
-        // ->get();
+    //     $nfce = Nfce::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)
+    //     ->where('estado', '!=', 'cancelado')
+    //     // ->where('tipo_pagamento', '!=', '06')
+    //     ->get();
+    //     // $nfe = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)
+    //     // ->where('tpNF', 1)
+    //     // ->get();
 
-        $nfe = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 1)
-        ->where('orcamento', 0)
-        ->where('finNFe', 1)
-        ->where('estado', '!=', 'cancelado')
-        ->get();
-        $ordens = OrdemServico::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)
-        ->get();
+    //     $nfe = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 1)
+    //     ->where('orcamento', 0)
+    //     ->where('finNFe', 1)
+    //     ->where('estado', '!=', 'cancelado')
+    //     ->get();
+    //     $ordens = OrdemServico::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)
+    //     ->get();
 
-        $compras = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 0)
-        ->where('orcamento', 0)
-        ->where('finNFe', 1)
-        ->get();
+    //     $compras = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 0)
+    //     ->where('orcamento', 0)
+    //     ->where('finNFe', 1)
+    //     ->get();
 
-        $data = $this->agrupaDados($nfce, $nfe, $ordens, $compras);
-        $somaTiposPagamento = $this->somaTiposPagamento($data);
-        $suprimentos = [];
-        $sangrias = [];
-        $contas = [];
+    //     $data = $this->agrupaDados($nfce, $nfe, $ordens, $compras);
+    //     $somaTiposPagamento = $this->somaTiposPagamento($data);
+    //     $suprimentos = [];
+    //     $sangrias = [];
+    //     $contas = [];
 
-        $pagar = ContaPagar::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)->get();
-        $receber = ContaReceber::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)->get();
+    //     $pagar = ContaPagar::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)->get();
+    //     $receber = ContaReceber::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)->get();
 
-        $contas = $this->agrupaContas($pagar, $receber);
-        $somaTiposContas = $this->somaTiposContas($contas);
-        if ($item != null) {
-            $suprimentos = SuprimentoCaixa::where('caixa_id', $item->id)->get();
-            $sangrias = SangriaCaixa::where('caixa_id', $item->id)->get();
-        }
+    //     $contas = $this->agrupaContas($pagar, $receber);
+    //     $somaTiposContas = $this->somaTiposContas($contas);
+    //     if ($item != null) {
+    //         $suprimentos = SuprimentoCaixa::where('caixa_id', $item->id)->get();
+    //         $sangrias = SangriaCaixa::where('caixa_id', $item->id)->get();
+    //     }
 
-        $somaServicos = ItemServicoNfce::join('nfces', 'nfces.id', '=', 'item_servico_nfces.nfce_id')
-        ->where('nfces.empresa_id', request()->empresa_id)->where('nfces.caixa_id', $item->id)
-        ->sum('sub_total') +
-        OrdemServico::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)
-        ->sum('valor');
+    //     $somaServicos = ItemServicoNfce::join('nfces', 'nfces.id', '=', 'item_servico_nfces.nfce_id')
+    //     ->where('nfces.empresa_id', request()->empresa_id)->where('nfces.caixa_id', $item->id)
+    //     ->sum('sub_total') +
+    //     OrdemServico::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)
+    //     ->sum('valor');
 
-        $valor_abertura = $item->valor_abertura;
+    //     $valor_abertura = $item->valor_abertura;
 
-        $contasEmpresa = ContaEmpresa::where('empresa_id', request()->empresa_id)
-        ->where('status', 1)->get();
+    //     $contasEmpresa = ContaEmpresa::where('empresa_id', request()->empresa_id)
+    //     ->where('status', 1)->get();
 
-        $totalVendas = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 1)
-        ->where('orcamento', 0)
-        ->where('finNFe', 1)
-        ->join('fatura_nves', 'fatura_nves.nfe_id', '=', 'nves.id')
-        ->sum('total');
+    //     $totalVendas = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 1)
+    //     ->where('orcamento', 0)
+    //     ->where('finNFe', 1)
+    //     ->join('fatura_nves', 'fatura_nves.nfe_id', '=', 'nves.id')
+    //     ->sum('total');
 
-        $totalVendas +=  Nfce::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)
-        ->where('estado', '!=', 'cancelado')
-        // ->where('tipo_pagamento', '!=', '06')
-        ->sum('total');
+    //     $totalVendas +=  Nfce::where('empresa_id', request()->empresa_id)->where('caixa_id', $item->id)
+    //     ->where('estado', '!=', 'cancelado')
+    //     // ->where('tipo_pagamento', '!=', '06')
+    //     ->sum('total');
 
-        $totalCompras = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 0)
-        ->where('orcamento', 0)
-        ->where('finNFe', 1)
-        ->where('estado', '!=', 'cancelado')
-        ->sum('total');
-        
-        return view('caixa.fechar_empresa', compact(
-            'item',
-            'data',
-            'somaTiposPagamento',
-            'suprimentos',
-            'sangrias',
-            'contas',
-            'receber',
-            'pagar',
-            'totalVendas',
-            'totalCompras',
-            'contasEmpresa',
-            'valor_abertura',
-            'somaServicos'
-        ));
-    }
+    //     $totalCompras = Nfe::where('empresa_id',  request()->empresa_id)->where('caixa_id', $item->id)->where('tpNF', 0)
+    //     ->where('orcamento', 0)
+    //     ->where('finNFe', 1)
+    //     ->where('estado', '!=', 'cancelado')
+    //     ->sum('total');
+    
+    //     return view('caixa.fechar_empresa', compact(
+    //         'item',
+    //         'data',
+    //         'somaTiposPagamento',
+    //         'suprimentos',
+    //         'sangrias',
+    //         'contas',
+    //         'receber',
+    //         'pagar',
+    //         'totalVendas',
+    //         'totalCompras',
+    //         'contasEmpresa',
+    //         'valor_abertura',
+    //         'somaServicos'
+    //     ));
+    // }
 
     /**
      * Show the form for editing the specified resource.
@@ -723,6 +933,7 @@ class CaixaController extends Controller
     public function list()
     {
 
+        $this->setNumeroSequencial();
         $data = Caixa::where('empresa_id', request()->empresa_id)
         ->orderBy('id', 'desc')->get();
 
@@ -988,18 +1199,19 @@ class CaixaController extends Controller
         $item->data_fechamento = date('Y-m-d h:i:s');
         try{
             $result = DB::transaction(function () use ($request, $item) {
-
-                for($i=0; $i<sizeof($request->conta_empresa_id); $i++){
-                    $data = [
-                        'conta_id' => $request->conta_empresa_id[$i],
-                        'descricao' => "Fechamento de caixa - " . ($request->descricao[$i] ? $request->descricao[$i] : ""),
-                        'tipo_pagamento' => $request->tipo_pagamento[$i],
-                        'valor' => __convert_value_bd($request->valor[$i]),
-                        'caixa_id' => $item->id,
-                        'tipo' => 'entrada'
-                    ];
-                    $itemContaEmpresa = ItemContaEmpresa::create($data);
-                    $this->util->atualizaSaldo($itemContaEmpresa);
+                if($request->conta_empresa_id){
+                    for($i=0; $i<sizeof($request->conta_empresa_id); $i++){
+                        $data = [
+                            'conta_id' => $request->conta_empresa_id[$i],
+                            'descricao' => "Fechamento de caixa - " . ($request->descricao[$i] ? $request->descricao[$i] : ""),
+                            'tipo_pagamento' => $request->tipo_pagamento[$i],
+                            'valor' => __convert_value_bd($request->valor[$i]),
+                            'caixa_id' => $item->id,
+                            'tipo' => 'entrada'
+                        ];
+                        $itemContaEmpresa = ItemContaEmpresa::create($data);
+                        $this->util->atualizaSaldo($itemContaEmpresa);
+                    }
                 }
 
                 return true;

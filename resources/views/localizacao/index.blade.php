@@ -61,6 +61,18 @@
                                             </button>
                                             @endcan
                                             @endif
+
+                                            @if(!$loop->first)
+                                            @if($item->status)
+                                            <a href="{{ route('localizacao.update-status', [$item->id]) }}" class="btn btn-sm btn-secondary">
+                                                <i class="ri-pause-fill"></i>
+                                            </a>
+                                            @else
+                                            <a href="{{ route('localizacao.update-status', [$item->id]) }}" class="btn btn-sm btn-success">
+                                                <i class="ri-play-fill"></i>
+                                            </a>
+                                            @endif
+                                            @endif
                                         </form>
                                     </td>
                                 </tr>

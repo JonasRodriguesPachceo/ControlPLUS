@@ -73,7 +73,7 @@
                                     <td>{{ $item->email }}</td>
                                     <td>
 
-                                        {{ $item->empresa ? $item->empresa->empresa->nome : '' }}
+                                        {{ $item->empresa && $item->empresa->empresa ? $item->empresa->empresa->nome : '' }}
                                         @if($item->email == env('MAILMASTER')) SUPER @endif
                                     </td>
                                     <td>

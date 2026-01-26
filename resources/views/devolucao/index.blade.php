@@ -187,6 +187,10 @@
                                                 <i class="ri-printer-line"></i>
                                             </button>
 
+                                            <a title="Baixar XML" class="btn btn-sm btn-dark" href="{{ route('nfe.download-xml', [$item->id]) }}">
+                                                <i class="ri-download-line"></i>
+                                            </a>
+
                                             @can('nfe_transmitir')
                                             <button title="Cancelar NFe" type="button" class="btn btn-danger btn-sm" onclick="cancelar('{{$item->id}}', '{{$item->numero}}')">
                                                 <i class="ri-close-circle-line"></i>

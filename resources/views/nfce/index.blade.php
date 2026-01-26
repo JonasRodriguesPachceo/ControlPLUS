@@ -4,6 +4,79 @@
     .btn{
         margin-top: 3px;
     }
+    .fiscal-loader {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.75);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .fiscal-box {
+        background: #fff;
+        width: 480px;
+        max-width: 92%;
+        border-radius: 14px;
+        padding: 28px;
+        text-align: center;
+        animation: fadeIn .25s ease;
+    }
+
+    .fiscal-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        color: #fff;
+    }
+
+    .fiscal-icon.error {
+        background: #dc3545;
+    }
+
+    .fiscal-icon.warning {
+        background: #f59e0b;
+    }
+
+    .fiscal-icon.success {
+        background: #16a34a;
+    }
+
+    .fiscal-content {
+        text-align: left;
+        margin: 16px 0;
+        max-height: 240px;
+        overflow-y: auto;
+    }
+
+    .fiscal-content ul {
+        padding-left: 18px;
+    }
+
+    .fiscal-content li {
+        margin-bottom: 8px;
+    }
+
+    .fiscal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(.96); }
+        to   { opacity: 1; transform: scale(1); }
+    }
+
+    .bg-fiscal:hover{
+        cursor: pointer;
+    }
 </style>
 @endsection
 @section('content')
@@ -101,6 +174,7 @@
                         <table class="table table-striped table-centered mb-0">
                             <thead class="table-dark">
                                 <tr>
+                                    <th>Ações</th>
                                     <th>#</th>
                                     <th>Cliente</th>
                                     <th>CPF/CNPJ</th>
@@ -110,16 +184,28 @@
                                     <th>Número</th>
                                     <th>Número Série</th>
                                     <th>Valor</th>
+
+                                    @if(__isPlanoFiscal())
+                                    <th>Status Fiscal</th>
                                     <th>Estado</th>
                                     <th>Ambiente</th>
+                                    @endif
                                     <th>Data de cadastro</th>
                                     <th>Data de emissão</th>
-                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($data as $item)
                                 <tr>
+
+                                    <td class="text-start d-none d-md-table-cell">
+                                        @if($usarDropdown)
+                                        @include('nfce.partials.dropdown_acoes', ['item' => $item])
+                                        @else
+                                        @include('nfce.partials.botoes_acoes', ['item' => $item])
+                                        @endif
+                                    </td>
+                                    
                                     <td data-label="#"> {{ $item->numero_sequencial }}</td>
                                     <td data-label="Cliente">{{ $item->cliente ? $item->cliente->razao_social : ($item->cliente_nome != "" ? $item->cliente_nome : "--") }}</td>
                                     <td data-label="CPF/CNPJ">{{ $item->cliente ? $item->cliente->cpf_cnpj : ($item->cliente_cpf_cnpj != "" ? $item->cliente_cpf_cnpj : "--") }}</td>
@@ -129,85 +215,32 @@
                                     <td data-label="Número">{{ $item->numero }}</td>
                                     <td data-label="Número Série">{{ $item->numero_serie }}</td>
                                     <td data-label="Valor">{{ number_format($item->total, 2, ',', '.') }}</td>
+                                    @if(__isPlanoFiscal())
+                                    <td data-label="Status Fiscal">
+                                        @if($item->fiscal_status === 'erro')
+                                        <span class="badge bg-danger p-1 bg-fiscal" onclick="consultarFiscal({{ $item->id }}, 'nfce')">Erro fiscal</span>
+                                        @elseif($item->fiscal_status === 'alerta')
+                                        <span class="badge bg-warning p-1 bg-fiscal" onclick="consultarFiscal({{ $item->id }}, 'nfce')">Alerta fiscal</span>
+                                        @else
+                                        <span class="badge bg-success p-1">Fiscal OK</span>
+                                        @endif
+                                    </td>
                                     <td data-label="Estado">
                                         @if($item->estado == 'aprovado')
-                                        <span class="btn btn-success text-white btn-sm">APROVADO</span>
+                                        <span class="badge p-1 bg-success text-white">APROVADO</span>
                                         @elseif($item->estado == 'cancelado')
-                                        <span class="btn btn-danger text-white btn-sm">CANCELADO</span>
+                                        <span class="badge p-1 bg-danger text-white">CANCELADO</span>
                                         @elseif($item->estado == 'rejeitado')
-                                        <span class="btn btn-warning text-white btn-sm">REJEITADO</span>
+                                        <span class="badge p-1 bg-warning text-white">REJEITADO</span>
                                         @else
-                                        <span class="btn btn-info text-white btn-sm">NOVO</span>
+                                        <span class="badge p-1 bg-info text-white">NOVO</span>
                                         @endif
                                     </td>
                                     <td data-label="Ambiente">{{ $item->ambiente == 2 ? 'Homologação' : 'Produção' }}</td>
+                                    @endif
                                     <td data-label="Data de cadastro"><label style="width: 120px">{{ __data_pt($item->created_at) }}</label></td>
                                     <td data-label="Data de emissão"><label style="width: 120px">{{ $item->data_emissao ? __data_pt($item->data_emissao) : '--' }}</label></td>
-                                    <td>
-                                        <form action="{{ route('nfce.destroy', $item->id) }}" method="post" id="form-{{$item->id}}" style="width: 320px">
-                                            @method('delete')
-                                            @csrf
-                                            @if($item->estado == 'aprovado')
-                                            <a class="btn btn-primary btn-sm" title="Imprimir NFCe" target="_blank" href="{{ route('nfce.imprimir', [$item->id]) }}">
-                                                <i class="ri-printer-line"></i>
-                                            </a>
-                                            @can('nfce_transmitir')
-                                            <button title="Cancelar NFCe" type="button" class="btn btn-danger btn-sm" onclick="cancelar('{{$item->id}}', '{{$item->numero}}')">
-                                                <i class="ri-close-circle-line"></i>
-                                            </button>
-                                            @endcan
-                                            @endif
-                                            @if($item->estado == 'aprovado' || $item->estado == 'rejeitado')
-                                            <button title="Consultar Chave" type="button" class="btn btn-dark btn-sm" onclick="info('{{$item->motivo_rejeicao}}', '{{$item->chave}}', '{{$item->estado}}', '{{$item->recibo}}')">
-                                                <i class="ri-file-line"></i>
-                                            </button>
-                                            @endif
-                                            @if($item->estado == 'novo' || $item->estado == 'rejeitado')
-                                            @can('nfce_edit')
-                                            <a class="btn btn-warning btn-sm" href="{{ route('nfce.edit', $item->id) }}">
-                                                <i class="ri-edit-line"></i>
-                                            </a>
-                                            @endcan
-                                            <a target="_blank" title="XML temporário" class="btn btn-light btn-sm" href="{{ route('nfce.xml-temp', $item->id) }}">
-                                                <i class="ri-file-line"></i>
-                                            </a>
-                                            @can('nfce_delete')
-                                            <button type="button" class="btn btn-danger btn-sm btn-delete">
-                                                <i class="ri-delete-bin-line"></i>
-                                            </button>
-                                            @endcan
-                                            @can('nfce_transmitir')
-                                            <button title="Transmitir NFCe" type="button" class="btn btn-success btn-sm" onclick="transmitir('{{$item->id}}')">
-                                                <i class="ri-send-plane-fill"></i>
-                                            </button>
-                                            @endcan
-                                            @endif
-                                            @if($item->estado == 'aprovado' || $item->estado == 'cancelado')
-                                            <button title="Consultar NFCe" type="button" class="btn btn-light btn-sm" onclick="consultar('{{$item->id}}', '{{$item->numero}}')">
-                                                <i class="ri-search-eye-line"></i>
-                                            </button>
-                                            @endif
-                                            @can('nfce_edit')
-                                            <a title="Alterar estado fiscal" class="btn btn-danger btn-sm" href="{{ route('nfce.alterar-estado', $item->id) }}">
-                                                <i class="ri-arrow-up-down-line"></i>
-                                            </a>
-                                            @endcan
-                                            <a class="btn btn-ligth btn-sm" title="Detalhes" href="{{ route('nfce.show', $item->id) }}">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                            <a class="btn btn-danger btn-sm" title="DANFCE Temporária" target="_blank" href="{{ route('nfce.danfce-temporaria', [$item->id]) }}">
-                                                <i class="ri-printer-fill"></i>
-                                            </a>
-                                            @if($item->estado == 'aprovado')
-                                            <button title="Enviar Email" type="button" class="btn btn-light btn-sm" onclick="enviarEmail('{{$item->id}}', '{{$item->numero}}')">
-                                                <i class="ri-mail-send-line"></i>
-                                            </button>
-                                            <a title="Download XML" href="{{ route('nfce.download-xml', [$item->id]) }}" class="btn btn-dark btn-sm">
-                                                <i class="ri-download-line"></i>
-                                            </a>
-                                            @endif
-                                        </form>
-                                    </td>
+                                    
                                 </tr>
                                 @empty
                                 <tr>
@@ -222,6 +255,26 @@
                 </div>
                 <h5 class="mt-2">Soma: <strong class="text-success">R$ {{ __moeda($data->sum('total')) }}</strong></h5>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="fiscalLoader" class="fiscal-loader d-none">
+    <div class="fiscal-box">
+        <div id="fiscalIcon" class="fiscal-icon error">✖</div>
+
+        <h4 id="fiscalTitle">Erro Fiscal</h4>
+        <p id="fiscalSubtitle">
+            Foram encontrados problemas fiscais que impedem a transmissão.
+        </p>
+
+        <div id="fiscalContent" class="fiscal-content"></div>
+
+        <div class="fiscal-actions">
+            <button id="btnFiscalCancel" class="btn btn-secondary">
+                Fechar
+            </button>
+
         </div>
     </div>
 </div>
@@ -330,5 +383,6 @@
 
 </script>
 <script type="text/javascript" src="/js/nfce_transmitir.js"></script>
+<script type="text/javascript" src="/js/consulta_fiscal.js"></script>
 
 @endsection

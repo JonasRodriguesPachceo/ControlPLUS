@@ -131,7 +131,7 @@ input[type=tel]:read-only {
 }
 
 .logo-painel{
-	width: 100%;
+	width: 100px;
 	height: 80px !important;
 	margin-top: -10px;
 }

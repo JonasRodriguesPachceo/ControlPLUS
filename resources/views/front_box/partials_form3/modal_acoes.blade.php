@@ -9,7 +9,7 @@
                 <div class="row m-2">
 
                     <div class="col-md-6">
-                        <button type="button" class="btn btn-primary btn-suprimento w-100">SUPRIMENTO</button>
+                        <button type="button" class="btn btn-success btn-suprimento w-100">SUPRIMENTO</button>
                     </div>
                     <div class="col-md-6">
                         <button type="button" class="btn btn-danger btn-sangria w-100">SANGRIA</button>

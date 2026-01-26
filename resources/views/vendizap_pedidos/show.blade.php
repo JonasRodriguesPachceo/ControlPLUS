@@ -332,6 +332,41 @@
     $('#btn-novo-cliente').click(() => {
         $('#modal-cliente').modal('hide')
         $('#modal-novo-cliente').modal('show')
+
+        $("#inp-cidade_id").select2({
+            minimumInputLength: 2,
+            language: "pt-BR",
+            dropdownParent: $('#modal-novo-cliente'),
+            placeholder: "Digite para buscar a cidade",
+            width: "100%",
+            ajax: {
+                cache: true,
+                url: path_url + "api/buscaCidades",
+                dataType: "json",
+                data: function (params) {
+                    console.clear();
+                    var query = {
+                        pesquisa: params.term,
+                    };
+                    return query;
+                },
+                processResults: function (response) {
+                    var results = [];
+
+                    $.each(response, function (i, v) {
+                        var o = {};
+                        o.id = v.id;
+
+                        o.text = v.info;
+                        o.value = v.id;
+                        results.push(o);
+                    });
+                    return {
+                        results: results,
+                    };
+                },
+            },
+        });
     })
 </script>
 

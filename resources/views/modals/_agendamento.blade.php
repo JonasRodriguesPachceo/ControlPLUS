@@ -4,7 +4,7 @@
             <form class="needs-validation" id="form-event" method="post" action="{{ route('agendamentos.store') }}">
                 @csrf
                 <div class="modal-header py-3 px-4 border-bottom-0">
-                    <h5 class="modal-title" id="modal-title">Evento</h5>
+                    <h5 class="modal-title" id="modal-title"></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4 pb-4 pt-0">

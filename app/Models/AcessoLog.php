@@ -10,7 +10,7 @@ class AcessoLog extends Model
     use HasFactory;
 
     protected $fillable = [
-        'usuario_id', 'ip'
+        'usuario_id', 'ip', 'acesso_bloqueado'
     ];
 
     public function usuario()

@@ -26,6 +26,12 @@
                             ->attrs(['class' => 'form-select'])
                             !!}
                         </div>
+
+                        <div class="col-md-2">
+                            {!!Form::select('categoria_id', 'Categoria', ['' => 'Todos'] + $categorias->pluck('nome', 'id')->all())
+                            ->attrs(['class' => 'form-select select2'])
+                            !!}
+                        </div>
                         <div class="col-md-3 text-left">
                             <br>
                             <button class="btn btn-primary" type="submit"> <i class="ri-search-line"></i>Pesquisar</button>

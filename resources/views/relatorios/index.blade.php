@@ -500,8 +500,16 @@
                                 {!!Form::date('start_date', 'Data inicial')
                                 !!}
                             </div>
+                            <div class="col-md-3 col-6 mt-2">
+                                {!!Form::time('start_time', 'Horário inicial')
+                                !!}
+                            </div>
                             <div class="col-md-4 col-12">
                                 {!!Form::date('end_date', 'Data final')
+                                !!}
+                            </div>
+                            <div class="col-md-3 col-6 mt-2">
+                                {!!Form::time('end_time', 'Horário final')
                                 !!}
                             </div>
                             <div class="col-md-4 col-12">
@@ -519,15 +527,6 @@
                                 {!!Form::select('cliente', 'Cliente')
                                 ->attrs(['class' => 'form-select cliente'])
                                 ->id('cliente4')
-                                !!}
-                            </div>
-
-                            <div class="col-md-3 col-6 mt-2">
-                                {!!Form::time('start_time', 'Horário inicial')
-                                !!}
-                            </div>
-                            <div class="col-md-3 col-6 mt-2">
-                                {!!Form::time('end_time', 'Horário final')
                                 !!}
                             </div>
 
@@ -641,8 +640,17 @@
                                 {!!Form::date('start_date', 'Data inicial')
                                 !!}
                             </div>
+                            <div class="col-md-2">
+                                {!!Form::time('start_time', 'Horário inicial')
+                                !!}
+                            </div>
                             <div class="col-md-3 col-12">
                                 {!!Form::date('end_date', 'Data final')
+                                !!}
+                            </div>
+
+                            <div class="col-md-2">
+                                {!!Form::time('end_time', 'Horário final')
                                 !!}
                             </div>
                             @if(__countLocalAtivo() > 1)
@@ -1309,6 +1317,63 @@
                                 ->attrs(['class' => 'form-select'])->required()
                                 !!}
                             </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-dark w-100">
+                            <i class="ri-printer-line"></i> Gerar relatório
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <form method="get" action="{{ route('relatorios.venda-produtos-fiscal') }}" target="_blank">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Registro de Vendas de Produtos Fiscal</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-md-4 col-12">
+                                {!!Form::date('start_date', 'Data inicial de cadastro')
+                                ->required()
+                                !!}
+                            </div>
+                            <div class="col-md-4 col-12">
+                                {!!Form::date('end_date', 'Data final de cadastro')
+                                ->required()
+                                !!}
+                            </div>
+                            <div class="col-md-4 col-12">
+                                {!!Form::tel('cfop', 'CFOP')
+                                ->attrs(['class' => 'cfop'])
+                                !!}
+                            </div>
+                            <div class="col-md-6 col-12">
+                                {!!Form::select('ncm', 'NCM')
+                                !!}
+                            </div>
+
+                            <div class="col-md-6 col-12">
+                                {!!Form::select('cst_csosn', 'CST/CSOSN', ['' => 'Selecione'] + \App\Models\Produto::listaCSTCSOSN())
+                                ->attrs(['class' => 'form-select'])
+                                !!}
+                            </div>
+
+                            <div class="col-md-6 col-12">
+                                {!!Form::select('cst_pis', 'CST PIS', ['' => 'Selecione'] + \App\Models\Produto::listaCST_PIS_COFINS())
+                                ->attrs(['class' => 'form-select'])
+                                !!}
+                            </div>
+
+                            <div class="col-md-6 col-12">
+                                {!!Form::select('cst_cofins', 'CST COFINS', ['' => 'Selecione'] + \App\Models\Produto::listaCST_PIS_COFINS())
+                                ->attrs(['class' => 'form-select'])
+                                !!}
+                            </div>
+
                         </div>
                     </div>
                     <div class="card-footer">

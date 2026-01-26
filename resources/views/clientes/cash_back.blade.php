@@ -102,9 +102,21 @@
                                 @endforelse
                             </tbody>
                             <tfoot>
-                                <tr class="bg-success">
-                                    <td class="text-white">Total</td>
+                                <tr class="bg-dark">
+                                    <td class="text-white">Soma geral</td>
                                     <td class="text-white">{{ __moeda($item->creditosCliente->sum('valor')) }}</td>
+                                    <td colspan="2" class="text-white"></td>
+                                </tr>
+
+                                <tr class="bg-success">
+                                    <td class="text-white">Total disponível</td>
+                                    <td class="text-white">{{ __moeda($item->creditosCliente->where('status', 1)->sum('valor')) }}</td>
+                                    <td colspan="2" class="text-white"></td>
+                                </tr>
+
+                                <tr class="bg-warning">
+                                    <td class="text-white">Total utilizado</td>
+                                    <td class="text-white">{{ __moeda($item->creditosCliente->where('status', 0)->sum('valor')) }}</td>
                                     <td colspan="2" class="text-white"></td>
                                 </tr>
                             </tfoot>

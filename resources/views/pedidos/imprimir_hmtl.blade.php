@@ -104,33 +104,33 @@
 				</tr>
 
 				@if(sizeof($i->adicionais) > 0)
-			<tr>
-				<td style="font-weight: bold; font-size: 9.5px;" colspan="4">adicioanis: {{ $i->getAdicionaisStr() }}</td>
-			</tr>
-			@endif
+				<tr>
+					<td style="font-weight: bold; font-size: 9.5px;" colspan="4">adicioanis: {{ $i->getAdicionaisStr() }}</td>
+				</tr>
+				@endif
 
-			@if($i->observacao != '')
-			<tr>
-				<td style="font-weight: bold; font-size: 9.5px;" colspan="4">observação: {{ $i->observacao }}</td>
-			</tr>
-			@endif
+				@if($i->observacao != '')
+				<tr>
+					<td style="font-weight: bold; font-size: 9.5px;" colspan="4">observação: {{ $i->observacao }}</td>
+				</tr>
+				@endif
 
-			@if(sizeof($i->pizzas) > 0)
-			<tr>
-				<td style="font-weight: bold; font-size: 9.5px;" colspan="4">sabores:
-					@foreach($i->pizzas as $s)
-					{{ $s->sabor->nome }}@if(!$loop->last) | @endif
-					@endforeach
-				</td>
-			</tr>
-			@if($i->tamanho)
-			<tr>
-				<td style="font-weight: bold; font-size: 8.5px;" colspan="4">tamanho:
-					{{ $i->tamanho->nome }}
-				</td>
-			</tr>
-			@endif
-			@endif
+				@if(sizeof($i->pizzas) > 0)
+				<tr>
+					<td style="font-weight: bold; font-size: 9.5px;" colspan="4">sabores:
+						@foreach($i->pizzas as $s)
+						{{ $s->sabor->nome }}@if(!$loop->last) | @endif
+						@endforeach
+					</td>
+				</tr>
+				@if($i->tamanho)
+				<tr>
+					<td style="font-weight: bold; font-size: 8.5px;" colspan="4">tamanho:
+						{{ $i->tamanho->nome }}
+					</td>
+				</tr>
+				@endif
+				@endif
 				@endforeach
 			</tbody>
 			<tfoot>

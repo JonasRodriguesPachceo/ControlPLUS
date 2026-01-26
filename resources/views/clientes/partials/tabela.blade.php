@@ -14,6 +14,7 @@
                 <th>#</th>
                 <th>Razão Social</th>
                 <th>CPF/CNPJ</th>
+                <th>Valor crédito</th>
                 <th>Cidade</th>
                 <th>Endereço</th>
                 <th>CEP</th>
@@ -37,6 +38,7 @@
                 <td data-label="Código">{{ $item->numero_sequencial }}</td>
                 <td data-label="Razão social"><label style="width: 300px">{{ $item->razao_social }}</label></td>
                 <td data-label="CPF/CNPJ">{{ $item->cpf_cnpj }}</td>
+                <td data-label="Valor de crédito"><label style="width: 200px">{{ __moeda($item->valor_credito) }}</label></td>
                 <td data-label="Cidade"><label style="width: 200px">{{ $item->cidade ? $item->cidade->info : '' }}</label></td>
                 <td data-label="Endereço"><label style="width: 300px">{{ $item->rua ? $item->endereco : '--' }}</label></td>
                 <td data-label="CEP">{{ $item->cep }}</td>
@@ -83,7 +85,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="10" class="text-center">Nada encontrado</td>
+                <td colspan="14" class="text-center">Nada encontrado</td>
             </tr>
             @endforelse
         </tbody>

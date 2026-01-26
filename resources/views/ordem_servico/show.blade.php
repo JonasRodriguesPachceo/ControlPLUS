@@ -88,14 +88,21 @@
                     </div>
 
                     @if($configGeral->tipo_ordem_servico == 'assistencia técinica')
+                    <hr>
                     <div class="row mb-2">
                         <div class="col-md-4 col-12">
                             <h5>Equipamento: <strong class="text-info">{{ $ordem->equipamento }}</strong></h5>
                         </div>
                         <div class="col-md-4 col-12 text-center">
-                            <h5>Número de série: <strong class="text-info">{{ $ordem->numero_serie ?? '--' }}</strong></h5>
+                            <h5>Marca: <strong class="text-info">{{ $ordem->marca }}</strong></h5>
                         </div>
                         <div class="col-md-4 col-12 text-end">
+                            <h5>Modelo: <strong class="text-info">{{ $ordem->modelo }}</strong></h5>
+                        </div>
+                        <div class="col-md-4 col-12 text-left">
+                            <h5>Número de série: <strong class="text-info">{{ $ordem->numero_serie ?? '--' }}</strong></h5>
+                        </div>
+                        <div class="col-md-4 col-12 text-center">
                             <h5>Cor: <strong class="text-muted">{{ $ordem->cor ?? '--' }}</strong></h5>
                         </div>
                     </div>

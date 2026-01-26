@@ -167,6 +167,7 @@
                     @if($numeroComanda)
                     <span class="badge bg-primary">{{ $numeroComanda }}</span>
                     @endif
+
                 </h6>
 
                 <div class="row">
@@ -291,9 +292,7 @@
 
 @include('modals._definir_mesa')
 
-
 @endsection
-
 @section('js')
 <script type="text/javascript" src="/js/mesas_pdv.js"></script>
 @endsection

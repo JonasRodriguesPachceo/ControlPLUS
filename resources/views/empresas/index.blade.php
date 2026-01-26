@@ -1,16 +1,79 @@
 @extends('layouts.app', ['title' => 'Empresas'])
+@section('css')
+<style type="text/css">
+    .backup-loader {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .loader-box {
+        background: #1e1e2f;
+        color: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        text-align: center;
+        width: 320px;
+        box-shadow: 0 10px 40px rgba(0,0,0,.5);
+    }
+
+    .spinner {
+        width: 60px;
+        height: 60px;
+        border: 6px solid rgba(255,255,255,.2);
+        border-top: 6px solid #19c767; /* cor SLYM */
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+</style>
+@endsection
 @section('content')
 <div class="mt-1">
     <div class="row">
         <div class="card">
             <div class="card-body">
                 @if(!__isSuporte())
-                <div class="col-md-2">
-                    <a href="{{ route('empresas.create') }}" class="btn btn-success">
-                        <i class="ri-add-circle-fill"></i>
-                        Nova Empresa
-                    </a>
+                <div class="row">
+                    <div class="col-md-2">
+                        <a href="{{ route('empresas.create') }}" class="btn btn-success">
+                            <i class="ri-add-circle-fill"></i>
+                            Nova Empresa
+                        </a>
+                    </div>
+
+                    <div class="col-md-8">
+                    </div>
+
+                    @if(env("APP_ENV") != "demo")
+                    <div class="col-md-2 text-end">
+
+                        <button type="button" class="btn btn-primary" id="btnBackup">
+                            <i class="ri-database-2-line"></i> Gerar Backup
+                        </button>
+
+
+                        <div id="backupLoader" class="backup-loader d-none">
+                            <div class="loader-box">
+                                <div class="spinner"></div>
+                                <h5>Gerando backup...</h5>
+                                <p>Isso pode levar alguns minutos.<br>Não feche esta tela.</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
+
+                <iframe name="backupFrame" id="backupFrame" style="display:none;"></iframe>
                 @endif
                 <hr class="mt-3">
                 <div class="col-lg-12">
@@ -196,6 +259,86 @@
 
         });
     }
+
+    $(function () {
+        let polling = null;
+
+        $('#btnBackup').on('click', function () {
+            const $btn = $(this);
+
+            $btn.prop('disabled', true).html('<i class="ri-loader-4-line"></i> Gerando...');
+            $('#backupLoader').removeClass('d-none');
+
+            $.ajax({
+                url: "{{ route('superadmin-backup.start') }}",
+                method: "POST",
+                global: false,
+                data: {
+                    _token: "{{ csrf_token() }}"
+                }
+            })
+            .done(function (res) {
+
+                const token = res.token;
+
+                polling = setInterval(function () {
+
+                    $.ajax({
+                        url: "{{ url('/super-admin/backup/status') }}/" + token,
+                        method: "GET",
+                        global: false
+                    })
+                    .done(function (st) {
+
+                        if (st.status === 'ready') {
+
+                            clearInterval(polling);
+
+                            $('#backupFrame')
+                            .attr('src', "{{ url('/super-admin/backup/download') }}/" + token);
+
+                            $('#backupLoader').addClass('d-none');
+
+                            $btn
+                            .prop('disabled', false)
+                            .html('<i class="ri-database-2-line"></i> Gerar Backup');
+
+                            toastr.success('Backup gerado com sucesso');
+                        }
+
+                        if (st.status === 'error') {
+
+                            clearInterval(polling);
+
+                            $('#backupLoader').addClass('d-none');
+
+                            $btn
+                            .prop('disabled', false)
+                            .html('<i class="ri-database-2-line"></i> Gerar Backup');
+
+                            toastr.error('Falha ao gerar backup');
+                        }
+
+                    });
+
+                }, 1500);
+
+            })
+            .fail(function (xhr) {
+
+                $('#backupLoader').addClass('d-none');
+
+                $btn
+                .prop('disabled', false)
+                .html('<i class="ri-database-2-line"></i> Gerar Backup');
+
+                toastr.error(xhr.responseJSON?.message || 'Erro ao iniciar backup');
+
+            });
+
+        });
+    });
+
 
 </script>
 @endsection

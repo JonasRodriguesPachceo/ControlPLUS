@@ -12,6 +12,9 @@
 	transition: opacity 0.75s, visibility 0.75s;
 }
 
+.btn-dropdown{
+	z-index: 0;
+}
 .span-box{
 	font-size: 12px;
 	position: absolute;
@@ -137,7 +140,7 @@ input[type=tel]:read-only {
 }
 
 .logo-painel{
-	width: 100%;
+	width: 100px;
 	height: 80px !important;
 	margin-top: -10px;
 }
@@ -1083,8 +1086,8 @@ input, select, .select2{
 .dropdown-menu {
     border-radius: 10px;
     padding: 4px 0;
-	z-index: 9999999;
 }
+
 
 .dropdown-menu .dropdown-item {
     display: flex;
@@ -1160,6 +1163,7 @@ input, select, .select2{
 .table tbody tr td {
     white-space: nowrap;
 }
+
 
 
 

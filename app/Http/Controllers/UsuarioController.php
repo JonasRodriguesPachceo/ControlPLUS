@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Empresa;
+use App\Models\AcessoLog;
 use App\Models\UsuarioEmpresa;
 use App\Models\UsuarioLocalizacao;
 use App\Utils\UploadUtil;
@@ -86,9 +87,15 @@ class UsuarioController extends Controller
             if ($request->hasFile('image')) {
                 $file_name = $this->util->uploadImage($request, '/usuarios');
             }
+
+            $dias_semana = isset($request->dias_semana)
+            ? json_encode($request->dias_semana)
+            : null;
+
             $request->merge([
                 'password' => Hash::make($request['password']),
-                'imagem' => $file_name
+                'imagem' => $file_name,
+                'dias_semana' => $dias_semana,
             ]);
             $usuario = User::create($request->all());
 
@@ -150,6 +157,14 @@ class UsuarioController extends Controller
                     'imagem' => $file_name
                 ]);
             }
+
+            $dias_semana = isset($request->dias_semana)
+            ? json_encode($request->dias_semana)
+            : null;
+
+            $request->merge([
+                'dias_semana' => $dias_semana
+            ]);
 
             if(__isMaster()){
                 if ($request->nova_senha) {
@@ -248,6 +263,35 @@ class UsuarioController extends Controller
             session()->flash("flash_error", "Senhas não coencidem!");
             return redirect()->back();
         }
+    }
+
+    public function historico(Request $request){
+
+        $start_date = $request->get('start_date');
+        $end_date = $request->get('end_date');
+        $usuario_id = $request->get('usuario_id');
+
+        $data = AcessoLog::select('acesso_logs.*')
+        ->join('usuario_empresas', 'usuario_empresas.usuario_id', '=', 'acesso_logs.usuario_id')
+        ->where('usuario_empresas.empresa_id', $request->empresa_id)
+        ->when(!empty($start_date), function ($query) use ($start_date) {
+            return $query->whereDate('acesso_logs.created_at', '>=', $start_date);
+        })
+        ->when(!empty($end_date), function ($query) use ($end_date) {
+            return $query->whereDate('acesso_logs.created_at', '<=', $end_date);
+        })
+        ->when(!empty($usuario_id), function ($query) use ($usuario_id) {
+            return $query->where('acesso_logs.usuario_id', $usuario_id);
+        })
+        ->orderBy('id', 'desc')
+        ->paginate(__itensPagina());
+
+        $usuario = null;
+        if($usuario_id){
+            $usuario = User::findOrFail($usuario_id);
+        }
+
+        return view('usuarios.historico', compact('data', 'usuario'));
     }
 
 }

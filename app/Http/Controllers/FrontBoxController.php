@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\ComissaoVenda;
 use App\Models\ItemNfce;
 use Dompdf\Dompdf;
+use App\Models\ContaEmpresa;
 
 class FrontBoxController extends Controller
 {
@@ -81,7 +82,7 @@ class FrontBoxController extends Controller
         if($config != null && $config->corrigir_numeracao_fiscal == 0){
             return;
         }
-        
+
         $item = UsuarioEmissao::where('usuario_empresas.empresa_id', request()->empresa_id)
         ->join('usuario_empresas', 'usuario_empresas.usuario_id', '=', 'usuario_emissaos.usuario_id')
         ->select('usuario_emissaos.*')
@@ -187,7 +188,14 @@ class FrontBoxController extends Controller
             $envioWppLink = 1;
         }
 
-        return view('front_box.index', compact('data', 'contigencia', 'usuarios', 'adm', 'somaGeral', 'envioWppLink'));
+        $usarDropdown = 0;
+        $ticketTroca = 0;
+        if($config){
+            $usarDropdown = $config->usar_dropdown_acoes;
+            $ticketTroca = $config->ticket_troca;
+        }
+
+        return view('front_box.index', compact('data', 'contigencia', 'usuarios', 'adm', 'somaGeral', 'envioWppLink', 'usarDropdown', 'ticketTroca'));
     }
 
     /**
@@ -196,14 +204,15 @@ class FrontBoxController extends Controller
     public function create(Request $request)
     {
 
+        if (!__isCaixaAberto()) {
+            session()->flash("flash_warning", "Abrir caixa antes de continuar!");
+            return redirect()->route('caixa.create');
+        }
+
         $ua = $request->header('User-Agent');
 
         if (preg_match('/Android|iPhone|iPad|iPod|Mobile/i', $ua) && file_exists(public_path('style_pdv_mobo.css'))) {
             return redirect()->route('pdv-mobo.index');
-        }
-        if (!__isCaixaAberto()) {
-            session()->flash("flash_warning", "Abrir caixa antes de continuar!");
-            return redirect()->route('caixa.create');
         }
         $caixa = __isCaixaAberto();
         $categorias = CategoriaProduto::where('empresa_id', request()->empresa_id)->where('status', 1)
@@ -266,6 +275,7 @@ class FrontBoxController extends Controller
             }
         }
 
+        $funcionario = null;
         if(isset($request->orcamento)){
             $item = Nfe::findOrfail($request->orcamento);
 
@@ -281,6 +291,7 @@ class FrontBoxController extends Controller
                     'quantidade' => $i->quantidade,
                 ];
             }
+            $funcionario = $item->funcionario;
         }
 
         $configTef = TefMultiPlusCard::where('empresa_id', request()->empresa_id)
@@ -333,7 +344,7 @@ class FrontBoxController extends Controller
             ->where('status', 1)->orderBy('razao_social')->get();
 
             $produtos = Produto::where('empresa_id', $request->empresa_id)
-            ->select('id', 'numero_sequencial', 'codigo_barras', 'referencia', 'referencia_balanca', 'valor_unitario', 'nome', 'categoria_id', 
+            ->select('id', 'numero_sequencial', 'codigo_barras', 'referencia', 'referencia_balanca', 'valor_unitario', 'nome', 'categoria_id',
                 'imagem', 'gerenciar_estoque', 'valor_atacado', 'valor_minimo_venda', 'quantidade_atacado')
             ->where('status', 1)->orderBy('nome')->get();
 
@@ -360,10 +371,190 @@ class FrontBoxController extends Controller
 
         $local_id = $caixa->local_id;
 
-        return view($view, compact('categorias', 'abertura', 
-            'funcionarios', 'caixa', 'config', 'tiposPagamento', 'item', 'isVendaSuspensa', 'title', 
-            'configTef', 'marcas', 'produtos', 'local_id', 'empresa', 'user', 'clientes', 'itenSuspensa', 'listasPreco', 
-            'clientePadrao', 'isOrcamento'));
+        $contasEmpresa = ContaEmpresa::where('empresa_id', request()->empresa_id)
+        ->where('status', 1)
+        ->get();
+
+        return view($view, compact('categorias', 'abertura',
+            'funcionarios', 'caixa', 'config', 'tiposPagamento', 'item', 'isVendaSuspensa', 'title',
+            'configTef', 'marcas', 'produtos', 'local_id', 'empresa', 'user', 'clientes', 'itenSuspensa', 'listasPreco',
+            'clientePadrao', 'isOrcamento', 'funcionario', 'contasEmpresa'));
+    }
+
+    public function teste(Request $request)
+    {
+
+        if (!__isCaixaAberto()) {
+            session()->flash("flash_warning", "Abrir caixa antes de continuar!");
+            return redirect()->route('caixa.create');
+        }
+
+        $ua = $request->header('User-Agent');
+
+        if (preg_match('/Android|iPhone|iPad|iPod|Mobile/i', $ua) && file_exists(public_path('style_pdv_mobo.css'))) {
+            return redirect()->route('pdv-mobo.index');
+        }
+        $caixa = __isCaixaAberto();
+        $categorias = CategoriaProduto::where('empresa_id', request()->empresa_id)->where('status', 1)
+        ->where('categoria_id', null)
+        ->get();
+
+        $abertura = Caixa::where('usuario_id', get_id_user())
+        ->where('status', 1)
+        ->first();
+
+        $config = Empresa::findOrFail(request()->empresa_id);
+        if($config == null){
+            session()->flash("flash_warning", "Configure antes de continuar!");
+            return redirect()->route('config.index');
+        }
+
+        if($config->natureza_id_pdv == null){
+            session()->flash("flash_warning", "Configure a natureza de operação padrão para continuar!");
+            return redirect()->route('config.index');
+        }
+
+        $funcionarios = Funcionario::where('empresa_id', request()->empresa_id)
+        ->where('status', 1)->get();
+
+        $config = ConfigGeral::where('empresa_id', request()->empresa_id)->first();
+        $tiposPagamento = Nfce::tiposPagamento();
+        // dd($tiposPagamento);
+        if($config != null){
+            $config->tipos_pagamento_pdv = $config != null && $config->tipos_pagamento_pdv ? json_decode($config->tipos_pagamento_pdv) : [];
+            $temp = [];
+            if(sizeof($config->tipos_pagamento_pdv) > 0){
+                foreach($tiposPagamento as $key => $t){
+                    if(in_array($t, $config->tipos_pagamento_pdv)){
+                        $temp[$key] = $t;
+                    }
+                }
+                $tiposPagamento = $temp;
+            }
+        }
+
+        $item = null;
+        $itenSuspensa = [];
+        $isVendaSuspensa = 0;
+        $isOrcamento = 0;
+        $title = 'Nova Venda - PDV';
+
+        if(isset($request->venda_suspensa)){
+            $item = VendaSuspensa::findOrfail($request->venda_suspensa);
+            $isVendaSuspensa = 1;
+            $title = 'Venda Suspensa';
+            foreach($item->itens as $i){
+                $itenSuspensa[] = [
+                    '_id' => rand(1, 10000000000),
+                    'produto_id' => $i->produto_id,
+                    'produto_nome' => $i->produto->nome,
+                    'valor_unitario' => $i->valor_unitario,
+                    'sub_total' => $i->sub_total,
+                    'quantidade' => $i->quantidade,
+                ];
+            }
+        }
+
+        $funcionario = null;
+        if(isset($request->orcamento)){
+            $item = Nfe::findOrfail($request->orcamento);
+
+            $isOrcamento = 1;
+            $title = 'Orçamento';
+            foreach($item->itens as $i){
+                $itenSuspensa[] = [
+                    '_id' => rand(1, 10000000000),
+                    'produto_id' => $i->produto_id,
+                    'produto_nome' => $i->produto->nome,
+                    'valor_unitario' => $i->valor_unitario,
+                    'sub_total' => $i->sub_total,
+                    'quantidade' => $i->quantidade,
+                ];
+            }
+            $funcionario = $item->funcionario;
+        }
+
+        $configTef = TefMultiPlusCard::where('empresa_id', request()->empresa_id)
+        ->where('status', 1)
+        ->where('usuario_id', Auth::user()->id)
+        ->first();
+
+        $view = 'front_box.create';
+        $produtos = [];
+        $marcas = [];
+        if($config != null && $config->modelo == 'compact'){
+            $view = 'front_box.create2';
+            $categorias = CategoriaProduto::where('empresa_id', request()->empresa_id)
+            ->where('categoria_id', null)
+            ->orderBy('nome', 'asc')
+            ->where('status', 1)
+            ->paginate(4);
+
+            $marcas = Marca::where('empresa_id', request()->empresa_id)
+            ->orderBy('nome', 'asc')
+            ->paginate(4);
+
+            $produtos = Produto::select('produtos.*', \DB::raw('sum(quantidade) as quantidade'))
+            ->where('empresa_id', request()->empresa_id)
+            ->where('produtos.status', 1)
+            ->where('status', 1)
+            ->leftJoin('item_nfces', 'item_nfces.produto_id', '=', 'produtos.id')
+            ->groupBy('produtos.id')
+            ->orderBy('quantidade', 'desc')
+            ->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
+            ->where('produto_localizacaos.localizacao_id', $caixa->localizacao->id)
+            ->paginate(12);
+        }
+
+        $empresa = null;
+        $user = null;
+        $clientes = null;
+        $listasPreco = null;
+        $clientePadrao = null;
+
+        if($config != null && $config->modelo == 'quick'){
+            $view = 'front_box.create3';
+
+            if($config->cliente_padrao_pdv_off){
+                $clientePadrao = Cliente::findOrFail($config->cliente_padrao_pdv_off);
+            }
+            $empresa = Empresa::findOrFail(request()->empresa_id);
+            $user = User::findOrFail(Auth::user()->id);
+            $clientes = Cliente::where('empresa_id', $request->empresa_id)
+            ->where('status', 1)->orderBy('razao_social')->get();
+
+            $produtos = Produto::where('empresa_id', $request->empresa_id)
+            ->select('id', 'numero_sequencial', 'codigo_barras', 'referencia', 'referencia_balanca', 'valor_unitario', 'nome', 'categoria_id',
+                'imagem', 'gerenciar_estoque', 'valor_atacado', 'valor_minimo_venda', 'quantidade_atacado')
+            ->where('status', 1)->orderBy('nome')->get();
+
+            foreach($produtos as $p){
+                $p['valor_original'] = $p->valor_unitario;
+                foreach($p->itemLista as $i){
+                    $p['valor_lista_'.$i->lista_id] = $i->valor;
+                }
+
+                if($p->precoComPromocao()){
+                    $p->valor_unitario = $p->precoComPromocao()->valor;
+                    $p->promocao = " <br>promoção <strong class='text-primary'>" . __data_pt($p->precoComPromocao()->data_inicio, 0) . "</strong> até <strong class='text-primary'>" . __data_pt($p->precoComPromocao()->data_fim, 0) . "</strong>";
+                }
+            }
+
+            $listasPreco = ListaPreco::orderBy('nome', 'desc')
+            ->select('lista_precos.id', 'lista_precos.nome')
+            ->where('empresa_id', $request->empresa_id)
+            ->where('lista_precos.status', 1)
+            ->join('lista_preco_usuarios', 'lista_preco_usuarios.lista_preco_id', '=', 'lista_precos.id')
+            ->where('lista_preco_usuarios.usuario_id', get_id_user())
+            ->get();
+        }
+
+        $local_id = $caixa->local_id;
+
+        return view('front_box.teste', compact('categorias', 'abertura',
+            'funcionarios', 'caixa', 'config', 'tiposPagamento', 'item', 'isVendaSuspensa', 'title',
+            'configTef', 'marcas', 'produtos', 'local_id', 'empresa', 'user', 'clientes', 'itenSuspensa', 'listasPreco',
+            'clientePadrao', 'isOrcamento', 'funcionario'));
     }
 
     /**
@@ -478,6 +669,7 @@ class FrontBoxController extends Controller
         ->where('status', 1)->get();
         $cliente = $item->cliente;
         $funcionario = $item->funcionario;
+
         $caixa = __isCaixaAberto();
         $isVendaSuspensa = 0;
         $config = Empresa::findOrFail(request()->empresa_id);
@@ -486,7 +678,7 @@ class FrontBoxController extends Controller
         $produtos = [];
         $marcas = [];
         $config = ConfigGeral::where('empresa_id', request()->empresa_id)->first();
-        
+
 
         if($config != null && $config->modelo == 'compact'){
             $view = 'front_box.edit2';
@@ -528,7 +720,7 @@ class FrontBoxController extends Controller
             ->where('status', 1)->orderBy('razao_social')->get();
 
             $produtos = Produto::where('empresa_id', request()->empresa_id)
-            ->select('id', 'numero_sequencial', 'codigo_barras', 'referencia', 'referencia_balanca', 'valor_unitario', 'nome', 'categoria_id', 
+            ->select('id', 'numero_sequencial', 'codigo_barras', 'referencia', 'referencia_balanca', 'valor_unitario', 'nome', 'categoria_id',
                 'imagem', 'gerenciar_estoque')
             ->where('status', 1)->orderBy('nome')->get();
 
@@ -566,10 +758,11 @@ class FrontBoxController extends Controller
         }
 
         $local_id = $caixa->local_id;
+        $isOrcamento = 0;
 
-        return view($view, compact('categorias', 'abertura', 'funcionarios', 'item', 'cliente', 'funcionario', 
+        return view($view, compact('categorias', 'abertura', 'funcionarios', 'item', 'cliente', 'funcionario',
             'caixa', 'isVendaSuspensa', 'tiposPagamento', 'config', 'produtos', 'categorias', 'marcas', 'local_id', 'empresa',
-            'user', 'clientes', 'listasPreco', 'itensVenda', 'title'));
+            'user', 'clientes', 'listasPreco', 'itensVenda', 'title', 'isOrcamento'));
     }
 
     public function logs(Request $request){
@@ -617,7 +810,7 @@ class FrontBoxController extends Controller
 
         return view('front_box.logs', compact('data'));
     }
-    
+
     public function destroy(string $id)
     {
         $item = Nfce::findOrFail($id);
@@ -681,6 +874,48 @@ class FrontBoxController extends Controller
         return redirect()->back();
     }
 
+    public function imprimirTicketTroca($id){
+        $item = Nfce::findOrFail($id);
+        __validaObjetoEmpresa($item);
+
+        $config = Empresa::where('id', $item->empresa_id)
+        ->first();
+
+        $configGeral = ConfigGeral::where('empresa_id', $item->empresa_id)->first();
+        $p = view('front_box.ticket_troca', compact('config', 'item', 'configGeral'));
+
+        $domPdf = new Dompdf(["enable_remote" => true]);
+        $domPdf->loadHtml($p);
+        $height = 360;
+        $height += sizeof($item->itens)*11;
+        foreach($item->itens as $it){
+            if(strlen($it->descricao()) > 10){
+                $height += 10;
+            }
+        }
+
+        foreach($item->itensServico as $it){
+            if(strlen($it->servico->nome) > 10){
+                $height += 10;
+            }
+        }
+
+        if($item->observacao != ''){
+            $height += 30;
+        }
+
+        if($configGeral && $configGeral->mensagem_padrao_impressao_venda != ''){
+            $height += 30;
+        }
+
+        $height += sizeof($item->fatura)*5;
+        $pdf = ob_get_clean();
+        $domPdf->setPaper([0,0,244,$height]);
+        $pdf = $domPdf->render();
+
+        $domPdf->stream("Doc. Auxiliar $item->numero_sequencial.pdf", array("Attachment" => false));
+    }
+
     // public function imprimirNaoFiscal($id)
     // {
     //     $item = Nfce::findOrFail($id);
@@ -709,49 +944,60 @@ class FrontBoxController extends Controller
         $item = Nfce::findOrFail($id);
         __validaObjetoEmpresa($item);
 
-        $config = Empresa::where('id', $item->empresa_id)
-        ->first();
-
+        $config = Empresa::where('id', $item->empresa_id)->first();
         $config = __objetoParaEmissao($config, $item->local_id);
-        
-        $usuario = UsuarioEmpresa::find(get_id_user());
-        // $cupom = new CupomNaoFiscal($item, $config, 0);
-
-        $logo = null;
-        if($config->logo && file_exists(public_path('/uploads/logos/') . $config->logo)){
-            $logo = public_path('/uploads/logos/') . $config->logo;
-        }
 
         $configGeral = ConfigGeral::where('empresa_id', $item->empresa_id)->first();
-        $p = view('front_box.cupom_nao_fiscal', compact('config', 'item', 'configGeral'));
 
-        $domPdf = new Dompdf(["enable_remote" => true]);
-        $domPdf->loadHtml($p);
-        $pdf = ob_get_clean();
+        $html = view('front_box.cupom_nao_fiscal', compact(
+            'config',
+            'item',
+            'configGeral'
+    ))->render(); // 👈 IMPORTANTE
+
+        $domPdf = new Dompdf([
+            'enable_remote' => true,
+        ]);
+
+        $domPdf->loadHtml($html);
+
+    // cálculo da altura
         $height = 360;
+        $height += $item->itens->count() * 11;
 
-        $height += sizeof($item->itens)*11;
-        foreach($item->itens as $it){
-            if(strlen($it->descricao()) > 10){
+        foreach ($item->itens as $it) {
+            if (strlen($it->descricao()) > 10) {
                 $height += 10;
             }
         }
 
-        if($item->observacao != ''){
+        foreach ($item->itensServico as $it) {
+            if (strlen($it->servico->nome) > 10) {
+                $height += 10;
+            }
+        }
+
+        if (!empty($item->observacao)) {
             $height += 30;
         }
 
-        if($configGeral && $configGeral->mensagem_padrao_impressao_venda != ''){
+        if ($configGeral && !empty($configGeral->mensagem_padrao_impressao_venda)) {
             $height += 30;
         }
 
-        $height += sizeof($item->fatura)*5;
+        $height += $item->fatura->count() * 5;
 
-        $domPdf->setPaper([0,0,244,$height]);
-        $pdf = $domPdf->render();
+        $domPdf->setPaper([0, 0, 244, $height]);
+        $domPdf->render();
 
-        $domPdf->stream("Doc. Auxiliar $item->numero_sequencial.pdf", array("Attachment" => false));
+        return response($domPdf->output(), 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header(
+            'Content-Disposition',
+            'inline; filename="Doc-Auxiliar-'.$item->numero_sequencial.'.pdf"'
+        );
     }
+
 
     public function imprimirNaoFiscalHtml($id)
     {
@@ -762,11 +1008,11 @@ class FrontBoxController extends Controller
         ->first();
 
         $config = __objetoParaEmissao($config, $item->local_id);
-        
+
         $usuario = UsuarioEmpresa::find(get_id_user());
 
         $logo = null;
-        
+
         return view('front_box.imprimir', compact('item', 'usuario', 'config'));
     }
 
@@ -803,7 +1049,7 @@ class FrontBoxController extends Controller
             $comanda = Pedido::where('comanda', (int)$numeroComanda)
             ->where('status', 1)
             ->where('empresa_id', $request->empresa_id)->first();
-            
+
             if($comanda){
                 $comanda->total = $comanda->itens->sum('sub_total');
                 $comanda->save();
@@ -871,7 +1117,7 @@ class FrontBoxController extends Controller
 
         $configCardapio = ConfiguracaoCardapio::where('empresa_id', request()->empresa_id)->first();
 
-        return view('front_box.mesas', compact('categorias', 'empresa', 'config', 'funcionarios', 'tiposPagamento', 'comandas', 
+        return view('front_box.mesas', compact('categorias', 'empresa', 'config', 'funcionarios', 'tiposPagamento', 'comandas',
             'produtos', 'local_id', 'abertura', 'caixa', 'comanda', 'numeroComanda', 'mesas', 'configCardapio'));
     }
 

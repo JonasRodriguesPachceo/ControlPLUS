@@ -97,7 +97,7 @@
                                     </td>
 
                                     <td data-label="Venda ID">
-                                        {{ $item->nfce ? $item->nfce->numero_sequencial : $item->nfe->numero_sequencial }}
+                                        {{ $item->nfce?->numero_sequencial ?? $item->nfe?->numero_sequencial }}
                                     </td>
 
                                     <td>

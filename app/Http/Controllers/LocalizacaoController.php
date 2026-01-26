@@ -166,7 +166,6 @@ class LocalizacaoController extends Controller
 
     public function destroy($id)
     {
-
         $item = Localizacao::findOrFail($id);
 
         try {
@@ -174,6 +173,25 @@ class LocalizacaoController extends Controller
             $item->usuarioLocalizacao()->delete();
             $item->delete();
             session()->flash("flash_success", "Localização removida!");
+        } catch (\Exception $e) {
+            session()->flash("flash_error", "Algo deu Errado: " . $e->getMessage());
+        }
+        return redirect()->back();
+    }
+
+    public function updateStatus($id)
+    {
+        $item = Localizacao::findOrFail($id);
+
+        try {
+
+            $item->status = !$item->status;
+            $item->save();
+            if($item->status){
+                session()->flash("flash_success", "Localização ativa!");
+            }else{
+                session()->flash("flash_success", "Localização desativada!");
+            }
         } catch (\Exception $e) {
             session()->flash("flash_error", "Algo deu Errado: " . $e->getMessage());
         }

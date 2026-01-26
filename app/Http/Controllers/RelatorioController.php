@@ -32,6 +32,7 @@ use Dompdf\Dompdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\RelatorioEstoqueExport;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class RelatorioController extends Controller
 {
@@ -618,23 +619,13 @@ class RelatorioController extends Controller
         $end_time = $request->end_time;
         $estado = $request->estado;
 
-        if($start_date){
-            if($start_time){
-                $start_date .= " $start_time:59";
-            }else{
-                $start_date .= " 00:00:00";
-            }
+        if ($start_date) {
+            $start_date .= $start_time ? " $start_time:00" : " 00:00:00";
         }
 
-        if($end_date){
-            if($end_time){
-                $end_date .= " $end_time:59";
-            }else{
-                $end_date .= " 23:59:59";
-            }
+        if ($end_date) {
+            $end_date .= $end_time ? " $end_time:59" : " 23:59:59";
         }
-        // dd($start_date);
-
 
         $vendas = Nfe::where('empresa_id', $request->empresa_id)->where('tpNF', 1)
         ->when(!empty($start_date), function ($query) use ($start_date) {
@@ -990,12 +981,23 @@ class RelatorioController extends Controller
         $end_date = $request->end_date;
         $local_id = $request->local_id;
 
+        $start_time = $request->start_time;
+        $end_time = $request->end_time;
+
+        if ($start_date) {
+            $start_date .= $start_time ? " $start_time:00" : " 00:00:00";
+        }
+
+        if ($end_date) {
+            $end_date .= $end_time ? " $end_time:59" : " 23:59:59";
+        }
+
         $nfe = Nfe::where('empresa_id', $request->empresa_id)
         ->when(!empty($start_date), function ($query) use ($start_date) {
-            return $query->whereDate('created_at', '>=', $start_date);
+            return $query->where('created_at', '>=', $start_date);
         })
-        ->when(!empty($end_date), function ($query) use ($end_date,) {
-            return $query->whereDate('created_at', '<=', $end_date);
+        ->when(!empty($end_date), function ($query) use ($end_date) {
+            return $query->where('created_at', '<=', $end_date);
         })
         ->when($local_id, function ($query) use ($local_id) {
             return $query->where('local_id', $local_id);
@@ -1009,10 +1011,10 @@ class RelatorioController extends Controller
 
         $nfce = Nfce::where('empresa_id', $request->empresa_id)
         ->when(!empty($start_date), function ($query) use ($start_date) {
-            return $query->whereDate('created_at', '>=', $start_date);
+            return $query->where('created_at', '>=', $start_date);
         })
-        ->when(!empty($end_date), function ($query) use ($end_date,) {
-            return $query->whereDate('created_at', '<=', $end_date);
+        ->when(!empty($end_date), function ($query) use ($end_date) {
+            return $query->where('created_at', '<=', $end_date);
         })
         ->when($local_id, function ($query) use ($local_id) {
             return $query->where('local_id', $local_id);
@@ -1027,7 +1029,7 @@ class RelatorioController extends Controller
         foreach($nfe as $n){
             $item = [
                 'cliente' => $n->cliente ? $n->cliente->info : 'CONSUMIDOR FINAL',
-                'data' => __data_pt($n->created_at),
+                'data' => ($n->created_at),
                 'valor_venda' => $n->total,
                 'valor_custo' => $this->calculaCusto($n->itens),
                 'localizacao' => $n->localizacao
@@ -1038,7 +1040,7 @@ class RelatorioController extends Controller
         foreach($nfce as $n){
             $item = [
                 'cliente' => $n->cliente ? $n->cliente->info : 'CONSUMIDOR FINAL',
-                'data' => __data_pt($n->created_at),
+                'data' => ($n->created_at),
                 'valor_venda' => $n->total,
                 'valor_custo' => $this->calculaCusto($n->itens),
                 'localizacao' => $n->localizacao
@@ -1047,10 +1049,10 @@ class RelatorioController extends Controller
         }
 
         usort($data, function($a, $b){
-            return $a['data'] < $b['data'] ? 1 : -1;
+            return $a['data'] > $b['data'] ? 1 : -1;
         });
 
-        $p = view('relatorios/lucro', compact('data'))
+        $p = view('relatorios.lucro', compact('data'))
         ->with('title', 'Relatório de Lucros');
 
         // return $p;
@@ -1282,6 +1284,7 @@ class RelatorioController extends Controller
                             $qtd = $produto->estoqueTotalProduto();
                         }
                         $linha = [
+                            'codigo' => $produto->numero_sequencial,
                             'produto' => $produto->nome,
                             'quantidade' => $qtd,
                             'estoque_minimo' => $produto->estoque_minimo,
@@ -1295,6 +1298,7 @@ class RelatorioController extends Controller
 
                         foreach($produto->variacoes as $v){
                             $linha = [
+                                'codigo' => $produto->numero_sequencial,
                                 'produto' => $produto->nome . " " . $v->descricao,
                                 'quantidade' => $v->estoque ? $v->estoque->quantidade : '',
                                 'estoque_minimo' => $produto->estoque_minimo,
@@ -1344,6 +1348,7 @@ class RelatorioController extends Controller
                 $produto = $m->produto;
                 if(sizeof($produto->variacoes) == 0){
                     $linha = [
+                        'codigo' => $m->produto->numero_sequencial,
                         'produto' => $m->produto->nome,
                         'quantidade' => $m->produto->estoqueTotalProduto(),
                         'estoque_minimo' => $m->produto->estoque_minimo,
@@ -1356,6 +1361,7 @@ class RelatorioController extends Controller
                 }else{
                     foreach($produto->variacoes as $v){
                         $linha = [
+                            'codigo' => $m->produto->numero_sequencial,
                             'produto' => $m->produto->nome . " " . $v->descricao,
                             'quantidade' => $v->estoque ? $v->estoque->quantidade : '',
                             'estoque_minimo' => $m->produto->estoque_minimo,
@@ -1391,6 +1397,7 @@ class RelatorioController extends Controller
                 $produto = $m->produto;
                 if(sizeof($produto->variacoes) == 0){
                     $linha = [
+                        'codigo' => $m->produto->numero_sequencial,
                         'produto' => $m->produto->nome,
                         'quantidade' => $m->quantidade,
                         'estoque_minimo' => $m->produto->estoque_minimo,
@@ -1403,6 +1410,7 @@ class RelatorioController extends Controller
                 }else{
                     foreach($produto->variacoes as $v){
                         $linha = [
+                            'codigo' => $m->produto->numero_sequencial,
                             'produto' => $m->produto->nome . " " . $v->descricao,
                             'quantidade' => $v->estoque ? $v->estoque->quantidade : '',
                             'estoque_minimo' => $m->produto->estoque_minimo,
@@ -1622,27 +1630,17 @@ class RelatorioController extends Controller
         $livro = $request->livro;
         $tipo_custo = $request->tipo_custo;
 
-        // $data = MovimentacaoProduto::
-        // select('movimentacao_produtos.*')
-        // ->whereDate('movimentacao_produtos.created_at', '<=', $date)
-        // ->join('produtos', 'produtos.id', '=', 'movimentacao_produtos.produto_id')
-        // ->where('produtos.empresa_id', $request->empresa_id)
-        // ->groupBy('movimentacao_produtos.produto_id')
-        // ->orderBy('produtos.nome')
-        // ->having('movimentacao_produtos.quantidade', '>', 0)
-        // ->limit(10)
-        // ->get();
-
         $sub = MovimentacaoProduto::select(
-            'produto_id',
+            'movimentacao_produtos.produto_id',
             DB::raw('MAX(movimentacao_produtos.created_at) as ultima_data')
         )
-        ->whereDate('movimentacao_produtos.created_at', '<=', $date)
         ->join('produtos', 'produtos.id', '=', 'movimentacao_produtos.produto_id')
         ->where('produtos.empresa_id', $request->empresa_id)
-        ->groupBy('produto_id');
+        ->whereDate('movimentacao_produtos.created_at', '<=', $date)
+        ->groupBy('movimentacao_produtos.produto_id');
 
-        $data = MovimentacaoProduto::select('movimentacao_produtos.*', 'produtos.nome')
+        $data = MovimentacaoProduto::with('produto')
+        ->select('movimentacao_produtos.*')
         ->join('produtos', 'produtos.id', '=', 'movimentacao_produtos.produto_id')
         ->joinSub($sub, 'ultimas', function ($join) {
             $join->on('ultimas.produto_id', '=', 'movimentacao_produtos.produto_id')
@@ -1651,53 +1649,130 @@ class RelatorioController extends Controller
         ->where('produtos.empresa_id', $request->empresa_id)
         ->where('movimentacao_produtos.quantidade', '>', 0)
         ->orderBy('produtos.nome')
-        // ->limit(10)
         ->get();
 
-        if($tipo_custo == 'media'){
-            // ver como faz
-            foreach($data as $item){
+        $itensNfe = ItemNfe::select(
+            'item_nves.produto_id',
+            DB::raw('SUM(item_nves.sub_total) as total'),
+            DB::raw('SUM(item_nves.quantidade) as quantidade')
+        )
+        ->join('nves', 'nves.id', '=', 'item_nves.nfe_id')
+        ->where('nves.tpNF', 0)
+        ->whereDate('nves.created_at', '<=', $date)
+        ->groupBy('item_nves.produto_id')
+        ->get()
+        ->keyBy('produto_id');
 
-                $valor = ItemNfe::where('produto_id', $item->produto_id)
-                ->join('nves', 'nves.id', '=', 'item_nves.nfe_id')
-                ->where('nves.tpNF', 0)
-                ->sum('sub_total');
+        foreach ($data as $item) {
 
-                $item->quantidade = $item->estoque_atual;
-                $item->valor_unitario = $item->produto->valor_compra;
+            $item->quantidade = $item->estoque_atual;
 
-                if($valor > 0){
+            if ($tipo_custo === 'media') {
 
-                    $qtd = ItemNfe::where('produto_id', $item->produto_id)
-                    ->join('nves', 'nves.id', '=', 'item_nves.nfe_id')
-                    ->where('nves.tpNF', 0)
-                    ->sum('quantidade');
-                    $custo_medio = $valor/$qtd;
-                    $item->valor_unitario = $custo_medio;
+                $info = $itensNfe[$item->produto_id] ?? null;
+
+                if ($info && $info->quantidade > 0) {
+                    $item->valor_unitario = $info->total / $info->quantidade;
+                } else {
+                    $item->valor_unitario = $item->produto->valor_compra ?? 0;
                 }
-                $item->sub_total = $item->valor_unitario * $item->quantidade;
 
+            } 
+            else {
+                $item->valor_unitario = $item->produto->valor_compra ?? 0;
             }
-        }else{
-            foreach($data as $item){
-                $item->valor_unitario = $item->produto->valor_compra;
 
-                $item->quantidade = $item->estoque_atual;
-                $item->sub_total = $item->produto->valor_compra * $item->quantidade;                
-            }
+            $item->sub_total = $item->valor_unitario * $item->quantidade;
         }
 
         $empresa = Empresa::findOrFail($request->empresa_id);
 
-        $p = view('relatorios.registro_inventario', compact('data', 'livro', 'empresa'))
-        ->with('title', 'Relatório registro inventário');
-        $domPdf = new Dompdf(["enable_remote" => true]);
-        $domPdf->loadHtml($p);
+        $html = view('relatorios.registro_inventario', compact(
+            'data',
+            'livro',
+            'empresa'
+        ))->with('title', 'Relatório registro inventário');
 
-        $domPdf->setPaper("A4", "landscape");
+        $domPdf = new Dompdf(['enable_remote' => true]);
+        $domPdf->loadHtml($html);
+        $domPdf->setPaper('A4', 'landscape');
         $domPdf->render();
-        $domPdf->stream("Relatório registro inventário", array("Attachment" => false));
+
+        $domPdf->stream('Relatorio_registro_inventario.pdf', [
+            'Attachment' => false
+        ]);
     }
+
+    // public function registroInventario(Request $request){
+    //     $date = $request->date;
+    //     $livro = $request->livro;
+    //     $tipo_custo = $request->tipo_custo;
+
+    //     $sub = MovimentacaoProduto::select(
+    //         'produto_id',
+    //         DB::raw('MAX(movimentacao_produtos.created_at) as ultima_data')
+    //     )
+    //     ->whereDate('movimentacao_produtos.created_at', '<=', $date)
+    //     ->join('produtos', 'produtos.id', '=', 'movimentacao_produtos.produto_id')
+    //     ->where('produtos.empresa_id', $request->empresa_id)
+    //     ->groupBy('produto_id');
+
+    //     $data = MovimentacaoProduto::select('movimentacao_produtos.*', 'produtos.nome')
+    //     ->join('produtos', 'produtos.id', '=', 'movimentacao_produtos.produto_id')
+    //     ->joinSub($sub, 'ultimas', function ($join) {
+    //         $join->on('ultimas.produto_id', '=', 'movimentacao_produtos.produto_id')
+    //         ->on('ultimas.ultima_data', '=', 'movimentacao_produtos.created_at');
+    //     })
+    //     ->where('produtos.empresa_id', $request->empresa_id)
+    //     ->where('movimentacao_produtos.quantidade', '>', 0)
+    //     ->orderBy('produtos.nome')
+    //     // ->limit(10)
+    //     ->get();
+
+    //     if($tipo_custo == 'media'){
+    //         // ver como faz
+    //         foreach($data as $item){
+
+    //             $valor = ItemNfe::where('produto_id', $item->produto_id)
+    //             ->join('nves', 'nves.id', '=', 'item_nves.nfe_id')
+    //             ->where('nves.tpNF', 0)
+    //             ->sum('sub_total');
+
+    //             $item->quantidade = $item->estoque_atual;
+    //             $item->valor_unitario = $item->produto->valor_compra;
+
+    //             if($valor > 0){
+
+    //                 $qtd = ItemNfe::where('produto_id', $item->produto_id)
+    //                 ->join('nves', 'nves.id', '=', 'item_nves.nfe_id')
+    //                 ->where('nves.tpNF', 0)
+    //                 ->sum('quantidade');
+    //                 $custo_medio = $valor/$qtd;
+    //                 $item->valor_unitario = $custo_medio;
+    //             }
+    //             $item->sub_total = $item->valor_unitario * $item->quantidade;
+
+    //         }
+    //     }else{
+    //         foreach($data as $item){
+    //             $item->valor_unitario = $item->produto->valor_compra;
+
+    //             $item->quantidade = $item->estoque_atual;
+    //             $item->sub_total = $item->produto->valor_compra * $item->quantidade;                
+    //         }
+    //     }
+
+    //     $empresa = Empresa::findOrFail($request->empresa_id);
+
+    //     $p = view('relatorios.registro_inventario', compact('data', 'livro', 'empresa'))
+    //     ->with('title', 'Relatório registro inventário');
+    //     $domPdf = new Dompdf(["enable_remote" => true]);
+    //     $domPdf->loadHtml($p);
+
+    //     $domPdf->setPaper("A4", "landscape");
+    //     $domPdf->render();
+    //     $domPdf->stream("Relatório registro inventário", array("Attachment" => false));
+    // }
 
     public function inventario(Request $request){
         $start_date = $request->start_date;
@@ -1708,7 +1783,7 @@ class RelatorioController extends Controller
 
         $locais = __getLocaisAtivoUsuario();
         $locais = $locais->pluck(['id']);
-        
+
         $data = Produto::select('produtos.*')
         ->where('produtos.empresa_id', $request->empresa_id)
         ->where('gerenciar_estoque', 1)
@@ -1791,7 +1866,6 @@ class RelatorioController extends Controller
         ->groupBy('cliente_id')
         ->select('clientes.id as cliente_id', 'clientes.razao_social as nome', \DB::raw('sum(nfces.total) as total'), \DB::raw('count(nfces.id) as count'))
         ->get();
-
 
         $data = $this->agrupaArrayCurva($nfe, $nfce);
 
@@ -1939,39 +2013,92 @@ class RelatorioController extends Controller
         $domPdf->stream("Entrega de Produtos.pdf", array("Attachment" => false));
     }    
 
+    // private function agrupaArrayCurva($nfe, $nfce){
+    //     $clientes = [];
+    //     $clientesId = [];
+    //     foreach($nfe as $v){
+    //         $temp = [
+    //             'nome' => $v->nome,
+    //             'total' => $v->total,
+    //             'cliente_id' => $v->cliente_id,
+    //             'count' => $v->count,
+    //             'percentual' => 0
+    //         ];
+    //         $clientesId[] = $v->cliente_id;
+    //         array_push($clientes, $temp);
+    //     }
+
+    //     foreach($nfce as $v){
+
+    //         if(!in_array($v->cliente_id, $clientesId)){
+    //             $temp = [
+    //                 'nome' => $v->nome,
+    //                 'total' => $v->total,
+    //                 'cliente_id' => $v->cliente_id,
+    //                 'count' => $v->count,
+    //                 'percentual' => 0
+    //             ];
+    //             array_push($clientes, $temp);
+    //         }else{
+    //             $v['total'] += $v->total;
+    //             $v['count'] += $v->count;
+    //         }
+
+    //     }
+
+    //     usort($clientes, function ($a, $b) {
+    //         return $b['total'] <=> $a['total'];
+    //     });
+    //     return $clientes;
+    // }
+
     private function agrupaArrayCurva($nfe, $nfce){
         $clientes = [];
         $clientesId = [];
-        foreach($nfe as $v){
+
+        foreach ($nfe as $v) {
             $temp = [
-                'nome' => $v->nome,
-                'total' => $v->total,
+                'nome'       => $v->nome,
+                'total'      => $v->total,
                 'cliente_id' => $v->cliente_id,
-                'count' => $v->count,
+                'count'      => $v->count,
                 'percentual' => 0
             ];
+
             $clientesId[] = $v->cliente_id;
-            array_push($clientes, $temp);
+            $clientes[] = $temp;
         }
 
-        foreach($nfce as $v){
+        foreach ($nfce as $v) {
 
-            if(!in_array($v->cliente_id, $clientesId)){
-                $temp = [
-                    'nome' => $v->nome,
-                    'total' => $v->total,
+            if (!in_array($v->cliente_id, $clientesId)) {
+
+                $clientes[] = [
+                    'nome'       => $v->nome,
+                    'total'      => $v->total,
                     'cliente_id' => $v->cliente_id,
-                    'count' => $v->count,
+                    'count'      => $v->count,
                     'percentual' => 0
                 ];
-                array_push($clientes, $temp);
-            }else{
-                $v['total'] += $v->total;
-                $v['count'] += $v->count;
-            }
 
+                $clientesId[] = $v->cliente_id;
+
+            } else {
+                foreach ($clientes as &$c) {
+                    if ($c['cliente_id'] == $v->cliente_id) {
+                        $c['total'] += $v->total;
+                        $c['count'] += $v->count;
+                    }
+                }
+            }
         }
+
+        usort($clientes, function ($a, $b) {
+            return $b['total'] <=> $a['total'];
+        });
+
         return $clientes;
+
     }
 
     public function movimentacao(Request $request){
@@ -2402,5 +2529,196 @@ class RelatorioController extends Controller
         $domPdf->setPaper("A4", "landscape");
         $domPdf->render();
         $domPdf->stream("Relatório de Lucro por Produto.pdf", array("Attachment" => false));
+    }
+
+    // public function vendaProdutosFiscal(Request $request){
+    //     $locais = __getLocaisAtivoUsuario();
+    //     $locais = $locais->pluck(['id']);
+
+    //     $start_date = $request->start_date;
+    //     $end_date = $request->end_date;
+    //     $cfop = $request->cfop;
+    //     $ncm = $request->ncm;
+    //     $cst_csosn = $request->cst_csosn;
+    //     $cst_pis = $request->cst_pis;
+    //     $cst_cofins = $request->cst_cofins;
+
+    //     $diferenca = strtotime($end_date) - strtotime($start_date);
+    //     $dias = floor($diferenca / (60 * 60 * 24));
+
+    //     $dataAtual = $start_date;
+    //     if($dias <= 0){
+    //         $dias = 1;
+    //     }
+
+    //     $data = [];
+    //     for($aux = 0; $aux < $dias; $aux++){
+    //         $itensNfe = ItemNfe::
+    //         select(\DB::raw('sum(sub_total) as subtotal, sum(quantidade) as soma_quantidade, item_nves.produto_id as produto_id, avg(item_nves.valor_unitario) as media, item_nves.valor_unitario as valor_unitario'))
+    //         ->whereBetween('item_nves.created_at', 
+    //             [
+    //                 $dataAtual . " 00:00:00",
+    //                 $dataAtual . " 23:59:59"
+    //             ]
+    //         )
+    //         ->join('produtos', 'produtos.id', '=', 'item_nves.produto_id')
+    //         ->join('nves', 'nves.id', '=', 'item_nves.nfe_id')
+    //         ->groupBy('item_nves.produto_id')
+    //         ->where('produtos.empresa_id', $request->empresa_id)
+
+    //         ->when(!empty($cfop), function ($query) use ($cfop) {
+    //             return $query->where('item_nves.cfop', $cfop);
+    //         })
+    //         ->when(!empty($ncm), function ($query) use ($ncm) {
+    //             return $query->where('item_nves.ncm', $ncm);
+    //         })
+    //         ->when(!empty($cst_csosn), function ($query) use ($cst_csosn) {
+    //             return $query->where('item_nves.cst_csosn', $cst_csosn);
+    //         })
+    //         ->when(!empty($cst_pis), function ($query) use ($cst_pis) {
+    //             return $query->where('item_nves.cst_pis', $cst_pis);
+    //         })
+    //         ->when(!empty($cst_cofins), function ($query) use ($cst_cofins) {
+    //             return $query->where('item_nves.cst_cofins', $cst_cofins);
+    //         })
+    //         ->get();
+
+    //         $itensNfce = ItemNfce::
+    //         select(\DB::raw('sum(sub_total) as subtotal, sum(quantidade) as soma_quantidade, item_nfces.produto_id as produto_id, avg(item_nfces.valor_unitario) as media, item_nfces.valor_unitario as valor_unitario'))
+    //         ->whereBetween('item_nfces.created_at', 
+    //             [
+    //                 $dataAtual . " 00:00:00",
+    //                 $dataAtual . " 23:59:59"
+    //             ]
+    //         )
+    //         ->join('produtos', 'produtos.id', '=', 'item_nfces.produto_id')
+    //         ->join('nfces', 'nfces.id', '=', 'item_nfces.nfce_id')
+    //         ->groupBy('item_nfces.produto_id')
+    //         ->where('produtos.empresa_id', $request->empresa_id)
+
+    //         ->when(!empty($cfop), function ($query) use ($cfop) {
+    //             return $query->where('item_nfces.cfop', $cfop);
+    //         })
+    //         ->when(!empty($ncm), function ($query) use ($ncm) {
+    //             return $query->where('item_nfces.ncm', $ncm);
+    //         })
+    //         ->when(!empty($cst_csosn), function ($query) use ($cst_csosn) {
+    //             return $query->where('item_nfces.cst_csosn', $cst_csosn);
+    //         })
+    //         ->when(!empty($cst_pis), function ($query) use ($cst_pis) {
+    //             return $query->where('item_nfces.cst_pis', $cst_pis);
+    //         })
+    //         ->when(!empty($cst_cofins), function ($query) use ($cst_cofins) {
+    //             return $query->where('item_nfces.cst_cofins', $cst_cofins);
+    //         })
+    //         ->get();
+
+    //         $itens = $this->uneArrayItens($itensNfe, $itensNfce, $request->ordem);
+    //         $temp = [
+    //             'data' => $dataAtual,
+    //             'itens' => $itens,
+    //         ];
+    //         array_push($data, $temp);
+    //         $dataAtual = date('Y-m-d', strtotime($dataAtual. '+1day'));
+    //     }
+
+    //     $p = view('relatorios/venda_por_produtos_fiscal', 
+    //         compact('data', 'start_date', 'end_date', 'cfop', 'ncm', 'cst_csosn', 'cst_pis', 'cst_cofins'))
+    //     ->with('title', 'Relatório de Venda por Produtos Fiscal');
+    //     $domPdf = new Dompdf(["enable_remote" => true]);
+    //     $domPdf->loadHtml($p);
+
+    //     $domPdf->setPaper("A4", "landscape");
+    //     $domPdf->render();
+    //     $domPdf->stream("Relatório de venda por produtos fiscal.pdf", array("Attachment" => false));
+    // }
+
+    public function vendaProdutosFiscal(Request $request)
+    {
+        $start = Carbon::parse($request->start_date)->startOfDay();
+        $end   = Carbon::parse($request->end_date)->endOfDay();
+
+        $empresaId = $request->empresa_id;
+
+        $filtros = function ($query, $alias) use ($request) {
+            $query->when($request->cfop, fn ($q) => $q->where("$alias.cfop", $request->cfop))
+            ->when($request->ncm, fn ($q) => $q->where("$alias.ncm", $request->ncm))
+            ->when($request->cst_csosn, fn ($q) => $q->where("$alias.cst_csosn", $request->cst_csosn))
+            ->when($request->cst_pis, fn ($q) => $q->where("$alias.cst_pis", $request->cst_pis))
+            ->when($request->cst_cofins, fn ($q) => $q->where("$alias.cst_cofins", $request->cst_cofins));
+        };
+
+        $itensNfe = ItemNfe::selectRaw('
+            DATE(item_nves.created_at) as data,
+            item_nves.produto_id,
+            SUM(sub_total) as subtotal,
+            SUM(quantidade) as soma_quantidade,
+            AVG(item_nves.valor_unitario) as media,
+            item_nves.valor_unitario
+            ')
+        ->join('produtos', 'produtos.id', '=', 'item_nves.produto_id')
+        ->join('nves', 'nves.id', '=', 'item_nves.nfe_id')
+        ->where('nves.tpNF', 1)
+        ->whereBetween('item_nves.created_at', [$start, $end])
+        ->where('produtos.empresa_id', $empresaId)
+        ->tap(fn ($q) => $filtros($q, 'item_nves'))
+        ->groupBy('data', 'item_nves.produto_id')
+        ->get();
+
+        $itensNfce = ItemNfce::selectRaw('
+            DATE(item_nfces.created_at) as data,
+            item_nfces.produto_id,
+            SUM(sub_total) as subtotal,
+            SUM(quantidade) as soma_quantidade,
+            AVG(item_nfces.valor_unitario) as media,
+            item_nfces.valor_unitario
+            ')
+        ->join('produtos', 'produtos.id', '=', 'item_nfces.produto_id')
+        ->join('nfces', 'nfces.id', '=', 'item_nfces.nfce_id')
+        ->whereBetween('item_nfces.created_at', [$start, $end])
+        ->where('produtos.empresa_id', $empresaId)
+        ->tap(fn ($q) => $filtros($q, 'item_nfces'))
+        ->groupBy('data', 'item_nfces.produto_id')
+        ->get();
+
+        $data = [];
+
+        $periodo = new \DatePeriod(
+            $start,
+            new \DateInterval('P1D'),
+            $end->copy()->addDay()
+        );
+
+        foreach ($periodo as $dia) {
+            $dataStr = $dia->format('Y-m-d');
+
+            $nfe  = $itensNfe->where('data', $dataStr);
+            $nfce = $itensNfce->where('data', $dataStr);
+
+            $itens = $this->uneArrayItens($nfe, $nfce, $request->ordem);
+
+            $data[] = [
+                'data' => $dataStr,
+                'itens' => $itens,
+            ];
+        }
+
+        $view = view('relatorios.venda_por_produtos_fiscal', [
+            'data' => $data,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'cfop' => $request->cfop,
+            'ncm' => $request->ncm,
+            'cst_csosn' => $request->cst_csosn,
+            'cst_pis' => $request->cst_pis,
+            'cst_cofins' => $request->cst_cofins,
+            'title' => 'Relatório de Venda por Produtos Fiscal',
+        ]);
+
+        $domPdf = new Dompdf(['enable_remote' => true]);
+        $domPdf->loadHtml($view);
+        $domPdf->setPaper('A4', 'landscape');
+        $domPdf->render();
+        $domPdf->stream('Relatorio_venda_produtos_fiscal.pdf', ['Attachment' => false]);
     }
 }

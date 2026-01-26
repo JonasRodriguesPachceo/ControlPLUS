@@ -83,61 +83,87 @@
                                         <td>{{ __moeda($item->valor) }}</td>
                                         <td>{{ __data_pt($item->created_at) }}</td>
                                         <td class="td-delete">
-                                            <form action="{{ route('comissao.destroy', $item->id) }}" method="post" id="form-{{$item->id}}">
-                                                @method('delete')
-                                                @csrf
-                                                <button type="button" class="btn btn-delete btn-sm btn-danger">
-                                                    <i class="ri-delete-bin-line"></i>
-                                                </button>
 
-                                            </form>
-                                        </td>
-                                    </tr>
+                                            <button type="button" class="btn btn-delete-comissao btn-sm btn-danger" 
+                                            data-url="{{ route('comissao.destroy', $item->id) }}">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </td>
+                                </tr>
 
-                                    @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center">Nada encontrado</td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="3"></td>
-                                        <td class="text-primary">R$ {{ __moeda($data->sum('valor_venda')) }}</td>
-                                        <td class="text-primary">R$ {{ __moeda($data->sum('valor')) }}</td>
-                                        <td colspan="2"></td>
+                                @empty
+                                <tr>
+                                    <td colspan="7" class="text-center">Nada encontrado</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3"></td>
+                                    <td class="text-primary">R$ {{ __moeda($data->sum('valor_venda')) }}</td>
+                                    <td class="text-primary">R$ {{ __moeda($data->sum('valor')) }}</td>
+                                    <td colspan="2"></td>
 
-                                    </tr>
-                                </tfoot>
-                            </table>
+                                </tr>
+                            </tfoot>
+                        </table>
 
-                            @include('modals._modal_conta_pagar')
-                            
-                        </form>
-                    </div>
+                        @include('modals._modal_conta_pagar')
+
+                    </form>
                 </div>
-
-                <br>
-                <div class="row">
-                    <div class="col-lg-4 col-12">
-                        <h4>Total de comissões pendentes: <strong class="text-danger">R$ {{ __moeda($sumComissaoPendente) }}</strong></h4>
-                    </div>
-
-                    <div class="col-lg-4 col-12">
-                        <h4>Total de comissões pagas: <strong class="text-success">R$ {{ __moeda($sumComissaoPago) }}</strong></h4>
-                    </div>
-                    <div class="col-lg-4 col-12">
-                        <h4>Total de vendas: <strong class="text-success">R$ {{ __moeda($sumVendas) }}</strong></h4>
-                    </div>
-                </div>
-
-                {!! $data->appends(request()->all())->links() !!}
             </div>
+
+            <form id="form-delete-global" method="post">
+                @csrf
+                @method('delete')
+            </form>
+
+            <br>
+            <div class="row">
+                <div class="col-lg-4 col-12">
+                    <h4>Total de comissões pendentes: <strong class="text-danger">R$ {{ __moeda($sumComissaoPendente) }}</strong></h4>
+                </div>
+
+                <div class="col-lg-4 col-12">
+                    <h4>Total de comissões pagas: <strong class="text-success">R$ {{ __moeda($sumComissaoPago) }}</strong></h4>
+                </div>
+                <div class="col-lg-4 col-12">
+                    <h4>Total de vendas: <strong class="text-success">R$ {{ __moeda($sumVendas) }}</strong></h4>
+                </div>
+            </div>
+
+            {!! $data->appends(request()->all())->links() !!}
         </div>
     </div>
+</div>
 </div>
 @endsection
 
 @section('js')
 <script type="text/javascript" src="/js/comissao.js"></script>
+<script type="text/javascript">
+    $('.btn-delete-comissao').on('click', function () {
+        let url = $(this).data('url');
+
+        
+
+        swal({
+            title: "Você está certo?",
+            text: "Deseja excluir esta comissão?",
+            icon: "warning",
+            buttons: true,
+            buttons: ["Cancelar", "Excluir"],
+            dangerMode: true,
+        }).then((isConfirm) => {
+            if (isConfirm) {
+
+                let form = $('#form-delete-global');
+                form.attr('action', url);
+                form.submit();
+            }
+        });
+    });
+
+</script>
 @endsection

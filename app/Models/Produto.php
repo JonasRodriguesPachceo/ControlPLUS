@@ -26,34 +26,20 @@ class Produto extends Model
 		'delivery', 'valor_delivery', 'variacao_modelo_id', 'valor_ecommerce', 'percentual_desconto', 'descricao_ecommerce',
 		'largura', 'comprimento', 'altura', 'peso', 'ecommerce', 'destaque_ecommerce', 'hash_ecommerce', 'texto_ecommerce',
 		'destaque_delivery', 'hash_delivery', 'texto_delivery', 'mercado_livre_id', 'mercado_livre_valor', 'mercado_livre_link',
-		'mercado_livre_youtube', 'mercado_livre_descricao', 'mercado_livre_status', 'mercado_livre_categoria', 
+		'mercado_livre_youtube', 'mercado_livre_descricao', 'mercado_livre_status', 'mercado_livre_categoria',
 		'mercado_livre_tipo_publicacao', 'combo', 'margem_combo', 'nuvem_shop_id', 'nuvem_shop_valor',
-		'texto_nuvem_shop', 'modBCST', 'pMVAST', 'pICMSST', 'redBCST', 'reserva', 'percentual_lucro', 'codigo_barras2', 
+		'texto_nuvem_shop', 'modBCST', 'pMVAST', 'pICMSST', 'redBCST', 'reserva', 'percentual_lucro', 'codigo_barras2',
 		'codigo_barras3', 'sub_categoria_id', 'valor_atacado', 'quantidade_atacado', 'oferta_delivery',
 		'woocommerce_id', 'woocommerce_slug', 'woocommerce_link', 'woocommerce_valor', 'woocommerce_type',
-		'woocommerce_status', 'woocommerce_descricao', 'woocommerce_stock_status', 'categorias_woocommerce', 'tipo_unico', 
-		'balanca_pdv', 'mercado_livre_modelo', 'valor_minimo_venda', 'exportar_balanca', 'referencia_xml', 'tipo_dimensao', 
+		'woocommerce_status', 'woocommerce_descricao', 'woocommerce_stock_status', 'categorias_woocommerce', 'tipo_unico',
+		'balanca_pdv', 'mercado_livre_modelo', 'valor_minimo_venda', 'exportar_balanca', 'referencia_xml', 'tipo_dimensao',
 		'espessura', '_id_import', 'observacao', 'observacao2', 'observacao3', 'observacao4', 'tipo_producao',
 		'numero_sequencial', 'valor_prazo', 'ifood_id', 'vendizap_id', 'vendizap_valor', 'destaque_cardapio', 'oferta_cardapio',
 		'sub_variacao_modelo_id', 'peso_bruto', 'local_armazenamento', 'pICMSEfet', 'pRedBCEfet',
-		'cst_ibscbs', 'cclass_trib', 'perc_ibs_uf', 'perc_ibs_mun', 'perc_cbs', 'perc_dif', 'tipo_item_sped', 'prazo_garantia',
-		'tipo_produto', 'avaliacao_observacao'
+		'cst_ibscbs', 'cclass_trib', 'perc_ibs_uf', 'perc_ibs_mun', 'perc_cbs', 'perc_dif', 'tipo_item_sped', 'prazo_garantia', 'perc_red_bc_ibs'
 	];
 
 	protected $appends = [ 'imgApp' ];
-
-	protected static function booted()
-	{
-		static::addGlobalScope(self::SCOPE_AVALIACAO, function ($query) {
-			return $query->where('tipo_produto', '!=', self::TIPO_AVALIACAO);
-		});
-	}
-
-	public function scopeSomenteAvaliacao($query)
-	{
-		return $query->withoutGlobalScope(self::SCOPE_AVALIACAO)
-			->where('tipo_produto', self::TIPO_AVALIACAO);
-	}
 
 	public function _ncm(){
 		return $this->belongsTo(Ncm::class, 'ncm', 'codigo');
@@ -240,7 +226,7 @@ class Produto extends Model
 	public function galeria(){
 		return $this->hasMany(GaleriaProduto::class, 'produto_id');
 	}
-	
+
 	public function movimentacoes(){
 		return $this->hasMany(MovimentacaoProduto::class, 'produto_id');
 	}
@@ -286,7 +272,7 @@ class Produto extends Model
 	public function valoresPizza(){
 		$str = '';
 		foreach($this->pizzaValores as $pizza){
-			$str .= $pizza->tamanho->nome . " R$ " . __moeda($pizza->valor) . "<br>"; 
+			$str .= $pizza->tamanho->nome . " R$ " . __moeda($pizza->valor) . "<br>";
 		}
 		return $str;
 	}
@@ -295,7 +281,7 @@ class Produto extends Model
 		$str = '';
 		foreach($this->pizzaValores as $key => $pizza){
 			if($key == 0){
-				$str .= "À partir de - R$ " . __moeda($pizza->valor); 
+				$str .= "À partir de - R$ " . __moeda($pizza->valor);
 			}
 		}
 		return $str;
@@ -325,7 +311,6 @@ class Produto extends Model
 
 		$prod = null;
 		if($referencia != null && $referencia != 0){
-			// $prod = Produto::where('referencia_xml', $referencia)
 			$prod = Produto::where('referencia', $referencia)
 			->where('empresa_id', $empresa_id)
 			->first();
@@ -337,7 +322,12 @@ class Produto extends Model
 			$prod = Produto::where('nome', (string)$nome)
 			->where('empresa_id', $empresa_id)
 			->first();
-			if ($prod) {
+
+			if($prod && $ean == 'SEM GTIN'){
+				return $prod;
+			}
+
+			if ($prod && $ean != 'SEM GTIN' && $prod->codigo_barras == $ean) {
 				return $prod;
 			}
 		}
@@ -348,13 +338,12 @@ class Produto extends Model
 			->where('codigo_barras', '!=', '')
 			->where('empresa_id', $empresa_id)
 			->first();
-			// dd($ean);
 		} else {
 			if ($prod->codigo_barras != $ean) {
 				return null;
 			}
 		}
-		
+
 		return $prod;
 	}
 
@@ -471,7 +460,7 @@ class Produto extends Model
 			'04' => 'Entrada Imune',
 			'05' => 'Entrada com Suspensão',
 			'49' => 'Outras Entradas',
-			
+
 			'50' => '50 - Saída Tributada',
 			'51' => '51 - Saída Tributável com Alíquota Zero',
 			'52' => '52 - Saída Isenta',
@@ -960,18 +949,500 @@ class Produto extends Model
 
 	}
 
-	public static function listaCSTCbsIbs(){
-		return [
-			'000' => '000 - Tributação integral',
-			'010' => '010 - Tributação com alíquotas uniformes - operações setor financeiro',
-			'011' => '011 - Tributação com alíquotas uniformes reduzidas em 60% ou 30%',
-			'200' => '200 - Alíquota zero, Alíquota zero apenas CBS e reduzida em 60% para IBS, reduzida em 80%, 70%, 60%, 50%, 40%, 30%',
-			'210' => '210 - Alíquota reduzida em 50% com redutor de base de cálculo, reduzida em 70% com redutor de base de cálculo',
-			'220' => '220 - Alíquota fixa',
-			'221' => '221 - Alíquota fixa proporcional',
-			'400' => '400 - Isenção',
-			'410' => '410 - Imunidade e não incidência',
+	// public static function listaCSTCbsIbs(){
+	// 	return [
+	// 		'000' => '000 - Tributação integral',
+	// 		'010' => '010 - Tributação com alíquotas uniformes - operações setor financeiro',
+	// 		'011' => '011 - Tributação com alíquotas uniformes reduzidas em 60% ou 30%',
+	// 		'200' => '200 - Alíquota zero, Alíquota zero apenas CBS e reduzida em 60% para IBS, reduzida em 80%, 70%, 60%, 50%, 40%, 30%',
+	// 		'210' => '210 - Alíquota reduzida em 50% com redutor de base de cálculo, reduzida em 70% com redutor de base de cálculo',
+	// 		'220' => '220 - Alíquota fixa',
+	// 		'221' => '221 - Alíquota fixa proporcional',
+	// 		'400' => '400 - Isenção',
+	// 		'410' => '410 - Imunidade e não incidência',
+	// 	];
+	// }
+
+	public static function listaCSTCbsIbs($somenteAtivos = true)
+	{
+		$lista = [
+			'000' => ['desc' => 'Tributação integral', 'ativo' => true],
+			'010' => ['desc' => 'Alíquotas uniformes – setor financeiro', 'ativo' => true],
+			'011' => ['desc' => 'Alíquotas uniformes reduzidas (60% ou 30%)', 'ativo' => true],
+
+			'200' => ['desc' => 'Alíquota zero / redução parcial', 'ativo' => true],
+			'210' => ['desc' => 'Alíquota reduzida com redutor de base', 'ativo' => false],
+			'220' => ['desc' => 'Alíquota fixa', 'ativo' => true],
+			'221' => ['desc' => 'Alíquota fixa proporcional', 'ativo' => true],
+			'222' => ['desc' => 'Redução de base de Cálculo', 'ativo' => true],
+
+			'400' => ['desc' => 'Isenção', 'ativo' => true],
+			'410' => ['desc' => 'Imunidade e não incidência', 'ativo' => true],
+			'510' => ['desc' => 'Diferimento', 'ativo' => true],
+			'515' => ['desc' => 'Diferimento com redução de alíquota', 'ativo' => true],
+			'550' => ['desc' => 'Suspensão', 'ativo' => true],
+			'620' => ['desc' => 'Tributação monofásica', 'ativo' => true],
+			'800' => ['desc' => 'Transferência de crédito', 'ativo' => true],
+			'810' => ['desc' => 'Ajuste de IBS na ZFM', 'ativo' => true],
+			'811' => ['desc' => 'Ajustes', 'ativo' => true],
+			'820' => ['desc' => 'Tributação em declaração de regime específico', 'ativo' => true],
+			'830' => ['desc' => 'Exclusão de base de cálculo', 'ativo' => true],
+
+			'900' => ['desc' => 'Outras hipóteses de tributação', 'ativo' => false],
 		];
+
+		if ($somenteAtivos) {
+			return collect($lista)
+			->filter(fn($v) => $v['ativo'])
+			->map(fn($v, $k) => "$k - {$v['desc']}")
+			->toArray();
+		}
+
+		return $lista;
+	}
+
+	public static function listacClassTrib()
+	{
+		return [
+
+			'000' => [
+				[
+					'cClassTrib' => '000001',
+					'descricao'  => 'Situações tributadas integralmente pelo IBS e CBS.'
+				],
+				[
+					'cClassTrib' => '000002',
+					'descricao'  => 'Exploração de via'
+				],
+				[
+					'cClassTrib' => '000003',
+					'descricao'  => 'Regime automotivo - projetos incentivados (art. 311)'
+				],
+				[
+					'cClassTrib' => '000004',
+					'descricao'  => 'Regime automotivo - projetos incentivados (art. 312)'
+				],
+			],
+
+			'010' => [
+				[
+					'cClassTrib' => '010001',
+					'descricao'  => 'Operações do FGTS não realizadas pela Caixa Econômica Federal'
+				],
+				[
+					'cClassTrib' => '010002',
+					'descricao'  => 'Operações do serviço financeiro'
+				],
+			],
+			'011' => [
+				[
+					'cClassTrib' => '011001',
+					'descricao'  => 'Planos de assistência funerária'
+				],
+				[
+					'cClassTrib' => '011002',
+					'descricao'  => 'Planos de assistência à saúde'
+				],
+				[
+					'cClassTrib' => '011003',
+					'descricao'  => 'Intermediação de planos de assistência à saúde'
+				],
+				[
+					'cClassTrib' => '011004',
+					'descricao'  => 'Concursos e prognósticos'
+				],
+				[
+					'cClassTrib' => '011005',
+					'descricao'  => 'Planos de assistência à saúde de animais domésticos'
+				],
+			],
+
+
+			'200' => [
+
+				['cClassTrib' => '200001', 'descricao' => 'Aquisições realizadas entre empresas autorizadas a operar em zonas de processamento de exportação'],
+				['cClassTrib' => '200002', 'descricao' => 'Fornecimento ou importação para produtor rural não contribuinte ou TAC'],
+				['cClassTrib' => '200003', 'descricao' => 'Vendas de produtos destinados à alimentação humana (Anexo I)'],
+				['cClassTrib' => '200004', 'descricao' => 'Venda de dispositivos médicos (Anexo XII)'],
+				['cClassTrib' => '200005', 'descricao' => 'Venda de dispositivos médicos adquiridos por órgãos da administração pública (Anexo IV)'],
+				['cClassTrib' => '200006', 'descricao' => 'Situação de emergência de saúde pública reconhecida pelo Poder público (Anexo XII)'],
+				['cClassTrib' => '200007', 'descricao' => 'Fornecimento dos dispositivos de acessibilidade próprios para pessoas com deficiência (Anexo XIII)'],
+				['cClassTrib' => '200008', 'descricao' => 'Fornecimento dos dispositivos de acessibilidade próprios para pessoas com deficiência adquiridos por órgãos da administração pública (Anexo V)'],
+				['cClassTrib' => '200009', 'descricao' => 'Fornecimento de medicamentos (Anexo XIV)'],
+				['cClassTrib' => '200010', 'descricao' => 'Fornecimento dos medicamentos registrados na Anvisa, adquiridos por órgãos da administração pública'],
+				['cClassTrib' => '200011', 'descricao' => 'Fornecimento das composições para nutrição enteral e parenteral quando adquiridas por órgãos da administração pública (Anexo VI)'],
+				['cClassTrib' => '200012', 'descricao' => 'Situação de emergência de saúde pública reconhecida pelo Poder público (Anexo XIV)'],
+				['cClassTrib' => '200013', 'descricao' => 'Fornecimento de tampões higiênicos, absorventes higiênicos internos ou externos'],
+				['cClassTrib' => '200014', 'descricao' => 'Fornecimento dos produtos hortícolas, frutas e ovos (Anexo XV)'],
+				['cClassTrib' => '200015', 'descricao' => 'Venda de automóveis de passageiros de fabricação nacional adquiridos por motoristas profissionais ou pessoas com deficiência'],
+				['cClassTrib' => '200016', 'descricao' => 'Prestação de serviços de pesquisa e desenvolvimento por Instituição Científica, Tecnológica e de Inovação (ICT)'],
+				['cClassTrib' => '200017', 'descricao' => 'Operações relacionadas ao FGTS'],
+				['cClassTrib' => '200018', 'descricao' => 'Operações de resseguro e retrocessão'],
+				['cClassTrib' => '200019', 'descricao' => 'Importador dos serviços financeiros contribuinte'],
+				['cClassTrib' => '200020', 'descricao' => 'Operação praticada por sociedades cooperativas optantes por regime específico do IBS e CBS'],
+				['cClassTrib' => '200021', 'descricao' => 'Serviços de transporte público coletivo de passageiros ferroviário e hidroviário'],
+				['cClassTrib' => '200022', 'descricao' => 'Operação originada fora da ZFM que destine bem material industrializado a contribuinte estabelecido na ZFM'],
+				['cClassTrib' => '200023', 'descricao' => 'Operação realizada por indústria incentivada que destine bem material intermediário para outra indústria incentivada na ZFM'],
+				['cClassTrib' => '200024', 'descricao' => 'Operação originada fora das Áreas de Livre Comércio destinadas a contribuinte estabelecido nas Áreas de Livre Comércio'],
+				['cClassTrib' => '200025', 'descricao' => 'Fornecimento dos serviços de educação relacionados ao Programa Universidade para Todos (Prouni)'],
+				['cClassTrib' => '200026', 'descricao' => 'Locação de imóveis localizados nas zonas reabilitadas'],
+				['cClassTrib' => '200027', 'descricao' => 'Operações de locação, cessão onerosa e arrendamento de bens imóveis'],
+				['cClassTrib' => '200028', 'descricao' => 'Fornecimento dos serviços de educação (Anexo II)'],
+				['cClassTrib' => '200029', 'descricao' => 'Fornecimento dos serviços de saúde humana (Anexo III)'],
+				['cClassTrib' => '200030', 'descricao' => 'Venda dos dispositivos médicos (Anexo IV)'],
+				['cClassTrib' => '200031', 'descricao' => 'Fornecimento dos dispositivos de acessibilidade próprios para pessoas com deficiência (Anexo V)'],
+				['cClassTrib' => '200032', 'descricao' => 'Fornecimento dos medicamentos registrados na Anvisa ou produzidos por farmácias de manipulação, ressalvados os medicamentos sujeitos à alíquota zero'],
+				['cClassTrib' => '200033', 'descricao' => 'Fornecimento das composições para nutrição enteral e parenteral (Anexo VI)'],
+				['cClassTrib' => '200034', 'descricao' => 'Fornecimento dos alimentos destinados ao consumo humano (Anexo VII)'],
+				['cClassTrib' => '200035', 'descricao' => 'Fornecimento dos produtos de higiene pessoal e limpeza (Anexo VIII)'],
+				['cClassTrib' => '200036', 'descricao' => 'Fornecimento de produtos agropecuários, aquícolas, pesqueiros, florestais e extrativistas vegetais in natura'],
+				['cClassTrib' => '200037', 'descricao' => 'Fornecimento de serviços ambientais de conservação ou recuperação da vegetação nativa'],
+				['cClassTrib' => '200038', 'descricao' => 'Fornecimento dos insumos agropecuários e aquícolas (Anexo IX)'],
+				['cClassTrib' => '200039', 'descricao' => 'Fornecimento dos serviços e o licenciamento ou cessão dos direitos destinados às produções nacionais artísticas (Anexo X)'],
+				['cClassTrib' => '200040', 'descricao' => 'Fornecimento de serviços de comunicação institucional à administração pública'],
+				['cClassTrib' => '200041', 'descricao' => 'Fornecimento de serviço de educação desportiva (art. 141, I)'],
+				['cClassTrib' => '200042', 'descricao' => 'Fornecimento de serviço de educação desportiva (art. 141, II)'],
+				['cClassTrib' => '200043', 'descricao' => 'Fornecimento à administração pública dos serviços e dos bens relativos à soberania (Anexo XI)'],
+				['cClassTrib' => '200044', 'descricao' => 'Operações e prestações de serviços de segurança da informação e segurança cibernética desenvolvidas por sociedade com sócio brasileiro (Anexo XI)'],
+				['cClassTrib' => '200045', 'descricao' => 'Operações relacionadas a projetos de reabilitação urbana de zonas históricas e de áreas críticas de recuperação e reconversão urbanística'],
+				['cClassTrib' => '200046', 'descricao' => 'Operações com bens imóveis'],
+				['cClassTrib' => '200047', 'descricao' => 'Bares e Restaurantes'],
+				['cClassTrib' => '200048', 'descricao' => 'Hotelaria, Parques de Diversão e Parques Temáticos'],
+				['cClassTrib' => '200049', 'descricao' => 'Transporte coletivo de passageiros rodoviário, ferroviário e hidroviário'],
+				['cClassTrib' => '200050', 'descricao' => 'Serviços de transporte aéreo regional coletivo de passageiros ou de carga'],
+				['cClassTrib' => '200051', 'descricao' => 'Agências de Turismo'],
+				['cClassTrib' => '200052', 'descricao' => 'Prestação de serviços de profissões intelectuais'],
+
+			],
+
+			// '210' => [
+			// 	[
+			// 		'cClassTrib' => '210001',
+			// 		'descricao'  => 'Alimentos com redução parcial de base de cálculo'
+			// 	],
+			// 	[
+			// 		'cClassTrib' => '210002',
+			// 		'descricao'  => 'Serviços de transporte público coletivo'
+			// 	],
+			// ],
+
+			'220' => [
+				[
+					'cClassTrib' => '220001',
+					'descricao'  => 'Incorporação imobiliária submetida ao regime especial de tributação'
+				],
+				[
+					'cClassTrib' => '220002',
+					'descricao'  => 'Incorporação imobiliária submetida ao regime especial de tributação'
+				],
+				[
+					'cClassTrib' => '220003',
+					'descricao'  => 'Alienação de imóvel decorrente de parcelamento do solo'
+				],
+			],
+
+			'221' => [
+				[
+					'cClassTrib' => '221001',
+					'descricao'  => 'Locação, cessão onerosa ou arrendamento de bem imóvel com alíquota sobre a receita bruta'
+				],
+			],
+
+			'222' => [
+				[
+					'cClassTrib' => '222001',
+					'descricao'  => 'Transporte internacional de passageiros, caso os trechos de ida e volta sejam vendidos em conjunto'
+				],
+			],
+
+			'400' => [
+				[
+					'cClassTrib' => '400001',
+					'descricao'  => 'Serviços de educação isentos'
+				],
+			],
+
+			'410' => [
+
+				['cClassTrib' => '410001', 'descricao' => 'Fornecimento de bonificações quando constem no documento fiscal e que não dependam de evento posterior'],
+				['cClassTrib' => '410002', 'descricao' => 'Transferências entre estabelecimentos pertencentes ao mesmo contribuinte'],
+				['cClassTrib' => '410003', 'descricao' => 'Doações sem contraprestação em benefício do doador'],
+				['cClassTrib' => '410004', 'descricao' => 'Exportações de bens e serviços'],
+				['cClassTrib' => '410005', 'descricao' => 'Fornecimentos realizados pela União, pelos Estados, pelo Distrito Federal e pelos Municípios'],
+				['cClassTrib' => '410006', 'descricao' => 'Fornecimentos realizados por entidades religiosas e templos de qualquer culto'],
+				['cClassTrib' => '410007', 'descricao' => 'Fornecimentos realizados por partidos políticos'],
+				['cClassTrib' => '410008', 'descricao' => 'Fornecimentos de livros, jornais, periódicos e do papel destinado a sua impressão'],
+				['cClassTrib' => '410009', 'descricao' => 'Fornecimentos de fonogramas e videofonogramas musicais produzidos no Brasil'],
+				['cClassTrib' => '410010', 'descricao' => 'Fornecimentos de serviço de comunicação nas modalidades de radiodifusão sonora e de sons e imagens de recepção livre e gratuita'],
+				['cClassTrib' => '410011', 'descricao' => 'Fornecimentos de ouro, quando definido em lei como ativo financeiro ou instrumento cambial'],
+				['cClassTrib' => '410012', 'descricao' => 'Fornecimento de condomínio edilício não optante pelo regime regular'],
+				['cClassTrib' => '410013', 'descricao' => 'Exportações de combustíveis'],
+				['cClassTrib' => '410014', 'descricao' => 'Fornecimento de produtor rural não contribuinte'],
+				['cClassTrib' => '410015', 'descricao' => 'Fornecimento por transportador autônomo não contribuinte'],
+				['cClassTrib' => '410016', 'descricao' => 'Fornecimento ou aquisição de resíduos sólidos'],
+				['cClassTrib' => '410017', 'descricao' => 'Aquisição de bem móvel com crédito presumido sob condição de revenda realizada'],
+				['cClassTrib' => '410018', 'descricao' => 'Operações relacionadas aos fundos garantidores e executores de políticas públicas'],
+				['cClassTrib' => '410019', 'descricao' => 'Exclusão da gorjeta na base de cálculo no fornecimento de alimentação'],
+				['cClassTrib' => '410020', 'descricao' => 'Exclusão do valor de intermediação na base de cálculo no fornecimento de alimentação'],
+				['cClassTrib' => '410021', 'descricao' => 'Contribuição de que trata o art. 149-A da Constituição Federal'],
+				['cClassTrib' => '410022', 'descricao' => 'Consolidação da propriedade do bem pelo credor'],
+				['cClassTrib' => '410023', 'descricao' => 'Alienação de bens móveis ou imóveis que tenham sido objeto de garantia em que o prestador da garantia não seja contribuinte'],
+				['cClassTrib' => '410024', 'descricao' => 'Consolidação da propriedade do bem pelo grupo de consórcio'],
+				['cClassTrib' => '410025', 'descricao' => 'Alienação de bem que tenha sido objeto de garantia em que o prestador da garantia não seja contribuinte'],
+				['cClassTrib' => '410026', 'descricao' => 'Doação com anulação de crédito'],
+				['cClassTrib' => '410027', 'descricao' => 'Exportação de serviço ou de bem imaterial'],
+				['cClassTrib' => '410028', 'descricao' => 'Operações com bens imóveis realizadas por pessoas físicas não consideradas contribuintes'],
+				['cClassTrib' => '410029', 'descricao' => 'Operações acobertadas somente pelo ICMS'],
+				['cClassTrib' => '410030', 'descricao' => 'Estorno de crédito por perecimento, deteriorização, roubo, furto ou extravio'],
+				['cClassTrib' => '410031', 'descricao' => 'Fornecimento em período anterior ao início de vigência de incidências de CBS e IBS'],
+				['cClassTrib' => '410999', 'descricao' => 'Operações não onerosas sem previsão de tributação, não especificadas anteriormente'],
+
+			],
+
+			'510' => [
+				['cClassTrib'=>'510001','descricao'=>'Operações com diferimento integral de IBS'],
+				['cClassTrib'=>'510002','descricao'=>'Operações com diferimento parcial de CBS'],
+				['cClassTrib'=>'510003','descricao'=>'Diferimento por transferência interna de produto industrializado'],
+				['cClassTrib'=>'510004','descricao'=>'Operações de industrialização com diferimento de base de cálculo'],
+				['cClassTrib'=>'510005','descricao'=>'Venda de bens com diferimento de IBS e CBS'],
+			],
+
+			'515' => [
+
+				[
+					'cClassTrib' => '515001',
+					'descricao'  => 'Operações com diferimento do IBS e da CBS com crédito presumido integral'
+				],
+				[
+					'cClassTrib' => '515002',
+					'descricao'  => 'Operações com diferimento do IBS e da CBS com crédito presumido parcial'
+				],
+				[
+					'cClassTrib' => '515003',
+					'descricao'  => 'Operações realizadas por contribuinte beneficiário de regime especial de diferimento'
+				],
+				[
+					'cClassTrib' => '515004',
+					'descricao'  => 'Operações de industrialização por encomenda com diferimento'
+				],
+				[
+					'cClassTrib' => '515005',
+					'descricao'  => 'Transferência de mercadorias com manutenção de crédito presumido'
+				],
+				[
+					'cClassTrib' => '515006',
+					'descricao'  => 'Operações com diferimento em cadeias produtivas incentivadas'
+				],
+				[
+					'cClassTrib' => '515999',
+					'descricao'  => 'Outras operações com diferimento e crédito presumido não especificadas anteriormente'
+				],
+
+			],
+
+			'550' => [
+
+				[
+					'cClassTrib' => '550001',
+					'descricao'  => 'Exportações de bens materiais'
+				],
+				[
+					'cClassTrib' => '550002',
+					'descricao'  => 'Regime de Trânsito'
+				],
+				[
+					'cClassTrib' => '550003',
+					'descricao'  => 'Regimes de Depósito (art. 85)'
+				],
+				[
+					'cClassTrib' => '550004',
+					'descricao'  => 'Regimes de Depósito (art. 87)'
+				],
+				[
+					'cClassTrib' => '550005',
+					'descricao'  => 'Regimes de Depósito (art. 87, Parágrafo único)'
+				],
+				[
+					'cClassTrib' => '550006',
+					'descricao'  => 'Regimes de Permanência Temporária'
+				],
+				[
+					'cClassTrib' => '550007',
+					'descricao'  => 'Regimes de Aperfeiçoamento'
+				],
+				[
+					'cClassTrib' => '550008',
+					'descricao'  => 'Importação de bens para o Regime de Repetro-Temporário'
+				],
+				[
+					'cClassTrib' => '550009',
+					'descricao'  => 'GNL-Temporário'
+				],
+				[
+					'cClassTrib' => '550010',
+					'descricao'  => 'Repetro-Permanente'
+				],
+				[
+					'cClassTrib' => '550011',
+					'descricao'  => 'Repetro-Industrialização'
+				],
+				[
+					'cClassTrib' => '550012',
+					'descricao'  => 'Repetro-Nacional'
+				],
+				[
+					'cClassTrib' => '550013',
+					'descricao'  => 'Repetro-Entreposto'
+				],
+				[
+					'cClassTrib' => '550014',
+					'descricao'  => 'Zona de Processamento de Exportação'
+				],
+				[
+					'cClassTrib' => '550015',
+					'descricao'  => 'Regime Tributário para Incentivo à Modernização e à Ampliação da Estrutura Portuária'
+				],
+				[
+					'cClassTrib' => '550016',
+					'descricao'  => 'Regime Especial de Incentivos para o Desenvolvimento da Infraestrutura'
+				],
+				[
+					'cClassTrib' => '550017',
+					'descricao'  => 'Regime Tributário para Incentivo à Atividade Econômica Naval'
+				],
+				[
+					'cClassTrib' => '550018',
+					'descricao'  => 'Desoneração da aquisição de bens de capital'
+				],
+				[
+					'cClassTrib' => '550019',
+					'descricao'  => 'Importação de bem material por indústria incentivada para utilização na Zona Franca de Manaus'
+				],
+				[
+					'cClassTrib' => '550020',
+					'descricao'  => 'Áreas de livre comércio'
+				],
+				[
+					'cClassTrib' => '550021',
+					'descricao'  => 'Industrialização destinada a exportações'
+				],
+
+			],
+
+			'620' => [
+
+				[
+					'cClassTrib' => '620001',
+					'descricao'  => 'Tributação monofásica sobre combustíveis'
+				],
+				[
+					'cClassTrib' => '620002',
+					'descricao'  => 'Tributação monofásica com responsabilidade pela retenção sobre combustíveis'
+				],
+				[
+					'cClassTrib' => '620003',
+					'descricao'  => 'Tributação monofásica com tributos retidos por responsabilidade sobre combustíveis'
+				],
+				[
+					'cClassTrib' => '620004',
+					'descricao'  => 'Tributação monofásica sobre mistura de EAC com gasolina A em percentual superior ao obrigatório'
+				],
+				[
+					'cClassTrib' => '620005',
+					'descricao'  => 'Tributação monofásica sobre mistura de EAC com gasolina A em percentual inferior ao obrigatório'
+				],
+				[
+					'cClassTrib' => '620006',
+					'descricao'  => 'Tributação monofásica sobre combustíveis cobrada anteriormente'
+				],
+
+			],
+
+			'800' => [
+
+				[
+					'cClassTrib' => '800001',
+					'descricao'  => 'Fusão, cisão ou incorporação'
+				],
+				[
+					'cClassTrib' => '800002',
+					'descricao'  => 'Transferência de crédito do associado, inclusive as cooperativas singulares'
+				],
+
+			],
+			'810' => [
+
+				[
+					'cClassTrib' => '810001',
+					'descricao'  => 'Crédito presumido sobre o valor apurado nos fornecimentos a partir da ZFM'
+				],
+
+			],
+
+			'811' => [
+
+				[
+					'cClassTrib' => '811001',
+					'descricao'  => 'Anulação de Crédito por Saídas Imunes/Isentas'
+				],
+				[
+					'cClassTrib' => '811002',
+					'descricao'  => 'Débitos de notas fiscais não processadas na apuração'
+				],
+				[
+					'cClassTrib' => '811003',
+					'descricao'  => 'Desenquadramento do Simples Nacional'
+				],
+
+			],
+			'820' => [
+
+				[
+					'cClassTrib' => '820001',
+					'descricao'  => 'Documento com informações de fornecimento de serviços de planos de assistência à saúde'
+				],
+				[
+					'cClassTrib' => '820002',
+					'descricao'  => 'Documento com informações de fornecimento de serviços de planos de assistência funerária'
+				],
+				[
+					'cClassTrib' => '820003',
+					'descricao'  => 'Documento com informações de fornecimento de serviços de planos de assistência à saúde de animais domésticos'
+				],
+				[
+					'cClassTrib' => '820004',
+					'descricao'  => 'Documento com informações de prestação de serviços de concursos de prognósticos'
+				],
+				[
+					'cClassTrib' => '820005',
+					'descricao'  => 'Documento com informações de alienação de bens imóveis'
+				],
+				[
+					'cClassTrib' => '820006',
+					'descricao'  => 'Documento com informações de fornecimento de serviços de exploração de via'
+				],
+				[
+					'cClassTrib' => '820007',
+					'descricao'  => 'Documento com informações de fornecimento de serviços financeiros'
+				],
+				[
+					'cClassTrib' => '820008',
+					'descricao'  => 'Documento com informações de fornecimento, mas com tributação realizada em fatura anterior'
+				],
+
+			],
+			'830' => [
+
+				[
+					'cClassTrib' => '830001',
+					'descricao'  => 'Documento com exclusão da base de cálculo da CBS e do IBS de energia elétrica fornecida pela distribuidora à unidade consumidora'
+				],
+
+			],
+
+
+		];
+
 	}
 
 	public static function tipoItemSped(){

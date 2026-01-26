@@ -84,7 +84,13 @@
                                 @forelse($data->itens as $item)
                                 <tr>
                                     <td>{{ $item->descricao() }}</td>
-                                    <td>{{ $item->quantidade }}</td>
+                                    <td>
+                                        @if(!$item->produto->unidadeDecimal())
+                                        {{ number_format($item->quantidade, 0, '.', '') }}
+                                        @else
+                                        {{ $item->quantidade }}
+                                        @endif
+                                    </td>
                                     <td>{{ __moeda($item->valor_unitario) }}</td>
                                     <td>{{ __moeda($item->sub_total) }}</td>
                                 </tr>

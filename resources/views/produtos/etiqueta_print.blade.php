@@ -34,7 +34,7 @@
 			</span>
 			@endif
 
-			@if($valor_atacado)
+			@if($data['valor_atacado'] > 0)
 			<span style="display: block !important; font-size: {{$tamanho_fonte}}px; margin-top: {{$distancia_entre_linhas}}px;">
 				<b>R$ {{number_format($data['valor_atacado'], 2, ',', '.')}}</b>
 			</span>
@@ -85,6 +85,92 @@
 	}
 	@endphp
 	@endfor
+
+	@foreach($adds as $p)
+	@for($i=0; $i<$p['quantidade']; $i++)
+
+	<div style="height: {{$altura}}mm; !important; width: {{$largura}}mm !important; display: inline-block; margin-top: {{$distancia_topo}}mm !important; margin-left: {{$quantidade_por_linhas > 1 && $contLinha > 0 ? $distancia_lateral : 4 }}mm !important;" class="sticker-border text-center">
+
+		@if($p['tipo'] == 'simples')
+		<div style="display:inline-block;vertical-align:middle;line-height:10px !important; margin-top: {{$distancia_topo}}mm;">
+
+			@if($p['nome_empresa'])
+			<b style="display: block !important; font-size: {{$tamanho_fonte}}px" class="text-uppercase">{{$p['empresa']}}</b>
+			@endif
+
+			@if($p['nome_produto'])
+			<span style="display: block !important; font-size: {{$tamanho_fonte}}px; margin-top: {{$distancia_entre_linhas}}px">
+				{{$p['nome']}}
+			</span>
+			@endif
+			@if($p['cod_produto'])
+			<span style="display: block !important; margin-top: {{$distancia_entre_linhas}}px; font-size: {{$tamanho_fonte}}px">
+				ID: <b>{{$p['codigo']}}</b>
+			</span>
+			@endif
+			<img class="center-block" style="max-width:90%; !important;height: {{$tamanho_codigo}}mm !important;" src="/barcode/{{$rand}}.png">
+			@if($p['codigo_barras_numerico'])
+			<span style="display: block !important; font-size: {{$tamanho_fonte}}px;">{{$codigo}}</span>
+			@endif
+			
+			@if($p['valor_produto'])
+			<span style="display: block !important; font-size: {{$tamanho_fonte}}px; margin-top: {{$distancia_entre_linhas}}px;">
+				<b>R$ {{number_format($p['valor'], 2, ',', '.')}}</b>
+			</span>
+			@endif
+
+			@if($p['valor_atacado'] > 0)
+			<span style="display: block !important; font-size: {{$tamanho_fonte}}px; margin-top: {{$distancia_entre_linhas}}px;">
+				<b>R$ {{number_format($p['valor_atacado'], 2, ',', '.')}}</b>
+			</span>
+			@endif
+
+			@if($referencia)
+			<span style="display: block !important; font-size: {{$tamanho_fonte}}px; margin-top: {{$distancia_entre_linhas}}px;">
+				<b>REF:{{ $p['referencia'] }}</b>
+			</span>
+			@endif
+		</div>
+		@elseif($p['tipo'] == 'gondola')
+		<div style="line-height:10px !important; margin-top: {{$distancia_topo}}mm;">
+
+
+			@if($p['nome_produto'])
+			<span style="display: block !important; margin-bottom: 4px; font-size: {{$tamanho_fonte}}px">
+				{{$p['nome']}}
+			</span>
+			@endif
+			@if($p['cod_produto'])
+			<span style="display: block !important; margin-top: 3px; font-size: {{$tamanho_fonte}}px">
+				ID: <b>{{$p['codigo']}}</b>
+			</span>
+			@endif
+			<div style="max-width:60%; float:left;">
+				<img class="center-block" style="margin-left:5px; margin-bottom: 4px; max-width:90%; !important;height: {{$tamanho_codigo}}mm !important;" src="/barcode/{{$rand}}.png">
+				@if($p['codigo_barras_numerico'])
+				<span style="text-align: center; font-size: {{$tamanho_fonte}}px;">{{$codigo}}</span>
+				@endif
+			</div>
+			
+			<div style="max-width:40%; float:left; text-align: center;">
+				@if($p['valor_produto'])
+				<span style="display: flex; text-align: center; font-size: {{$tamanho_fonte+7}}px; margin-top: 24px; margin-left: 20px;">
+					<b>R$ {{number_format($p['valor'], 2, ',', '.')}}</b>
+				</span>
+				@endif
+			</div>
+		</div>
+		@endif
+	</div>
+
+	@php
+	$contLinha++;
+	if($contLinha == $quantidade_por_linhas){
+		echo "<br>"; $contLinha = 0;
+	}
+	@endphp
+	@endfor
+	@endforeach
 </div>
 
 <script type="text/javascript">

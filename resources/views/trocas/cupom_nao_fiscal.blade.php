@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+	@php
+	$margem = $configGeral && $configGeral->margem_lateral_impressao > 0 ? $configGeral->margem_lateral_impressao : 5;
+	@endphp
 	<style type="text/css">
 		body {
 			font-family: Arial, sans-serif;
@@ -42,6 +46,34 @@
 			width: 157px;
 			font-size: 13px;
 			line-height: 0.7;		
+		}
+
+		.area-itens {
+			padding-left: {{ $margem }}px;
+			padding-right: {{ $margem+3 }}px;
+		}
+
+		.area-itens table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.area-itens th {
+			font-size: 10px;
+			text-align: left;
+			font-weight: bold;
+		}
+
+		.area-itens td {
+			font-size: 11px;
+			font-weight: bold;
+			line-height: 0.9;
+		}
+
+		.linha-full {
+			position: relative;
+			left: -{{ $margem-5 }}px;
+			text-align: left;
 		}
 		
 
@@ -106,189 +138,204 @@
 		COMPROVANTE DE TROCA
 	</h4>
 	<div class="mt-10" style="margin-left: 10px;">---------------------------------------------------------</div>
-	<label class="mt-5" style="font-size: 9px; margin-left: 5px;">ITENS DA VENDA</label>
-	<table>
-		<thead>
-			<tr>
-				<th style="width: 7px">Código</th>
-				<th style="width: 145px">Descrição</th>
-				<th style="width: 28px">Qtde</th>
-				<th style="width: 35px">Vl Unit</th>
-				<th style="width: 45px">Vl Total</th>
+	<div class="area-itens">
 
+		<label class="mt-5" style="font-size: 9px;">ITENS DA VENDA</label>
+
+		<table>
+			<thead>
+				<tr>
+					<th style="width: 10%;">Código</th>
+					<th style="width: 50%;">Descrição</th>
+					<th style="width: 10%;">Qtde</th>
+					<th style="width: 15%;">Vl Unit</th>
+					<th style="width: 15%;">Vl Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				@php $qtdVenda = 0; $qtdTroca = 0; @endphp
+				@foreach(($item->nfe ? $item->nfe->itens : $item->nfce->itens) as $i)
+				<tr>
+					<td>{{ $i->produto->numero_sequencial }}</td>
+					<td>{{ $i->descricao() }}</td>
+					<td>
+						@if(!$i->produto->unidadeDecimal())
+						{{ number_format($i->quantidade, 0, '.', '') }}
+						@else
+						{{ number_format($i->quantidade, 3, '.', '') }}
+						@endif
+					</td>
+					<td>{{ __moeda($i->valor_unitario) }}</td>
+					<td>{{ __moeda($i->sub_total) }}</td>
+				</tr>
+
+				@php $qtdVenda += $i->quantidade; @endphp
+
+				@endforeach
+			</tbody>
+		</table>
+
+		<div class="linha-full">-----------------------------------------------------------</div>
+
+		<label class="mt-5" style="font-size: 9px;">ITENS ALTERADOS</label>
+
+		<table>
+			<thead>
+				<tr>
+					<th style="width: 10%;">Código</th>
+					<th style="width: 50%;">Descrição</th>
+					<th style="width: 10%;">Qtde</th>
+					<th style="width: 15%;">Vl Unit</th>
+					<th style="width: 15%;">Vl Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach($item->itens as $i)
+				<tr>
+					<td>{{ $i->produto->numero_sequencial }}</td>
+					<td>{{ $i->descricao() }}</td>
+					<td>
+						@if(!$i->produto->unidadeDecimal())
+						{{ number_format($i->quantidade, 0, '.', '') }}
+						@else
+						{{ number_format($i->quantidade, 3, '.', '') }}
+						@endif
+					</td>
+					<td>{{ __moeda($i->valor_unitario) }}</td>
+					<td>{{ __moeda($i->sub_total) }}</td>
+				</tr>
+				@php $qtdTroca += $i->quantidade; @endphp
+				@endforeach
+			</tbody>
+		</table>
+
+		<div class="linha-full">-----------------------------------------------------------</div>
+
+		<label class="mt-5" style="font-size: 9px;">ITENS REMOVIDOS</label>
+
+		<table>
+			<thead>
+				<tr>
+					<th style="width: 10%;">Código</th>
+					<th style="width: 50%;">Descrição</th>
+					<th style="width: 10%;">Qtde</th>
+					<th style="width: 15%;">Vl Unit</th>
+					<th style="width: 15%;">Vl Total</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach($item->itensRemovidos as $i)
+				<tr>
+					<td>{{ $i->produto->numero_sequencial }}</td>
+					<td>{{ $i->descricao() }}</td>
+					<td>
+						@if(!$i->produto->unidadeDecimal())
+						{{ number_format($i->quantidade, 0, '.', '') }}
+						@else
+						{{ number_format($i->quantidade, 3, '.', '') }}
+						@endif
+					</td>
+					<td>{{ __moeda($i->produto->valor_unitario) }}</td>
+					<td>{{ __moeda($i->produto->valor_unitario * $i->quantidade) }}</td>
+				</tr>
+				@php $qtdTroca += $i->quantidade; @endphp
+				@endforeach
+			</tbody>
+		</table>
+
+		<div class="linha-full">-----------------------------------------------------------</div>
+
+		<table style="padding-right: 2px;">
+			
+			<tr>
+				<td>Qtde total de itens Venda:</td>
+				<td style="text-align:right;">{{ number_format($qtdVenda, 0, '', '.') }}</td>
 			</tr>
-		</thead>
-		<tbody>
-			@foreach(($item->nfe ? $item->nfe->itens : $item->nfce->itens) as $i)
+
 			<tr>
-				
-				<td>{{ $i->produto->numero_sequencial }}</td>
-				<td>{{ $i->descricao() }}</td>
+				<td>Qtde total de itens Troca:</td>
+				<td style="text-align:right;">{{ number_format($qtdTroca, 0, '', '.') }}</td>
+			</tr>
 
-				<td>
-					@if(!$i->produto->unidadeDecimal())
-					{{ number_format($i->quantidade, 0, '.', '') }}
-					@else
-					{{ number_format($i->quantidade, 3, '.', '') }}
-					@endif
-
+			<tr>
+				<td>Valor Total:</td>
+				<td style="text-align:right;">
+					R$ {{ __moeda($item->valor_troca) }}
 				</td>
-
-				<td>{{ __moeda($i->valor_unitario) }}</td>
-				<td>{{ __moeda($i->sub_total) }}</td>
-
-			</tr>
-			
-			@endforeach
-
-			
-		</tbody>
-	</table>
-
-	<div style="margin-left: 5px;">--------------------</div>
-
-	<label class="mt-5" style="font-size: 9px; margin-left: 5px;">ITENS ALTERADOS</label>
-	<table>
-		<thead>
-			<tr>
-				<th style="width: 7px">Código</th>
-				<th style="width: 145px">Descrição</th>
-				<th style="width: 28px">Qtde</th>
-				<th style="width: 35px">Vl Unit</th>
-				<th style="width: 45px">Vl Total</th>
-
-			</tr>
-		</thead>
-		<tbody>
-			@foreach($item->itens as $i)
-			<tr>
-				
-				<td>{{ $i->produto->numero_sequencial }}</td>
-				<td>{{ $i->descricao() }}</td>
-
-				<td>
-					@if(!$i->produto->unidadeDecimal())
-					{{ number_format($i->quantidade, 0, '.', '') }}
-					@else
-					{{ number_format($i->quantidade, 3, '.', '') }}
-					@endif
-
-				</td>
-
-				<td>{{ __moeda($i->valor_unitario) }}</td>
-				<td>{{ __moeda($i->sub_total) }}</td>
-
-			</tr>
-			
-			@endforeach
-
-			
-		</tbody>
-	</table>
-
-	<div class="" style="margin-left: 3px;">------------------------------------------------------------</div>
-
-	<table>
-		<thead>
-			<tr>
-				<th class="total">Qtde de linhas:</th>
-				<th class="total" style="text-align: right;">{{ sizeof($item->itens) }}</th>
-			</tr>
-			<tr>
-				<th class="total">Qtde total de itens:</th>
-				<th class="total" style="text-align: right;">{{ $item->itens->sum('quantidade') }}</th>
 			</tr>
 
-			<tr>
-				<th class="total">Valor Total:</th>
-				@isset($preVenda)
-				<th class="total" style="text-align: right;">R${{ __moeda($item->valor_total) }}</th>
-				@else
-				<th class="total" style="text-align: right;">R${{ __moeda($item->total) }}</th>
-				@endif
-			</tr>
-			<tr>
-				<th class="total">Desconto:</th>
-				<th class="total" style="text-align: right;">R${{ __moeda($item->desconto) }}</th>
-			</tr>
-			<tr>
-				<th class="total">Acréscimo:</th>
-				<th class="total" style="text-align: right;">R${{ __moeda($item->acrescimo) }}</th>
-			</tr>
+
 			@if($item->valor_entrega > 0)
 			<tr>
-				<th class="total">Frete:</th>
-				<th class="total" style="text-align: right;">R${{ __moeda($item->valor_entrega) }}</th>
+				<td>Frete:</td>
+				<td style="text-align:right;">R$ {{ __moeda($item->valor_entrega) }}</td>
 			</tr>
 			@endif
+		</table>
 
-			@if($item->valor_frete > 0)
+		<div class="linha-full">-----------------------------------------------------------</div>
+
+		<table style="padding-right: 2px;">
 			<tr>
-				<th class="total">Valor do Frete</th>
-				<th class="total" style="text-align: right;">R${{ __moeda($item->valor_frete) }}</th>
-			</tr>
-			@endif
-		</thead>
-	</table>
-	<div class="" style="margin-left: 3px; margin-top: -10px;">------------------------------------------------------------</div>
-	<table>
-		<thead>
-			<tr>
-				<th class="total">FORMA PAGAMENTO</th>
-				<th class="total" style="text-align: right;">VALOR PAGO</th>
+				<th style="width: 60%;">FORMA PAGAMENTO</th>
+				<th style="width: 40%; text-align:right;">VALOR PAGO</th>
 			</tr>
 
 			<tr>
-				<th class="total">{{ \App\Models\Nfce::getTipoPagamento($item->tipo_pagamento) }}</th>
-				<th class="total" style="text-align: right;">R${{ __moeda($item->valor_troca) }}</th>
-			</tr>
-			
-
-			<tr>
-				<th class="total">Data da venda</th>
-				<th class="total" style="text-align: right;">{{ __data_pt($item->nfce ? $item->nfce->created_at : $item->nfe->created_at ) }}</th>
-			</tr>
-			<tr>
-				<th class="total">Data da troca</th>
-				<th class="total" style="text-align: right;">{{ __data_pt($item->created_at) }}</th>
+				<td>{{ \App\Models\Nfce::getTipoPagamento($item->tipo_pagamento) }}</td>
+				<td style="text-align:right;">R${{ __moeda($item->valor_troca) }}</td>
 			</tr>
 
+			<tr>
+				<td>Data da venda</td>
+				<td style="text-align:right;">
+					{{ __data_pt($item->nfce ? $item->nfce->created_at : $item->nfe->created_at ) }}
+				</td>
+			</tr>
 
 			<tr>
-				<th class="total">Código da venda</th>
-				<th class="total" style="text-align: right;">{{ $item->nfce ? $item->nfce->numero_sequencial : $item->nfe->numero_sequencial }}</th>
+				<td>Data da troca</td>
+				<td style="text-align:right;">{{ __data_pt($item->created_at) }}</td>
 			</tr>
+
 			<tr>
-				<th class="total">Código da troca</th>
-				<th class="total" style="text-align: right;">{{ $item->numero_sequencial }}</th>
+				<td>Cód. venda</td>
+				<td style="text-align:right;">
+					{{ $item->nfce ? $item->nfce->numero_sequencial : $item->nfe->numero_sequencial }}
+				</td>
+			</tr>
+
+			<tr>
+				<td>Cód. troca</td>
+				<td style="text-align:right;">{{ $item->numero_sequencial }}</td>
 			</tr>
 
 			@if(isset($item->nfe->cliente))
 			<tr>
-				<th colspan="2">{{ $item->nfe->cliente->info }}</th>
+				<td colspan="2">{{ $item->nfe->cliente->info }}</td>
 			</tr>
 			@endif
 
 			@if(isset($item->nfce->cliente))
 			<tr>
-				<th colspan="2">{{ $item->nfce->cliente->info }}</th>
+				<td colspan="2">{{ $item->nfce->cliente->info }}</td>
 			</tr>
 			@endif
 
 			@if($item->observacao)
 			<tr>
-				<th class="total">Observação</th>
-				<th class="total" style="text-align: right;">{{ $item->observacao }}</th>
+				<td>Observação</td>
+				<td style="text-align:right;">{{ $item->observacao }}</td>
 			</tr>
 			@endif
 
 			@if($configGeral && $configGeral->mensagem_padrao_impressao_venda != "")
 			<tr>
-				<th colspan="2">{!! $configGeral->mensagem_padrao_impressao_venda !!}</th>
+				<td colspan="2">{!! $configGeral->mensagem_padrao_impressao_venda !!}</td>
 			</tr>
 			@endif
-		</thead>
-	</table>
+		</table>
 
+	</div>
 
 </body>

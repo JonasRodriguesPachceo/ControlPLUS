@@ -13,18 +13,20 @@
             <table class="table table-striped table-centered mb-0">
                 <thead class="table-dark">
                     <tr>
-                        <th data-label="Caixa">Caixa</th>
-                        <th data-label="Data Abertura">Data Abertura</th>
-                        <th data-label="Data Fechamento">Data Fechamento</th>
-                        <th data-label="Valor Abertura">Valor Abertura</th>
-                        <th data-label="Valor Fechamento">Valor Fechamento</th>
+                        <th>Caixa</th>
+                        <th>Usuário</th>
+                        <th>Data Abertura</th>
+                        <th>Data Fechamento</th>
+                        <th>Valor Abertura</th>
+                        <th>Valor Fechamento</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($data as $item)
                     <tr>
-                        <td data-label="Caixa">{{ $item->usuario ? $item->usuario->name : '--' }}</td>
+                        <td data-label="Caixa">{{ $item->numero_sequencial }}</td>
+                        <td data-label="Usuário">{{ $item->usuario ? $item->usuario->name : '--' }}</td>
                         <td data-label="Data Abertura">{{ __data_pt($item->created_at) }}</td>
                         <td data-label="Data Fechamento">{{ $item->data_fechamento ? __data_pt($item->data_fechamento) : '--' }}</td>
                         <td data-label="Valor Abertura">{{ __moeda($item->valor_abertura) }}</td>

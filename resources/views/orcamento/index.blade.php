@@ -13,6 +13,17 @@
                         </a>
                     </div>
                     @endcan
+
+                    <div class="col-md-8"></div>
+                    @can('ordem_separacao_view')
+                    <div class="col-md-2 text-end">
+                        <a href="{{ route('ordem-separacao.index') }}" class="btn btn-dark">
+                            <i class="ri-search-line"></i>
+                            Ordens de Separação
+                        </a>
+                    </div>
+                    @endcan
+
                 </div>
                 <hr class="mt-3">
                 <div class="col-lg-12">
@@ -59,6 +70,7 @@
                                     <th>CPF/CNPJ</th>
                                     <th>Valor</th>
                                     <th>Data</th>
+                                    <th>Estado</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -68,8 +80,9 @@
                                     <td data-label="#"> {{ $item->numero_sequencial }} </td>
                                     <td data-label="Cliente"> {{ $item->cliente ? $item->cliente->razao_social : "--" }} </td>
                                     <td data-label="CPF/CNPJ"> {{ $item->cliente ? $item->cliente->cpf_cnpj : "--" }} </td>
-                                    <td data-label="Valor" class="text-end"> {{ __moeda($item->total) }} </td>
-                                    <td data-label="Data" class="text-end"> {{ __data_pt($item->created_at) }} </td>
+                                    <td data-label="Valor"> {{ __moeda($item->total) }} </td>
+                                    <td data-label="Data"> {{ __data_pt($item->created_at) }} </td>
+                                    <td data-label="Estado"> {!! $item->estadoSeparacao() !!} </td>
                                     <td>
                                         <form style="width:200px;" action="{{ route('orcamentos.destroy', $item->id) }}" method="post" id="form-{{$item->id}}">
                                             @method('delete')
@@ -92,6 +105,22 @@
                                                 <i class="ri-file-line"></i>
                                             </a>
                                             @endcan
+
+                                            @if(!$item->ordemSeparacao)
+                                            @can('ordem_separacao_create')
+                                            <a title="Gerar ordem de separação" class="btn btn-success btn-sm" href="{{ route('ordem-separacao.create', ['orcamento_id='.$item->id]) }}">
+                                                <i class="ri-file-search-line"></i>
+                                            </a>
+                                            @endcan
+
+                                            @else
+                                            @can('ordem_separacao_view')
+                                            <a title="Ver ordem de separação" class="btn btn-success btn-sm" href="{{ route('ordem-separacao.show', [$item->ordemSeparacao->id]) }}">
+                                                <i class="ri-file-search-line"></i>
+                                            </a>
+                                            @endcan
+
+                                            @endif
                                         </form>
                                     </td>
                                 </tr>

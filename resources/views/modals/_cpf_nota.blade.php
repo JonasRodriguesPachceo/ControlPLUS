@@ -11,12 +11,12 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-12">
+                    <!-- <div class="col-md-12">
                         <button class="btn btn-success btn-clinte">
                             <i class="ri-group-line"></i> Selecionar cliente
                         </button>
                         <p class="p-cliente"></p>
-                    </div>
+                    </div> -->
                     <div class="col-md-6 mt-2">
                         @if(env("NFECNPJ") == 1)
                         {!! Form::tel('cliente_cpf_cnpj', 'CPF (opcional)')->attrs(['class' => 'cpf']) !!}

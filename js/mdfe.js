@@ -390,8 +390,6 @@ function limparLinhas() {
 }
 
 
-
-
 function importarNfe() {
     let ids = []
     $('#nfe-list tr').each(function () {

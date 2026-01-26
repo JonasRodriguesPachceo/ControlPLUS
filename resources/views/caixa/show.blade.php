@@ -597,12 +597,11 @@
                                 <td>
                                     {{ $s->observacao }}
                                 </td>
-                                @if($s->contaEmpresa)
+                                @if($item->contaEmpresa && $s->contaEmpresa)
                                 <td>
                                     {{ $s->contaEmpresa->nome }}
                                 </td>
                                 @endif
-
 
                             </tr>
                             @empty

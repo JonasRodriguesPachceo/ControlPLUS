@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Utils\TradeinCreditUtil;
 
 class Nfce extends Model
 {
@@ -18,7 +17,7 @@ class Nfce extends Model
         'cnpj_cartao', 'cAut_cartao', 'gerar_conta_receber', 'valor_cashback', 'lista_id',
         'numero_sequencial', 'funcionario_id', 'local_id', 'user_id', 'valor_entrega', 'placa', 'uf', 'tipo',
         'qtd_volumes', 'numeracao_volumes', 'especie', 'peso_liquido', 'peso_bruto', 'valor_frete',
-        'transportadora_id'
+        'transportadora_id', 'fiscal_status', 'fiscal_risco', 'fiscal_mensagens'
     ];
 
     public function transportadora()
@@ -134,10 +133,8 @@ class Nfce extends Model
             '15' => 'Boleto Bancário',
             '16' => 'Depósito Bancário',
             '17' => 'Pagamento Instantâneo (PIX)',
-            TradeinCreditMovement::PAYMENT_CODE => TradeinCreditMovement::PAYMENT_LABEL,
             '90' => 'Sem Pagamento',
             // '99' => 'Outros',
-
             '30' => 'Cartão de Crédito TEF',
             '31' => 'Cartão de Débito TEF',
             '32' => 'PIX TEF',
@@ -161,7 +158,6 @@ class Nfce extends Model
             '15' => 'Boleto Bancário',
             '16' => 'Depósito Bancário',
             '17' => 'Pix',
-            TradeinCreditMovement::PAYMENT_CODE => TradeinCreditMovement::PAYMENT_LABEL,
         ];
     }
 
@@ -179,6 +175,15 @@ class Nfce extends Model
             '09' => 'Cabal',
             // '99' => 'Outros'
         ];
+    }
+
+    public static function getBandeira($b)
+    {
+        if (isset(Nfce::bandeiras()[$b])) {
+            return Nfce::bandeiras()[$b];
+        } else {
+            return "01";
+        }
     }
 
     public static function getTipoPagamento($tipo)
@@ -210,7 +215,6 @@ class Nfce extends Model
             'Boleto Bancário' => '15',
             'Depósito Bancário' => '16',
             'Pagamento Instantâneo (PIX)' => '17',
-            TradeinCreditMovement::PAYMENT_LABEL => TradeinCreditMovement::PAYMENT_CODE,
             'Sem Pagamento' => '90',
             'Outros' => '99',
         ];
@@ -219,14 +223,5 @@ class Nfce extends Model
         } catch (\Exception $e) {
             return $values["Dinheiro"];
         }
-    }
-
-    protected static function booted()
-    {
-        static::updated(function (Nfce $nfce) {
-            if ($nfce->isDirty('estado') && $nfce->estado == 'cancelado' && $nfce->getOriginal('estado') != 'cancelado') {
-                app(TradeinCreditUtil::class)->estornarPorNfce($nfce);
-            }
-        });
     }
 }

@@ -197,13 +197,15 @@ class NfceXmlController extends Controller
         file_put_contents(public_path('xml_filtros/') .'registros.pdf', $domPdf->output());
         $zip->addFile(public_path('xml_filtros/') .'registros.pdf', 'registros.pdf');
 
+        $registro_dir = public_path('xml_filtros') . '/registros.pdf';
+
         $zip->close();
         if (file_exists($zip_file)){
             // return response()->download($zip_file, 'nfe_'.$doc.'.zip');
             $body = "Em anexo o arquivo ZIP de arquivos XML período: " . __data_pt($start_date, 0) . " até " . 
             __data_pt($end_date, 0);
 
-            $retorno = $this->emailUtil->enviarXmlContadorZip($empresa->id, $zip_file, 'NFCe', $body);
+            $retorno = $this->emailUtil->enviarXmlContadorZip($empresa->id, $zip_file, 'NFCe', $body, $registro_dir);
             if($retorno == 1){
                 session()->flash("flash_success", "Email enviado!");
             }else{

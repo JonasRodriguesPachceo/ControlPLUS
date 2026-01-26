@@ -42,6 +42,7 @@ class ValidaPlano
 		}
 
 		if($emp->receber_com_boleto){
+
 			$config = ConfiguracaoSuper::first();
 			$diasAtrasoSuspender = $config->dias_atraso_suspender_boleto;
 
@@ -75,17 +76,25 @@ class ValidaPlano
 	}
 
 	private function validaFaturasAnteriores($empresa_id){
-		$mes = 1;
-		$fim = (int)date('m');
-		for($i=1; $i<=$fim; $i++){
-			$fatura = FinanceiroBoleto::where('empresa_id', $empresa_id)
-			->whereMonth('vencimento', $mes)
-			->where('status', 0)
-			->first();
 
-			if($fatura != null) return $fatura;
-			$mes++;
-		}
+		$fatura = FinanceiroBoleto::where('empresa_id', $empresa_id)
+		->where('status', 0)
+		->whereDate('vencimento', '<=', now())
+		->orderBy('vencimento', 'asc')
+		->first();
+
+		return $fatura;
+		// $mes = 1;
+		// $fim = (int)date('m');
+		// for($i=1; $i<=$fim; $i++){
+		// 	$fatura = FinanceiroBoleto::where('empresa_id', $empresa_id)
+		// 	->whereMonth('vencimento', $mes)
+		// 	->where('status', 0)
+		// 	->first();
+
+		// 	if($fatura != null) return $fatura;
+		// 	$mes++;
+		// }
 	}
 
 }

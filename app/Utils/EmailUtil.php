@@ -14,7 +14,7 @@ use Mail;
 
 class EmailUtil {
 
-	public function enviaEmailPHPMailer($destinatario, $subject, $body, $emailConfig, $fileDir = null){
+	public function enviaEmailPHPMailer($destinatario, $subject, $body, $emailConfig, $fileDir = null, $filePdf = null){
 		$mail = new PHPMailer(true);
 
 		try {
@@ -40,6 +40,10 @@ class EmailUtil {
 				}else{
 					$mail->addAttachment($fileDir); 
 				}
+			}
+
+			if($filePdf){
+				$mail->addAttachment($filePdf); 
 			}
 
 			$mail->isHTML(true);
@@ -91,7 +95,7 @@ class EmailUtil {
 		}
 	}
 
-	public function enviarXmlContadorZip($empresa_id, $fileDir, $documento, $body){
+	public function enviarXmlContadorZip($empresa_id, $fileDir, $documento, $body, $filePdf = null){
 		$escritorio = EscritorioContabil::where('empresa_id', $empresa_id)->first();
 		if($escritorio == null) return 0;
 
@@ -105,14 +109,15 @@ class EmailUtil {
 		try{
 			if($emailConfig != null){
 
-				$result = $this->enviaEmailPHPMailer($destinatario, $assunto, $body, $emailConfig, $fileDir);
+				$result = $this->enviaEmailPHPMailer($destinatario, $assunto, $body, $emailConfig, $fileDir, $filePdf);
 			}else{
-				Mail::send('mail.envio_xml', ['body' => $body], function($m) use ($destinatario, $assunto, $fileDir){
+				Mail::send('mail.envio_xml', ['body' => $body], function($m) use ($destinatario, $assunto, $fileDir, $filePdf){
 
 					$nomeEmail = env('MAIL_FROM_NAME');
 					$m->from(env('MAIL_USERNAME'), $nomeEmail);
 					$m->subject($assunto);
 					$m->attach($fileDir);
+					$m->attach($filePdf);
 					$m->to($destinatario);
 				});
 			}

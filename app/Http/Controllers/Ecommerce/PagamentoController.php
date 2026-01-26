@@ -22,29 +22,27 @@ class PagamentoController extends Controller
     public function __construct(UploadUtil $util)
     {
         $this->util = $util;
-        $this->middleware('web');
-        // session_start();
+        session_start();
     }
 
-    public function index(Request $request)
-    {
+    public function index(Request $request){
 
         $carrinho = $this->_getCarrinho();
 
         $config = EcommerceConfig::findOrfail($request->loja_id);
-        if ($carrinho == []) {
-            return redirect()->route('loja.index', 'link=' . $config->loja_id);
+        if($carrinho == []){
+            return redirect()->route('loja.index', 'link='.$config->loja_id);
         }
         $categorias = CategoriaProduto::where('ecommerce', 1)->where('status', 1)
-            ->where('empresa_id', $config->empresa_id)->get();
+        ->where('empresa_id', $config->empresa_id)->get();
 
         $clienteLogado = $this->_getClienteLogado();
-        if (!$clienteLogado) {
+        if(!$clienteLogado){
             session()->flash("flash_error", "Cliente não localizado!");
-            return redirect()->route('loja.login', 'link=' . $config->loja_id);
+            return redirect()->route('loja.login', 'link='.$config->loja_id);
         }
         $tiposPagamento = json_decode($config->tipos_pagamento);
-        if (sizeof($tiposPagamento) == 0) {
+        if(sizeof($tiposPagamento) == 0){
             session()->flash("flash_error", "Nenhum tipo de pagamento!");
             return redirect()->back();
         }
@@ -52,49 +50,46 @@ class PagamentoController extends Controller
         return view('loja.pagamento', compact('carrinho', 'config', 'categorias', 'tiposPagamento'));
     }
 
-    public function novaChavePix(Request $request)
-    {
+    public function novaChavePix(Request $request){
 
-        $item = PedidoEcommerce::where('hash_pedido', $request->hash)->first();
+        $item = PedidoEcommerce::where('hash_pedido',$request->hash)->first();
         $clienteLogado = $this->_getClienteLogado();
 
-        if ($item == null) {
+        if($item == null){
             session()->flash("flash_error", "Algo deu errado");
             return redirect()->back();
         }
-        if ($item->cliente_id != $clienteLogado) {
+        if($item->cliente_id != $clienteLogado){
             session()->flash("flash_error", "Algo deu errado");
             return redirect()->back();
         }
         $config = EcommerceConfig::findOrfail($request->loja_id);
-
+        
         $categorias = CategoriaProduto::where('ecommerce', 1)->where('status', 1)
-            ->where('empresa_id', $config->empresa_id)->get();
+        ->where('empresa_id', $config->empresa_id)->get();
 
         return view('loja.pagamento_pix', compact('config', 'categorias', 'item'));
+
     }
 
-    private function _getClienteLogado()
-    {
-        if (isset($_SESSION['cliente_ecommerce'])) {
+    private function _getClienteLogado(){
+        if(isset($_SESSION['cliente_ecommerce'])){
             return $_SESSION['cliente_ecommerce'];
         }
         return null;
     }
 
-    private function _getCarrinho()
-    {
+    private function _getCarrinho(){
         $data = [];
-        if (isset($_SESSION["session_cart"])) {
+        if(isset($_SESSION["session_cart"])){
             $data = Carrinho::where('session_cart', $_SESSION["session_cart"])
-                ->first();
+            ->first();
         }
         return $data;
     }
 
-    public function pagamentoNovoPix(Request $request)
-    {
-        try {
+    public function pagamentoNovoPix(Request $request){
+        try{
             $config = EcommerceConfig::findOrfail($request->loja_id);
             $pedido = PedidoEcommerce::findOrfail($request->pedido_id);
             $result = DB::transaction(function () use ($request, $config, $pedido) {
@@ -114,7 +109,7 @@ class PagamentoController extends Controller
                         "type" => $request->docType,
                         "number" => preg_replace('/[^0-9]/', '', $request->docNumber)
                     ),
-                    "address" =>  array(
+                    "address"=>  array(
                         "zip_code" => $cep,
                         "street_name" => $config->rua,
                         "street_number" => $config->numero,
@@ -126,7 +121,7 @@ class PagamentoController extends Controller
 
                 $payment->save();
 
-                if ($payment->transaction_details) {
+                if($payment->transaction_details){
                     $pedido->status_pagamento = $payment->status;
                     $pedido->qr_code_base64 = $payment->point_of_interaction->transaction_data->qr_code_base64;
                     $pedido->qr_code = $payment->point_of_interaction->transaction_data->qr_code;
@@ -139,7 +134,7 @@ class PagamentoController extends Controller
                         'sucesso' => 1,
                         'transacao_id' => $pedido->transacao_id
                     ];
-                } else {
+                }else{
 
                     session()->flash("flash_error", $payment->error);
                     return [
@@ -148,21 +143,20 @@ class PagamentoController extends Controller
                 }
             });
 
-            if (isset($result['sucesso'])) {
+            if(isset($result['sucesso'])){
 
-                return redirect()->route('loja.finalizar', 'link=' . $config->loja_id . '&transacao_id=' . $result['transacao_id'] . '&hash_pedido=' . $pedido->hash_pedido);
-            } else {
+                return redirect()->route('loja.finalizar', 'link='.$config->loja_id .'&transacao_id='.$result['transacao_id'].'&hash_pedido='.$pedido->hash_pedido);
+            }else{
                 return redirect()->back();
             }
-        } catch (\Exception $e) {
+        }catch(\Exception $e){
             session()->flash("flash_error", $e->getMessage());
             return redirect()->back();
         }
     }
 
-    public function pagamentoPix(Request $request)
-    {
-        try {
+    public function pagamentoPix(Request $request){
+        try{
             $config = EcommerceConfig::findOrfail($request->loja_id);
             $result = DB::transaction(function () use ($request, $config) {
 
@@ -184,7 +178,7 @@ class PagamentoController extends Controller
                         "type" => $request->docType,
                         "number" => preg_replace('/[^0-9]/', '', $request->docNumber)
                     ),
-                    "address" =>  array(
+                    "address"=>  array(
                         "zip_code" => $cep,
                         "street_name" => $config->rua,
                         "street_number" => $config->numero,
@@ -195,7 +189,7 @@ class PagamentoController extends Controller
                 );
                 $payment->save();
 
-                if ($payment->transaction_details) {
+                if($payment->transaction_details){
                     $pedido->status_pagamento = $payment->status;
                     $pedido->qr_code_base64 = $payment->point_of_interaction->transaction_data->qr_code_base64;
                     $pedido->qr_code = $payment->point_of_interaction->transaction_data->qr_code;
@@ -209,7 +203,7 @@ class PagamentoController extends Controller
                         'transacao_id' => $pedido->transacao_id,
                         'hash_pedido' => $pedido->hash_pedido
                     ];
-                } else {
+                }else{
 
                     session()->flash("flash_error", $payment->error);
                     return [
@@ -218,20 +212,19 @@ class PagamentoController extends Controller
                 }
             });
 
-            if (isset($result['sucesso'])) {
-                return redirect()->route('loja.finalizar', 'link=' . $config->loja_id . '&transacao_id=' . $result['transacao_id'] . '&hash_pedido=' . $result['hash_pedido']);
-            } else {
+            if(isset($result['sucesso'])){
+                return redirect()->route('loja.finalizar', 'link='.$config->loja_id .'&transacao_id='.$result['transacao_id'].'&hash_pedido='.$result['hash_pedido']);
+            }else{
                 return redirect()->back();
             }
-        } catch (\Exception $e) {
+        }catch(\Exception $e){
             session()->flash("flash_error", $e->getMessage());
             return redirect()->back();
         }
     }
 
-    public function pagamentoBoleto(Request $request)
-    {
-        try {
+    public function pagamentoBoleto(Request $request){
+        try{
             $config = EcommerceConfig::findOrfail($request->loja_id);
 
             $result = DB::transaction(function () use ($request, $config) {
@@ -254,7 +247,7 @@ class PagamentoController extends Controller
                         "type" => $request->docType,
                         "number" => preg_replace('/[^0-9]/', '', $request->docNumber)
                     ),
-                    "address" =>  array(
+                    "address"=>  array(
                         "zip_code" => $cep,
                         "street_name" => $config->rua,
                         "street_number" => $config->numero,
@@ -265,7 +258,7 @@ class PagamentoController extends Controller
                 );
                 $payment->save();
 
-                if ($payment->transaction_details) {
+                if($payment->transaction_details){
                     $pedido->status_pagamento = $payment->status;
                     $pedido->transacao_id = (string)$payment->id;
                     $pedido->link_boleto = $payment->transaction_details->external_resource_url;
@@ -278,7 +271,7 @@ class PagamentoController extends Controller
                         'transacao_id' => $pedido->transacao_id,
                         'hash_pedido' => $pedido->hash_pedido
                     ];
-                } else {
+                }else{
 
                     session()->flash("flash_error", $payment->error);
                     return [
@@ -287,21 +280,20 @@ class PagamentoController extends Controller
                 }
             });
 
-            if (isset($result['sucesso'])) {
-                return redirect()->route('loja.finalizar', 'link=' . $config->loja_id . '&transacao_id=' . $result['transacao_id'] . '&hash_pedido=' . $result['hash_pedido']);
-            } else {
+            if(isset($result['sucesso'])){
+                return redirect()->route('loja.finalizar', 'link='.$config->loja_id .'&transacao_id='.$result['transacao_id'].'&hash_pedido='.$result['hash_pedido']);
+            }else{
                 session()->flash("flash_error", $result['erro']);
                 return redirect()->back();
             }
-        } catch (\Exception $e) {
+        }catch(\Exception $e){
             session()->flash("flash_error", $e->getMessage());
             return redirect()->back();
         }
     }
 
-    public function pagamentoDeposito(Request $request)
-    {
-        try {
+    public function pagamentoDeposito(Request $request){
+        try{
             $config = EcommerceConfig::findOrfail($request->loja_id);
             $pedido = DB::transaction(function () use ($request, $config) {
 
@@ -313,8 +305,8 @@ class PagamentoController extends Controller
                 return $pedido;
             });
 
-            return redirect()->route('loja.finalizar-deposito', 'link=' . $config->loja_id . '&hash=' . $pedido->hash_pedido);
-        } catch (\Exception $e) {
+            return redirect()->route('loja.finalizar-deposito', 'link='.$config->loja_id.'&hash='.$pedido->hash_pedido);
+        }catch(\Exception $e){
             session()->flash("flash_error", $e->getMessage());
             return redirect()->back();
         }
@@ -334,8 +326,7 @@ class PagamentoController extends Controller
     //     ];
     // }
 
-    private function createPedido($request)
-    {
+    private function createPedido($request){
         $carrinho = $this->_getCarrinho();
 
         $config = EcommerceConfig::findOrfail($request->loja_id);
@@ -379,7 +370,7 @@ class PagamentoController extends Controller
             'numero_documento' => $request->docNumber ?? ''
         ]);
 
-        foreach ($carrinho->itens as $item) {
+        foreach($carrinho->itens as $item){
             $item = ItemPedidoEcommerce::create([
                 'pedido_id' => $pedido->id,
                 'produto_id' => $item->produto_id,
@@ -393,49 +384,46 @@ class PagamentoController extends Controller
         return $pedido;
     }
 
-    public function finalizar(Request $request)
-    {
+    public function finalizar(Request $request){
         $pedido = PedidoEcommerce::where('hash_pedido', $request->hash_pedido)
-            ->first();
+        ->first();
         $_SESSION["session_cart"] = null;
         $config = EcommerceConfig::where('empresa_id', $pedido->empresa_id)->first();
-
-        if ($pedido == null) {
+        
+        if($pedido == null){
             session()->flash("flash_error", "Algo deu errado!");
-            return redirect()->route('loja.index', ['link=' . $config->loja_id]);
+            return redirect()->route('loja.index', ['link='.$config->loja_id]);
         }
 
         $categorias = CategoriaProduto::where('ecommerce', 1)->where('status', 1)
-            ->where('empresa_id', $config->empresa_id)->get();
+        ->where('empresa_id', $config->empresa_id)->get();
         return view('loja.finalizar', compact('pedido', 'config', 'categorias'));
     }
 
-    public function finalizarDeposito(Request $request)
-    {
+    public function finalizarDeposito(Request $request){
 
         $pedido = PedidoEcommerce::where('hash_pedido', $request->hash)
-            ->first();
+        ->first();
         $_SESSION["session_cart"] = null;
 
-        if ($pedido == null) {
+        if($pedido == null){
             session()->flash("flash_error", "Algo deu errado!");
             return redirect()->back();
         }
         $config = EcommerceConfig::findOrfail($request->loja_id);
         $categorias = CategoriaProduto::where('ecommerce', 1)->where('status', 1)
-            ->where('empresa_id', $config->empresa_id)->get();
+        ->where('empresa_id', $config->empresa_id)->get();
         return view('loja.finalizar', compact('pedido', 'config', 'categorias'));
     }
 
-    public function pagamentoCartao(Request $request)
-    {
-        try {
+    public function pagamentoCartao(Request $request){
+        try{
             $config = EcommerceConfig::findOrfail($request->loja_id);
             $result = DB::transaction(function () use ($request, $config) {
 
                 $pedido = $this->createPedido($request);
                 $carrinho = $this->_getCarrinho();
-
+                
                 //teste
                 // $pedido->status_pagamento = 'approved';
                 // $pedido->transacao_id = "123";
@@ -470,13 +458,13 @@ class PagamentoController extends Controller
 
                 // dd($request->all());
 
-                if ($payment->error) {
+                if($payment->error){
                     // dd($payment);
                     session()->flash("flash_error", $payment->error);
                     return [
                         'erro' => $payment->error
                     ];
-                } else {
+                }else{
                     $pedido->status_pagamento = $payment->status;
                     $pedido->transacao_id = (string)$payment->id;
                     $pedido->tipo_pagamento = 'cartao';
@@ -491,19 +479,18 @@ class PagamentoController extends Controller
                 }
             });
 
-            if (isset($result['sucesso'])) {
-                return redirect()->route('loja.finalizar', 'link=' . $config->loja_id . '&hash_pedido=' . $result['hash_pedido']);
-            } else {
+            if(isset($result['sucesso'])){
+                return redirect()->route('loja.finalizar', 'link='.$config->loja_id .'&hash_pedido='.$result['hash_pedido']);
+            }else{
                 return redirect()->back();
             }
-        } catch (\Exception $e) {
+        }catch(\Exception $e){
             session()->flash("flash_error", $e->getMessage());
             return redirect()->back();
         }
     }
 
-    public function enviarComprovante(Request $request)
-    {
+    public function enviarComprovante(Request $request){
         $pedido = PedidoEcommerce::findOrfail($request->pedido_id);
         if ($request->hasFile('file')) {
             $config = EcommerceConfig::where('empresa_id', $pedido->empresa_id)->first();
@@ -513,10 +500,11 @@ class PagamentoController extends Controller
             session()->flash("flash_success", "Comprovante enviado com sucesso!");
             $pedido->comprovante = $file_name;
             $pedido->save();
-            return redirect()->route('loja.index', 'link=' . $config->loja_id);
-        } else {
+            return redirect()->route('loja.index', 'link='.$config->loja_id);
+        }else{
             session()->flash("flash_error", "Selecione o arquivo!");
             return redirect()->back();
         }
     }
+
 }

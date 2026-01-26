@@ -1,8 +1,47 @@
 let scanner = null;
 let modelo = null;
 
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('btnInstallPwa').style.display = 'block';
+});
+
+async function installPwa() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('btnInstallPwa').style.display = 'none';
+}
+
 $(function(){
     modelo = $('#modelo').val()
+    // $('#modalFrete').modal('show')
+})
+
+function print(){
+    
+    var disp_setting="toolbar=yes,location=no,";
+    disp_setting+="directories=yes,menubar=yes,";
+    disp_setting+="scrollbars=yes,width=850, height=600, left=100, top=25";
+
+    var docprint=window.open(path_url+"pedidos-cardapio-print/"+$('#pedido_id').val(),"",disp_setting);
+
+    docprint.focus();
+}
+
+$("#btnFrete").on("click", function () {
+    $('#modalFinalizar').modal('hide')
+    $('#modalFrete').modal('show')
+})
+
+$("#btnConfirmarFrete").on("click", function () {
+    $('#modalFrete').modal('hide')
+    $('#modalFinalizar').modal('show')
+    atualizarResumoPagamento()
 })
 
 $("#btn-dark-mode").on("click", function () {
@@ -98,6 +137,29 @@ $(document).ready(function() {
         })
         .done((data) => {
             $('#modalVendasDiaria').modal('show');
+            $('#modalVendasDiaria .modal-title').text('Vendas Diárias PDV');
+            $('#modalVendasDiaria #vendasDiaria').html(data);
+        })
+        .fail((e) => {
+            console.log(e);
+            toastr.error("Não foi possivel buscar as vendas do dia!")
+        })
+        .always(() => {
+            $('.loader').css('display', 'none')
+        });
+    });
+
+    $('#btn-vendas-diaria-nfe').on('click', function() {
+        $('.loader').css('display', 'flex')
+        $('.loader-text').text('Buscando vendas...')
+        $.get(path_url + "api/pdv-mobo/vendas-diaria-nfe",
+        {
+            empresa_id: $('#empresa_id').val(),
+            usuario_id: $('#usuario_id').val()
+        })
+        .done((data) => {
+            $('#modalVendasDiaria').modal('show');
+            $('#modalVendasDiaria .modal-title').text('Vendas Diárias Pedido');
             $('#modalVendasDiaria #vendasDiaria').html(data);
         })
         .fail((e) => {
@@ -177,6 +239,15 @@ $(document).ready(function() {
 $(document).on("focus", ".moeda", function () {
     $(this).mask("00000000,00", { reverse: true })
 });
+
+$(document).on("focus", ".peso", function () {
+    $(this).mask("00000000.000", { reverse: true })
+});
+
+$(document).on("focus", ".placa", function () {
+    $(this).mask("AAA-AAAA", { reverse: true })
+});
+
 
 $(".cpf_cnpj").inputmask({
   mask: ["999.999.999-99", "99.999.999/9999-99"], // CPF ou CNPJ
@@ -314,6 +385,12 @@ $('#modalAdicionar').on('click', function () {
 
     let qtd = parseFloat($('#modalQtd').val());
     let valor = $('#modalValor').val().replace(',', '.');
+
+    if(!valor){
+        toastr.warning("Informe o valor unitário para continuar!");
+        return;
+    }
+
     let observacao = $('#modalObservacao').val();
 
     if(produto != null && produto.categoria && produto.categoria.tipo_pizza == 1 && !tamanho_id){
@@ -542,11 +619,13 @@ $('#btnTotal').click(function () {
 });
 
 function atualizarResumoPagamento() {
+    $('.finalizar-label').text('Falta')
     let total = convertMoedaToFloat($('#btnTotal').text())
 
     let desconto = parseFloat($('#finalizarDesconto').val().replace('.', '').replace(',', '.') || 0);
     let acrescimo = parseFloat($('#finalizarAcrescimo').val().replace('.', '').replace(',', '.') || 0);
-    let totalAPagar = total - desconto + acrescimo;
+    let frete = parseFloat($('#freteValor').val().replace('.', '').replace(',', '.') || 0);
+    let totalAPagar = total - desconto + acrescimo + frete;
 
     if (totalAPagar < 0) totalAPagar = 0;
 
@@ -556,6 +635,9 @@ function atualizarResumoPagamento() {
     $('#resumoTotal').text("R$ " + totalAPagar.toFixed(2).replace('.', ','));
     $('#resumoPago').text("R$ " + pago.toFixed(2).replace('.', ','));
     $('#resumoFalta').text("R$ " + falta.toFixed(2).replace('.', ','));
+    if(falta < 0){
+        $('.finalizar-label').text('Troco')
+    }
 }
 
 $('.pg-btn').on('click', function() {
@@ -680,7 +762,9 @@ function salvarVenda(){
     let total = convertMoedaToFloat($('#btnTotal').text())
     let desconto = parseFloat($('#finalizarDesconto').val().replace('.', '').replace(',', '.') || 0);
     let acrescimo = parseFloat($('#finalizarAcrescimo').val().replace('.', '').replace(',', '.') || 0);
-    let totalAPagar = total - desconto;
+    let valor_frete = parseFloat($('#freteValor').val().replace('.', '').replace(',', '.') || 0);
+
+    let totalAPagar = total - desconto + acrescimo + valor_frete;
     if (totalAPagar < 0) totalAPagar = 0;
 
     let pago = pagamentos.reduce((s, p) => s + p.valor, 0);
@@ -688,12 +772,12 @@ function salvarVenda(){
     if (pagamentos.length === 0) {
         // toastr.error("Adicione ao menos uma forma de pagamento.");
         // return;
-        pago = total
+        pago = totalAPagar
     }
 
     let troco = 0
 
-    if(suspender == 0){
+    if(suspender == 0 && modelo != 'pedido'){
 
         if(formaSelecionada == null){
             toastr.error("Selecione o tipo de pagamento para esta venda.");
@@ -707,6 +791,22 @@ function salvarVenda(){
         let falta = parseFloat($('#resumoFalta').text().replace("R$", "").replace(",", ".").trim())
         if(falta < 0){
             troco = falta*-1
+        }
+    }
+
+    let frete = null
+    if($('#freteValor').val() != ''){
+        frete = {
+            valor: $('#freteValor').val(),
+            qtd_volumes: $('#freteQtdVolumes').val(),
+            numeracao_volumes: $('#freteNumVolumes').val(),
+            peso_bruto: $('#fretePresoBruto').val(),
+            peso_liquido: $('#fretePresoLiquido').val(),
+            especie: $('#freteEspecie').val(),
+            transportadora_id: $('#freteTransportadora').val(),
+            tipo: $('#freteTipo').val(),
+            placa: $('#fretePlaca').val(),
+            uf: $('#freteUf').val(),
         }
     }
 
@@ -727,10 +827,15 @@ function salvarVenda(){
         usuario_id: $('#usuario_id').val(),
         venda_suspensa_id: $('#venda_suspensa_id').val(),
         pedido_id: $('#pedido_id').val(),
-        cliente_cpf_cnpj: $('#cpfNota').val()
+        cliente_cpf_cnpj: $('#cpfNota').val(),
+        natureza_id: $('#naturezaOperacao').length ? $('#naturezaOperacao').val() : null
     };
 
-    // console.log("Venda Final:", venda);
+    if (frete != null) {
+        venda.frete = frete;
+    }
+
+    console.log("Venda Final:", venda);
     // return;
 
     let url = path_url + 'api/pdv-mobo/store'
@@ -743,7 +848,23 @@ function salvarVenda(){
         url = path_url + 'api/pdv-mobo/store-nfe'
         $.post(url, venda)
         .done((success) => {
+            // console.log(success)
+            swal({
+                title: "Sucesso",
+                text: "Venda finalizada com sucesso, deseja emitir a NFe?",
+                icon: "success",
+                buttons: true,
+                buttons: ["Não", "Sim"],
+                dangerMode: true,
+            }).then((isConfirm) => {
+                if (isConfirm) {
+                    gerarNfe(success)
+                }else{
+                    resetForm()
+                    $('#modalFinalizar').modal('hide');
 
+                }
+            })
         }).fail((err) => {
             swal("Erro", "Algo deu errado ao salvar venda!", "error")
             console.log(err)
@@ -805,9 +926,39 @@ function gerarNfce(venda) {
     .fail((err) => {
         console.log(err)
         swal("Algo deu errado", err.responseJSON, "error")
+
     })
     .always(() => {
         $('.loader').css('display', 'none')
+        resetForm()
+        $('#modalFinalizar').modal('hide')
+    });
+}
+
+function gerarNfe(venda) {
+    $('.loader').css('display', 'flex')
+    $('.loader-text').text('Emitindo NFe..')
+    $.post(path_url + "api/nfe_painel/emitir", {
+        id: venda.id,
+    })
+    .done((success) => {
+        swal("Sucesso", "NFe emitida " + success.recibo + " - chave: [" + success.chave + "]", "success")
+        .then(() => {
+            window.open(path_url + 'nfe/imprimir/' + venda.id, "_blank")
+            setTimeout(() => {
+                resetForm()
+            }, 100)
+        })
+    })
+    .fail((err) => {
+        console.log(err)
+        swal("Algo deu errado", err.responseJSON, "error")
+
+    })
+    .always(() => {
+        $('.loader').css('display', 'none')
+        resetForm()
+        $('#modalFinalizar').modal('hide')
     });
 }
 
@@ -837,6 +988,9 @@ function resetForm(){
     $('#finalizarDesconto').val('');
     $('#finalizarAcrescimo').val('');
     $('#finalizarObs').val('');
+
+    $('#modalFrete').find('input').val('');
+    $('#modalFrete').find('select').val('').change();
     
 }
 
@@ -955,17 +1109,15 @@ $('#btnScan').on('click', function () {
     },
     decodedText => {
 
-        $.get('/pdv-mobo/produtos-codigo-barras', {empresa_id: $('#empresa_id').val(), codigo_barras: decodedText})
+        $.get(path_url + 'api/pdv-mobo/produtos-codigo-barras', {empresa_id: $('#empresa_id').val(), codigo_barras: decodedText})
         .done(function(produto) {
 
             beepSucesso();
-
             abrirModalProduto(produto);
         })
         .fail(function() {
-            toastr.error("Produto não encontrado");
+            toastr.error("Produto não encontrado ["+decodedText+"]");
         });
-
     },
     errorMessage => {
 
@@ -998,6 +1150,17 @@ function fecharScanner() {
 $(document).on("click", "#btnCloseScanner", function () {
     fecharScanner();
     $('.btn-close-scanner').addClass('d-none')
+});
+
+$(document).on('click', function (e) {
+
+    // se scanner não estiver visível, ignora
+    if (!$('#reader').is(':visible')) return;
+
+    // se clicou dentro do reader ou no botão de scan, não fecha
+    if ($(e.target).closest('#reader, #btnScan').length) return;
+
+    $("#btnCloseScanner").trigger('click')
 });
 
 var produto = null
@@ -1288,7 +1451,6 @@ function calcularValorPizza() {
         // console.log(elemento.data('valores'))
         valores = elemento.data('valores')
         // let sabor = saboresPizza.find(s => s.id == id);
-
         let t = valores.find(v => v.tamanho_id == tamanho_id);
         let valor = parseFloat(t.valor)
 

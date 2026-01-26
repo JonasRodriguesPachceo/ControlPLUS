@@ -35,7 +35,7 @@ style="border-bottom: 1px solid rgb(206, 206, 206); margin-bottom:10px;  width: 
 	</td>
 </tr>
 <tr>
-	<td class="" style="width: 485px;">
+	<td class="" style="width: 415px;">
 		Produto
 	</td>
 	<td class="" style="width: 110px;">

@@ -22,6 +22,7 @@
 <table class="table-sm table-borderless" style="border-bottom: 1px solid rgb(206, 206, 206); margin-bottom:10px;  width: 100%;">
     <thead>
         <tr>
+            <th>Código</th>
             <th style="width: 300px">Produto</th>
             <th>Categoria</th>
             <th>Valor de compra</th>
@@ -41,6 +42,7 @@
         @endphp
         @foreach($data as $key => $item)
         <tr class="@if($key%2 == 0) pure-table-odd @endif">
+            <td>{{ $item['codigo'] }}</td>
             <td>{{ $item['produto'] }}</td>
             <td>{{ $item['categoria'] }}</td>
             <td>{{ __moeda($item['valor_compra']) }}</td>

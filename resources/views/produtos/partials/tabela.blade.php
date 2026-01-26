@@ -62,112 +62,18 @@
                         @endcan
 
                         <td class="text-start d-none d-md-table-cell">
-                            <div class="dropdown">
-                                <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-display="static">
-                                    Ações
-                                </button>
-
-                                <ul class="dropdown-menu dropdown-menu-end shadow">
-                                    <form action="{{ route('produtos.destroy', $item->id) }}" method="post" id="form-{{$item->id}}">
-                                        @method('delete')
-                                        @csrf
-                                        @can('produtos_edit')
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('produtos.edit', [$item->id]) }}">
-                                                <i class="ri-edit-line text-warning me-1"></i> Editar
-                                            </a>
-                                        </li>
-                                        @endcan
-
-                                        @can('produtos_delete')
-                                        <li>
-                                            <button class="dropdown-item text-danger btn-delete" data-id="{{ $item->id }}">
-                                                <i class="ri-delete-bin-line me-1"></i> Excluir
-                                            </button>
-                                        </li>
-                                        @endcan
-
-                                        @if($item->composto == true)
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('produto-composto.show', [$item->id]) }}">
-                                                <i class="ri-search-eye-fill text-info me-1"></i> Ver composição
-                                            </a>
-                                        </li>
-                                        @endif
-
-                                        @if($item->alerta_validade != '')
-                                        <li>
-                                            <button class="dropdown-item" onclick="infoVencimento('{{ $item->id }}')" data-bs-toggle="modal" data-bs-target="#info_vencimento">
-                                                <i class="ri-eye-line me-1"></i> Lote e validade
-                                            </button>
-                                        </li>
-                                        @endif
-
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('produtos.show', [$item->id]) }}">
-                                                <i class="ri-draft-line me-1"></i> Movimentações
-                                            </a>
-                                        </li>
-
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('produtos.duplicar', [$item->id]) }}">
-                                                <i class="ri-file-copy-line text-primary me-1"></i> Duplicar
-                                            </a>
-                                        </li>
-
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('produtos.etiqueta', [$item->id]) }}">
-                                                <i class="ri-barcode-box-line me-1"></i> Etiqueta
-                                            </a>
-                                        </li>
-
-                                        @if(__countLocalAtivo() > 1)
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('produto-tributacao-local.index', [$item->id]) }}">
-                                                <i class="ri-percent-fill me-1"></i> Valores por local
-                                            </a>
-                                        </li>
-                                        @endif
-                                    </form>
-                                </ul>
-                            </div>
+                            @if($usarDropdown)
+                            @include('produtos.partials.dropdown_acoes', ['item' => $item])
+                            @else
+                            @include('produtos.partials.botoes_acoes', ['item' => $item])
+                            @endif
                         </td>
-
 
                         <td class="d-md-none">
-                            <form style="width: 330px" action="{{ route('produtos.destroy', $item->id) }}" method="post" id="form-{{$item->id}}">
-                                @method('delete')
-                                @can('produtos_edit')
-                                <a class="btn btn-warning btn-sm" href="{{ route('produtos.edit', [$item->id]) }}">
-                                    <i class="ri-edit-line"></i>
-                                </a>
-                                @endcan
-                                @csrf
-                                @can('produtos_delete')
-                                <button type="button" class="btn btn-delete btn-sm btn-danger">
-                                    <i class="ri-delete-bin-line"></i>
-                                </button>
-                                @endcan
-                                @if($item->composto == true)
-                                <a class="btn btn-info btn-sm" href="{{ route('produto-composto.show', [$item->id]) }}" title="Ver composição"><i class="ri-search-eye-fill"></i></a>
-                                @endif
-                                @if($item->alerta_validade != '')
-                                <a title="Ver lote e vencimento" type="button" class="btn btn-light btn-sm" onclick="infoVencimento('{{$item->id}}')" data-bs-toggle="modal" data-bs-target="#info_vencimento"><i class="ri-eye-line"></i></a>
-                                @endif
-                                <a title="Ver movimentações" href="{{ route('produtos.show', [$item->id]) }}" class="btn btn-dark btn-sm"><i class="ri-draft-line"></i></a>
-                                <a class="btn btn-primary btn-sm" href="{{ route('produtos.duplicar', [$item->id]) }}" title="Duplicar produto">
-                                    <i class="ri-file-copy-line"></i>
-                                </a>
-                                <a class="btn btn-light btn-sm" href="{{ route('produtos.etiqueta', [$item->id]) }}" title="Gerar etiqueta">
-                                    <i class="ri-barcode-box-line"></i>
-                                </a>
-                                @if(__countLocalAtivo() > 1)
-                                <a class="btn btn-dark btn-sm" href="{{ route('produto-tributacao-local.index', [$item->id]) }}" title="Valores por local">
-                                    <i class="ri-percent-fill"></i>
-                                </a>
-                                @endif
-                            </form>
+                            @include('produtos.partials.botoes_acoes', ['item' => $item])
                         </td>
+
+
                         <td><img class="img-60" src="{{ $item->img }}"></td>
                         <td data-label="Código" style="font-weight: bold;">{{ $item->numero_sequencial }}</td>
                         <td class="sticky-col first-col" data-label="Nome">

@@ -200,7 +200,7 @@ h5.card-title{ font-weight:700; }
   border: 0;
   border-radius: 12px;
   box-shadow: 0 6px 18px rgba(20, 20, 30, .06);
-  height: 400px;
+  height: 410px;
   overflow-y: auto;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE e Edge antigos */

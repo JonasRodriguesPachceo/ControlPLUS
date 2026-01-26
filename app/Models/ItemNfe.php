@@ -36,6 +36,10 @@ class ItemNfe extends Model
         return $this->hasMany(ItemDimensaoNfe::class, 'item_nfe_id');
     }
 
+    public function rastroXml(){
+        return $this->hasMany(RastroXml::class, 'item_nfe_id');
+    }
+
     public function cidadeDesembarque(){
         return $this->belongsTo(Cidade::class, 'cidade_desembarque_id');
     }

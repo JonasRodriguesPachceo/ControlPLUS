@@ -37,7 +37,7 @@ class IfoodCategoriaProdutoController extends Controller
                 }
             }
         }
-        // dd($result);
+        $idsIfood = [];
         foreach($result as $c){
             CategoriaProdutoIfood::updateOrCreate([
                 'empresa_id' => $config->empresa_id,
@@ -46,9 +46,17 @@ class IfoodCategoriaProdutoController extends Controller
                 'status' => $c->status,
                 'template' => $c->template,
             ]);
+            $idsIfood[] = $c->id;
         }
 
+        CategoriaProdutoIfood::where('empresa_id', $config->empresa_id)
+        ->whereNotIn('ifood_id', $idsIfood)
+        ->update([
+            'status' => 0
+        ]);
+
         $data = CategoriaProdutoIfood::where('empresa_id', $request->empresa_id)->get();
+        
         return view('ifood_categorias.index', compact('data'));
     }
 

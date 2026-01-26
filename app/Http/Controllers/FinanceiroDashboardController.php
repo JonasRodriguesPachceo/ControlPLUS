@@ -104,6 +104,7 @@ class FinanceiroDashboardController extends Controller
     {
         $registros = ContaPagar::where('empresa_id', request()->empresa_id)
         ->where('status', 0)
+        ->where('fornecedor_id', '!=', null)
         ->whereDate('data_vencimento', '<', now())
         ->with('fornecedor:id,razao_social,cpf_cnpj')
         ->get();

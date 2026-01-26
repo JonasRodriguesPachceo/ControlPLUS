@@ -19,6 +19,7 @@ use App\Utils\EmailUtil;
 use Mail;
 use App\Utils\SiegUtil;
 use App\Utils\EstoqueUtil;
+use App\Utils\Fiscal\FiscalValidator;
 
 class NFePainelController extends Controller
 {
@@ -48,6 +49,23 @@ class NFePainelController extends Controller
         if (!is_dir(public_path('danfe'))) {
             mkdir(public_path('danfe'), 0777, true);
         }
+    }
+
+    public function consultaFiscal(Request $request)
+    {
+
+        $nfe = Nfe::with('itens')->findOrFail($request->nfe_id);
+
+        $empresa = $nfe->empresa;
+
+        $result = app(FiscalValidator::class)
+        ->validate($nfe, $empresa);
+
+        return response()->json([
+            'status' => $result['status'],
+            'risco' => $result['risco'],
+            'mensagens' => $result['mensagens']
+        ]);
     }
 
     private function getContigencia($empresa_id){
@@ -209,7 +227,7 @@ class NFePainelController extends Controller
             $temTag = 0;
             $gruposICMS = [
                 'ICMS00','ICMS10','ICMS20','ICMS30','ICMS40','ICMS51',
-                'ICMS60','ICMS70','ICMS90','ICMSST'
+                'ICMS60', 'ICMS61','ICMS70','ICMS90','ICMSST'
             ];
 
             foreach ($gruposICMS as $g) {
@@ -223,7 +241,7 @@ class NFePainelController extends Controller
 
             $gruposSN = [
                 'ICMSSN101','ICMSSN102','ICMSSN201','ICMSSN202','ICMSSN203',
-                'ICMSSN500','ICMSSN900'
+                'ICMSSN500','ICMSSN900', 'ICMS61'
             ];
 
             foreach ($gruposSN as $g) {

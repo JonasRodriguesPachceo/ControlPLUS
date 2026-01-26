@@ -61,4 +61,17 @@ class TefConfigController extends Controller
         }
         return redirect()->route('tef-config.index');
     }
+
+    public function destroy($id)
+    {
+        $item = TefMultiPlusCard::findOrFail($id);
+        __validaObjetoEmpresa($item);
+        try {
+            $item->delete();
+            session()->flash("flash_success", "Configuração removida com sucesso!");
+        } catch (\Exception $e) {
+            session()->flash("flash_error", 'Algo deu errado: '. $e->getMessage());
+        }
+        return redirect()->back();
+    }
 }

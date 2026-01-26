@@ -117,6 +117,21 @@ class PdvMoboController extends Controller
                     'numero_sequencial' => $this->getLastNumero($request->empresa_id)
                 ];
 
+                if($request->frete){
+                    $frete = $request->frete;
+                    $dataVenda['valor_frete'] = __convert_value_bd($frete['valor']);
+                    $dataVenda['qtd_volumes'] = $frete['qtd_volumes'];
+                    $dataVenda['numeracao_volumes'] = $frete['numeracao_volumes'];
+                    $dataVenda['peso_bruto'] = $frete['peso_bruto'];
+                    $dataVenda['peso_liquido'] = $frete['peso_liquido'];
+                    $dataVenda['especie'] = $frete['especie'];
+                    $dataVenda['transportadora_id'] = $frete['transportadora_id'];
+                    $dataVenda['tipo'] = $frete['tipo'] ?? 9;
+                    $dataVenda['placa'] = $frete['placa'];
+                    $dataVenda['uf'] = $frete['uf'];
+                }
+
+
                 $nfce = Nfce::create($dataVenda);
 
                 foreach($request->itens as $i){
@@ -124,6 +139,10 @@ class PdvMoboController extends Controller
                     $product = Produto::findOrFail($i->id);
                     $product = __tributacaoProdutoLocalVenda($product, $caixa->local_id);
                     $variacao_id = null;
+                    $cfop = $product->cfop_estadual;
+                    if($cliente && $cliente->cidade->uf != $config->cidade->uf){
+                        $cfop = $product->cfop_outro_estado;
+                    }
                     $itemNfce = ItemNfce::create([
                         'nfce_id' => $nfce->id,
                         'produto_id' => $product->id,
@@ -139,7 +158,7 @@ class PdvMoboController extends Controller
                         'cst_pis' => $product->cst_pis,
                         'cst_cofins' => $product->cst_cofins,
                         'cst_ipi' => $product->cst_ipi,
-                        'cfop' => $product->cfop_estadual,
+                        'cfop' => $cfop,
                         'ncm' => $product->ncm,
                         'variacao_id' => $variacao_id,
                     ]);
@@ -352,6 +371,16 @@ public function vendasDiaria(Request $request){
     return view('pdv_mobo.partials.vendas_diaria', compact('data'))->render();
 }
 
+public function vendasDiariaNfe(Request $request){
+    $data = Nfe::where('empresa_id', $request->empresa_id)
+    ->where('user_id', $request->usuario_id)
+    ->orderBy('id', 'desc')
+    ->whereDate('created_at', date('Y-m-d'))
+    ->get();
+
+    return view('pdv_mobo.partials.vendas_diaria_nfe', compact('data'))->render();
+}
+
 public function produtosCategoria(Request $request)
 {
     $categoria_id = $request->categoria_id;
@@ -435,10 +464,13 @@ public function produtosCodigoBarras(Request $request){
         'produtos.valor_atacado',
         'produtos.valor_minimo_venda',
         'produtos.quantidade_atacado',
-        DB::raw('COALESCE(SUM(item_nfces.quantidade), 0) as total_vendido_mes')
     )
     ->where('produtos.status', 1)
-    ->where('codigo_barras', $request->codigo_barras)
+    ->where(function ($q) use ($request) {
+        $q->where('produtos.codigo_barras', $request->codigo_barras)
+        ->orWhere('produtos.codigo_barras2', $request->codigo_barras)
+        ->orWhere('produtos.codigo_barras3', $request->codigo_barras);
+    })
     ->with('adicionais')
     ->first();
 
@@ -599,7 +631,167 @@ public function saboresTamanhos(Request $request){
 }
 
 public function storeNfe(Request $request){
+    try {
 
+        $venda = DB::transaction(function () use ($request) {
+
+            $empresa = $config = Empresa::find($request->empresa_id);
+
+            $caixa = Caixa::where('usuario_id', $request->usuario_id)
+            ->where('status', 1)
+            ->first();
+
+            $config = __objetoParaEmissao($config, $caixa->local_id);
+
+            $numero_nfe = $config->numero_ultima_nfe_producao;
+            if ($config->ambiente == 2) {
+                $numero_nfe = $config->numero_ultima_nfe_homologacao;
+            }
+
+            $numeroSerieNfe = $config->numero_serie_nfe ? $config->numero_serie_nfe : 1;
+
+            $tipoPagamento = $request->tipo_pagamento;
+            if($request->fatura && sizeof($request->fatura) > 1){
+                $tipoPagamento = '99';
+            }
+
+            $cliente = null;
+            if(!$request->cliente_id){
+                return response()->json("Selecione o cliente!", 401);
+            }
+            $cliente = Cliente::findOrFail($request->cliente_id);
+
+            $dataVenda = [
+                'natureza_id' => $request->natureza_id ? $request->natureza_id : $empresa->natureza_id_pdv,
+                'emissor_nome' => $config->nome,
+                'emissor_cpf_cnpj' => $config->cpf_cnpj,
+                'ambiente' => $config->ambiente,
+                'chave' => '',
+                'cliente_id' => $request->cliente_id,
+                'numero_serie' => $numeroSerieNfe,
+                'numero' => $numero_nfe + 1,
+                'cliente_nome' => $cliente ? $cliente->razao_social : '',
+                'cliente_cpf_cnpj' => $request->cliente_cpf_cnpj ?? '',
+                'estado' => 'novo',
+                'total' => ($request->valor_total),
+                'desconto' => $request->desconto ? ($request->desconto) : 0,
+                'valor_cashback' => 0,
+                'acrescimo' => $request->acrescimo ? __convert_value_bd($request->acrescimo) : 0,
+                'valor_produtos' => ($request->valor_total) ?? 0,
+                'caixa_id' => $caixa->id,
+                'local_id' => $caixa->local_id,
+                'observacao' => $request->observacao,
+                'dinheiro_recebido' => 0,
+                'troco' => $request->troco,
+                'tipo_pagamento' => $tipoPagamento,
+                'cnpj_cartao' => $request->cnpj_cartao ?? '',
+                'bandeira_cartao' => $request->bandeira_cartao ?? '',
+                'cAut_cartao' => $request->cAut_cartao ?? '',
+                'user_id' => $request->usuario_id,
+                'empresa_id' => $request->empresa_id,
+                'valor_entrega' => 0,
+                'numero_sequencial' => $this->getLastNumero($request->empresa_id)
+            ];
+
+            $nfe = Nfe::create($dataVenda);
+
+            foreach($request->itens as $i){
+                $i = (object)$i;
+                $product = Produto::findOrFail($i->id);
+                $product = __tributacaoProdutoLocalVenda($product, $caixa->local_id);
+                $cfop = $product->cfop_estadual;
+                if($cliente->cidade->uf != $config->cidade->uf){
+                    $cfop = $product->cfop_outro_estado;
+                }
+                $variacao_id = null;
+                $itemNfce = ItemNfe::create([
+                    'nfe_id' => $nfe->id,
+                    'produto_id' => $product->id,
+                    'quantidade' => (float)str_replace(",", ".", $i->quantidade),
+                    'valor_unitario' => $i->valor_unitario,
+                    'sub_total' => $i->subtotal,
+                    'observacao' => $i->observacao ?? '',
+                    'perc_icms' => __convert_value_bd($product->perc_icms),
+                    'perc_pis' => __convert_value_bd($product->perc_pis),
+                    'perc_cofins' => __convert_value_bd($product->perc_cofins),
+                    'perc_ipi' => __convert_value_bd($product->perc_ipi),
+                    'cst_csosn' => $product->cst_csosn,
+                    'cst_pis' => $product->cst_pis,
+                    'cst_cofins' => $product->cst_cofins,
+                    'cst_ipi' => $product->cst_ipi,
+                    'cfop' => $cfop,
+                    'ncm' => $product->ncm,
+                    'variacao_id' => $variacao_id,
+                ]);
+
+                if ($product->gerenciar_estoque) {
+                    $this->util->reduzEstoque($product->id, __convert_value_bd($i->quantidade), $variacao_id, $caixa->local_id);
+
+                    $tipo = 'reducao';
+                    $codigo_transacao = $nfe->id;
+                    $tipo_transacao = 'venda_nfe';
+
+                    $this->util->movimentacaoProduto($product->id, __convert_value_bd($i->quantidade), $tipo, $codigo_transacao, $tipo_transacao, $request->usuario_id, $variacao_id);
+                }
+
+
+                if($product->prazo_garantia > 0 && $nfce->cliente_id != null){
+                    Garantia::create([
+                        'empresa_id' => $request->empresa_id,
+                        'cliente_id' => $nfe->cliente_id,
+                        'produto_id' => $product->id,
+                        'nfe_id' => $nfe->id,
+                        'usuario_id' => $request->usuario_id,
+                        'prazo_garantia' => $product->prazo_garantia,
+                        'data_venda' => date('Y-m-d')
+                    ]);
+                }
+            }
+
+            if ($request->fatura && $request->fatura[0]['valor'] > 0) {
+                foreach($request->fatura as $key => $f){
+                    $f = (object)$f;
+
+                    $dataAtual = date('Y-m-d');
+                    $vencimento = $f->data;
+                    if($f->data && strtotime($vencimento) > strtotime($dataAtual)){
+
+                        ContaReceber::create([
+                            'nfce_id' => null,
+                            'nfe_id' => $nfe->id,
+                            'cliente_id' => $request->cliente_id,
+                            'data_vencimento' => $vencimento,
+                            'data_recebimento' => $vencimento,
+                            'valor_integral' => __convert_value_bd($f->valor),
+                            'valor_recebido' => 0,
+                            'status' => 0,
+                            'descricao' => 'Venda Pedido #' . $nfce->numero_sequencial . " Parcela " . ($key+1) . " de " . sizeof($request->fatura),
+                            'empresa_id' => $request->empresa_id,
+                            'juros' => 0,
+                            'multa' => 0,
+                            'observacao' => $request->obs_row[$i] ?? '',
+                            'tipo_pagamento' => $f->forma,
+                            'local_id' => $caixa->local_id,
+                            'referencia' => "Pedido " . $nfce->numero_sequencial
+                        ]);
+                    }
+
+                    FaturaNfe::create([
+                        'nfe_id' => $nfe->id,
+                        'tipo_pagamento' => $f->forma,
+                        'data_vencimento' => $f->data ? $f->data : date('Y-m-d'),
+                        'valor' => __convert_value_bd($f->valor)
+                    ]);
+                }
+
+            }
+
+            return $nfe;
+        });
+return response()->json($venda, 200);
+} catch (\Exception $e) {
+    return response()->json($e->getMessage() . ", line: " . $e->getLine() . ", file: " . $e->getFile(), 401);
+}
 }
 
 }

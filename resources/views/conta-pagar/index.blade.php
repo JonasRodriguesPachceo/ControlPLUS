@@ -4,6 +4,13 @@
     .badge:hover{
         cursor: pointer;
     }
+
+    .descricao{
+        width: 220px;
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
 </style>
 @endsection
 @section('content')
@@ -115,7 +122,9 @@
                                     </td>
                                     @endcan
                                     <td data-label="Fornecedor"><label style="width: 400px;">{{ $item->fornecedor ? $item->fornecedor->razao_social : '--' }}</label></td>
-                                    <td data-label="Descrição"><label style="width: 120px;">{{ $item->descricao }}</label></td>
+                                    <td data-label="Descrição">
+                                        <div class="descricao">{{ $item->descricao }}</div>
+                                    </td>
                                     @if(__countLocalAtivo() > 1)
                                     <td data-label="Local" class="text-danger">{{ $item->localizacao->descricao }}</td>
                                     @endif

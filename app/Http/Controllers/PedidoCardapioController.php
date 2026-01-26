@@ -10,6 +10,7 @@ use App\Models\Empresa;
 use App\Models\Nfce;
 use App\Models\ConfigGeral;
 use App\Models\Produto;
+use App\Models\ImpressoraPedido;
 use App\Models\CarrinhoCardapio;
 use App\Models\ItemAdicional;
 use App\Models\ItemPizzaPedido;
@@ -24,9 +25,16 @@ use Illuminate\Support\Facades\DB;
 use Dompdf\Dompdf;
 use App\Models\ImpressoraPedidoProduto;
 use App\Models\Mesa;
+use App\Utils\PrintUtil;
 
 class PedidoCardapioController extends Controller
 {
+
+    protected $printUtil;
+    public function __construct(PrintUtil $printUtil){
+        $this->printUtil = $printUtil;
+    }
+
     public function index(Request $request){
         $data = Pedido::
         where('empresa_id', $request->empresa_id)
@@ -136,9 +144,21 @@ class PedidoCardapioController extends Controller
     public function updateTable(Request $request, $id){
         $pedido = Pedido::findOrfail($id);
         $pedido->mesa_id = $request->mesa_id;
+
+        if($request->comanda){
+            $outroPedido = Pedido::where('empresa_id', $request->empresa_id)
+            ->where('comanda', $request->comanda)->where('status', 1)->first();
+
+            if($outroPedido && $outroPedido->id != $id){
+                session()->flash("flash_warning", "Essa comanda já está aberta");
+                return redirect()->back();
+            }
+            $pedido->comanda = $request->comanda;
+        }
+
         $pedido->save();
 
-        session()->flash("flash_success", "Mesa alterada!");
+        session()->flash("flash_success", "Mesa/comanda alterada!");
         return redirect()->back();
     }
 
@@ -355,6 +375,90 @@ class PedidoCardapioController extends Controller
         $pdf = $domPdf->render();
 
         $domPdf->stream("Pedido $id.pdf", array("Attachment" => false));
+    }
+
+    public function imprimirSocket($id){
+
+        $item = Pedido::findOrFail($id);
+
+        $impressoras = ImpressoraPedido::where('empresa_id', $item->empresa_id)
+        ->where('status', 1)->where('printer', '!=', null)->get();
+
+        foreach($impressoras as $imp){
+
+            $produtosDaImpressora = $imp->produtos->pluck('produto_id')->toArray();
+            $content = [
+                ['type' => 'center', 'value' => 'IMPRESSAO DE PEDIDO'],
+                ['type' => 'hr'],
+                ['type' => 'bold', 'value' => 'COMANDA #'.$item->comanda],
+            ];
+            $imprimir = false;
+            foreach ($item->itens as $i) {
+                if(in_array($i->produto_id, $produtosDaImpressora)){
+                    $imprimir = true;
+                    $content[] = [
+                        'type'  => 'left',
+                        'value' => __removerAcentos($i->produto->nome)
+                    ];
+
+                    if(sizeof($i->pizzas) > 0){
+                        $sabores = "";
+                        foreach($i->pizzas as $s){
+                            $sabores .= $s->sabor->nome . " | ";
+                        }
+                        $sabores = substr($sabores, 0, strlen($sabores)-2);
+                        $content[] = [
+                            'type'  => 'left',
+                            'value' => $sabores
+                        ];
+                    }
+
+                    if(sizeof($i->adicionais) > 0){
+                        $add = 'Adicioanis: ' . $i->getAdicionaisStr();
+                        $content[] = [
+                            'type'  => 'left',
+                            'value' => $add
+                        ];
+                    }
+
+                    if(strlen($i->observacao) > 3){
+                        $content[] = [
+                            'type'  => 'left',
+                            'value' => 'Observacao: ' . $i->observacao
+                        ];
+                    }
+
+                    if($i->tamanho){
+                        $content[] = [
+                            'type'  => 'left',
+                            'value' => 'Tamanho: ' . $i->tamanho->nome
+                        ];
+                    }
+
+                    $content[] = [
+                        'type'  => 'left',
+                        'value' => 'R$ ' . __moeda($i->produto->valor_unitario) . ' | ' . number_format($i->quantidade, 0) . 'x = R$ ' .
+                        __moeda($i->sub_total)
+                    ];
+                    $content[] = ['type' => 'hr'];
+                }
+            }
+            $content[] = ['type' => 'cut'];
+
+            try{
+                if($imprimir){
+                    $response = $this->printUtil->sendPrint(
+                        agentUrl: 'http://127.0.0.1:9100',
+                        token: 'SLYM_SECRET_123',
+                        printer: $imp->printer,
+                        content: $content
+                    );
+                }
+
+            }catch(\Exception $e){
+                echo "Erro: " . $e->getMessage();
+            }
+        }
     }
 
     public function printHtml($id){

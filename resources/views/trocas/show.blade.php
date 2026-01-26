@@ -12,7 +12,17 @@
                 </div>
                 <hr class="mt-3">
                 <div class="">
-                    <h4>Cliente: <strong style="color: steelblue">{{ $item->nfce->cliente_id ? $item->nfce->cliente->razao_social : 'Consumidor Final'}}</strong></h4>
+                    <h4>Cliente: 
+                        <strong class="text-primary">
+                            @if($item->nfce && $item->nfce->cliente_id)
+                            {{ $item->nfce->cliente->razao_social }}
+                            @elseif($item->nfe && $item->nfe->cliente_id)
+                            {{ $item->nfe->cliente->razao_social }}
+                            @else
+                            Consumidor Final
+                            @endif
+                        </strong>
+                    </h4>
                     <label>Valor da venda original: <strong class="text-success">R$ {{ __moeda($item->valor_original) }}</strong></label><br>
                     <label>Valor da troca: <strong class="text-success">R$ {{ __moeda($item->valor_troca) }}</strong></label><br>
                     <label>Data da troca: <strong class="text-success">{{ __data_pt($item->created_at) }}</strong></label><br>
@@ -23,7 +33,7 @@
                 </div>
                 <hr>
                 <div class="col-lg-12 mt-4">
-                    <h5>Itens da Venda</h5>
+                    <h5>Itens da Venda Inicial</h5>
                     <div class="table-responsive-sm">
                         <table class="table table-striped table-centered mb-0">
                             <thead class="table-dark">
@@ -64,7 +74,7 @@
                 </div>
                 <hr>
                 <div class="col-lg-12 mt-4">
-                    <h5>Itens Alterados</h5>
+                    <h5>Itens Adicionados</h5>
                     <div class="table-responsive-sm">
                         <table class="table table-striped table-centered mb-0">
                             <thead class="table-dark">
@@ -76,6 +86,40 @@
                             </thead>
                             <tbody>
                                 @forelse($item->itens as $i)
+                                <tr>
+                                    <td><img class="img-60" src="{{ $i->produto->img }}"></td>
+                                    <td>{{ $i->produto->nome }}</td>
+                                    <td>
+                                        @if(!$i->produto->unidadeDecimal())
+                                        {{ number_format($i->quantidade, 0, '.', '') }}
+                                        @else
+                                        {{ number_format($i->quantidade, 3, '.', '') }}
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="7" class="text-center">Nada encontrado</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-lg-12 mt-4">
+                    <h5>Itens Removidos</h5>
+                    <div class="table-responsive-sm">
+                        <table class="table table-striped table-centered mb-0">
+                            <thead class="table-danger">
+                                <tr>
+                                    <th></th>
+                                    <th>Produto</th>
+                                    <th>Quantidade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($item->itensRemovidos as $i)
                                 <tr>
                                     <td><img class="img-60" src="{{ $i->produto->img }}"></td>
                                     <td>{{ $i->produto->nome }}</td>

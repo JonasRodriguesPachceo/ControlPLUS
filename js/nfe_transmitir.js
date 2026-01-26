@@ -94,6 +94,25 @@ function gerarDanfe(tipo){
 	$('#modal-print').modal('hide')
 }
 
+$(document).on("click", ".btn-delete-drop", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const formId = $(this).data("form");
+
+    swal({
+		title: "Você está certo?",
+		text: "Uma vez deletado, você não poderá recuperar esse item novamente!",
+        icon: "warning",
+        buttons: ["Cancelar", "Excluir"],
+        dangerMode: true,
+    }).then((confirm) => {
+        if (confirm) {
+            document.getElementById(formId).submit();
+        }
+    });
+});
+
 $('#btn-cancelar').click(() => {
 	if(IDNFE != null){
 		$.post(path_url + "api/nfe_painel/cancelar", {

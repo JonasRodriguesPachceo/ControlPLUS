@@ -4,7 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
-use Laravel\Sanctum\Sanctum;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,7 +15,6 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         //
-         Sanctum::ignoreMigrations();
     }
 
     /**
@@ -23,5 +23,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrap();
+
+        Blade::if('routeHas', function ($name) {
+            return Route::has($name);
+        });
     }
 }

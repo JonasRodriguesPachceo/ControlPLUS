@@ -4,13 +4,23 @@
     <div class="row">
         <div class="card">
             <div class="card-body">
-                <div class="col-md-2">
-                    @can('compras_create')
-                    <a href="{{ route('compras.create') }}" class="btn btn-success">
-                        <i class="ri-add-circle-fill"></i>
-                        Nova Compra
-                    </a>
-                    @endcan
+                <div class="row">
+                    <div class="col-md-2">
+                        @can('compras_create')
+                        <a href="{{ route('compras.create') }}" class="btn btn-success">
+                            <i class="ri-add-circle-fill"></i>
+                            Nova Compra
+                        </a>
+                        @endcan
+                    </div>
+
+                    <div class="col-md-8"></div>
+                    <div class="col-md-2">
+                        <a href="{{ route('compras.rastro') }}" class="btn btn-dark float-end">
+                            <i class="ri-filter-2-line"></i>
+                            Consulta Rastro
+                        </a>
+                    </div>
                 </div>
                 <hr class="mt-3">
                 <div class="col-lg-12">
@@ -95,7 +105,19 @@
                             <tbody>
                                 @forelse($data as $item)
                                 <tr>
-                                    <td>
+                                    <td class="text-start d-none d-md-table-cell">
+                                        @if($usarDropdown)
+                                        @include('compras.partials.dropdown_acoes', ['item' => $item])
+                                        @else
+                                        @include('compras.partials.botoes_acoes', ['item' => $item])
+                                        @endif
+                                    </td>
+
+                                    <td class="d-md-none">
+                                        @include('compras.partials.botoes_acoes', ['item' => $item])
+                                    </td>
+
+                                    <!-- <td>
                                         <form action="{{ route('nfe.destroy', $item->id) }}" method="post" id="form-{{$item->id}}" style="width: 300px;">
                                             @method('delete')
                                             @csrf
@@ -179,7 +201,7 @@
                                             </a>
                                             @endif
                                         </form>
-                                    </td>
+                                    </td> -->
                                     <td data-label="#"> {{ $item->numero_sequencial }}</td>
                                     <td data-label="Fornecedor"><label style="width: 300px">{{ $item->fornecedor ? $item->fornecedor->razao_social : "--" }}</label></td>
                                     @if(__countLocalAtivo() > 1)

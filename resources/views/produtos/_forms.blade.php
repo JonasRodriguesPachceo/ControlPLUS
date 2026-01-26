@@ -12,7 +12,7 @@
 <div id="basicwizard">
     <ul class="nav nav-pills nav-justified form-wizard-header mb-4 m-2">
         <li class="nav-item">
-            <a href="#tab-identificacao" data-bs-toggle="tab" data-toggle="tab"  class="nav-link rounded-0 py-1">
+            <a href="#tab-identificacao" data-bs-toggle="tab" data-toggle="tab"  class="nav-link rounded-0 py-1"> 
                 <i class="ri-product-hunt-fill fw-normal fs-18 align-middle me-1"></i>
                 <span class="d-none d-sm-inline">Identificação</span>
             </a>
@@ -40,15 +40,6 @@
                     {!!Form::text('nome', 'Nome')
                     ->required()
                     ->attrs(['data-contador' => true, 'maxlength' => 120])
-                    !!}
-                </div>
-                <div class="col-md-2">
-                    {!!Form::select('tipo_produto', 'Tipo de produto', [
-                        \App\Models\Produto::TIPO_NOVO => 'Novo',
-                        \App\Models\Produto::TIPO_AVALIACAO => 'Avaliação'
-                    ])
-                    ->attrs(['class' => 'form-select'])
-                    ->value(old('tipo_produto', isset($item) ? $item->tipo_produto : \App\Models\Produto::TIPO_NOVO))
                     !!}
                 </div>
                 <div class="col-md-2 col-produto">
@@ -208,7 +199,7 @@
                     ->attrs()
                     !!}
                 </div>
-
+                
                 <div class="col-md-2">
                     {!!Form::select('unidade', 'Unidade', $unidades->pluck('nome', 'nome')->all())
                     ->required()
@@ -240,7 +231,7 @@
                 </div>
 
                 <div class="col-md-2">
-                    {!!Form::select('tipo_unico', 'Tipo único', ['1' => 'Sim', '0' => 'Não'])->attrs(['class' => 'form-select tooltipp'])
+                    {!!Form::select('tipo_unico', 'Tipo único', ['0' => 'Não', '1' => 'Sim'])->attrs(['class' => 'form-select tooltipp'])
                     !!}
                     <div class="text-tooltip d-none">
                         Marcar como sim se for usar identificação única para cada item na compra e venda
@@ -488,7 +479,7 @@
                                         <span>{{ $c->produtoDoCombo->nome }}</span>
                                     </td>
                                     <td style="width: 120px">
-                                        <input type="tel" class="form-control qtd-combo quantidade" name="quantidade_combo[]"
+                                        <input type="tel" class="form-control qtd-combo quantidade" name="quantidade_combo[]" 
                                         value="{{ $c->quantidade }}">
                                     </td>
                                     <td>
@@ -719,11 +710,31 @@
                     ->attrs(['class' => 'form-select select2'])
                     !!}
                 </div>
-                <div class="col-md-2">
+                
+
+                <div class="col-md-4">
+                    <label>Classificação Tributária</label>
+                    <select class="form-control form-select" name="cclass_trib" id="cclass_trib">
+                        <option value="">Selecione</option>
+
+                        @foreach(App\Models\Produto::listacClassTrib() as $cst => $lista)
+                        @foreach($lista as $c)
+                        <option value="{{ $c['cClassTrib'] }}" data-cst="{{ $cst }}" @if(isset($item) && $item->cclass_trib == $c['cClassTrib']) selected @endif
+                            >
+                            {{ $c['cClassTrib'] }} - {{ $c['descricao'] }}
+                        </option>
+                        @endforeach
+                        @endforeach
+
+                    </select>
+                </div>
+
+                <!-- <div class="col-md-2">
                     {!!Form::text('cclass_trib', 'Classificação Tributária')
                     ->attrs(['class' => ''])
                     !!}
-                </div>
+                </div> -->
+
                 <div class="col-md-2">
                     {!!Form::tel('perc_ibs_uf', '% IBS UF')
                     ->attrs(['class' => 'percentual'])
@@ -745,10 +756,15 @@
                     ->attrs(['class' => 'percentual'])
                     !!}
                 </div>
+                <div class="col-md-2">
+                    {!!Form::tel('perc_red_bc_ibs', '% Redução IBS')
+                    ->attrs(['class' => 'percentual'])
+                    !!}
+                </div>
             </div>
         </div>
     </div>
-
+    
     <div class="tab-content b-0 mb-0">
         <div class="tab-pane" id="tab-outros">
             <div class="row g-2">
@@ -788,11 +804,11 @@
                                         !!}
                                     </div>
 
-                                    <div class="col-md-2">
+                                   <!--  <div class="col-md-2">
                                         {!!Form::tel('valor_partida', 'Valor de partida')
                                         ->attrs(['class' => 'moeda'])
                                         !!}
-                                    </div>
+                                    </div> -->
 
                                     <div class="col-md-2">
                                         {!!Form::text('unidade_tributavel', 'Un. tributável')
@@ -1089,7 +1105,7 @@
                                     <div class="col-md-4">
                                         {!!Form::select('mercado_livre_categoria', 'Categoria do anúncio')
                                         ->attrs(['class' => 'form-select select2 input-ml'])
-                                        ->options((isset($item) && $item->mercado_livre_categoria) ?
+                                        ->options((isset($item) && $item->mercado_livre_categoria) ? 
                                         [$item->mercado_livre_categoria => $item->categoriaMercadoLivre->nome] : [])
                                         !!}
                                     </div>
@@ -1353,7 +1369,7 @@
 
                                     <div class="col-md-12">
                                         {!!Form::textarea('ifood_descricao', 'Descrição')
-                                        ->attrs(['rows' => '12', 'class' => 'tiny'])
+                                        ->attrs(['rows' => '4', 'class' => ''])
                                         ->value(isset($item) ? $item->ifood_descricao : '')
                                         !!}
                                     </div>
@@ -1407,7 +1423,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="row">
-
+                                    
                                 </div>
                             </div>
                         </div>
@@ -1422,8 +1438,8 @@
 <hr class="mt-4">
 @if(!isset($not_submit))
 <div class="col-12" style="text-align: right;">
-    <button type="button" id="salvar-adicionar-outro" class="btn btn-primary btn-action px-5">Salvar e adicionar outro</button>
-    <button type="submit" class="btn btn-success btn-action px-5">Salvar</button>
+    <button type="button" id="salvar-adicionar-outro" class="btn btn-primary btn-action px-5 mt-1">Salvar e adicionar outro</button>
+    <button type="submit" class="btn btn-success btn-action px-5 mt-1">Salvar</button>
 </div>
 @endif
 </div>
@@ -1440,6 +1456,34 @@
         setTimeout(() => {
             $('.tox-promotion, .tox-statusbar__right-container').addClass('d-none')
         }, 1000)
+
+        function filtrarClassTrib() {
+            let cst = $('#inp-cst_ibscbs').val();
+            let encontrouValido = false;
+            $('#cclass_trib option').each(function () {
+                let optionCst = $(this).data('cst');
+
+                if (!optionCst) return;
+
+                if (optionCst == cst) {
+                    $(this).show();
+
+                    if ($(this).is(':selected')) {
+                        encontrouValido = true;
+                    }
+                } else {
+                    $(this).hide().prop('selected', false);
+                }
+            });
+
+            if (!encontrouValido) {
+                $('#cclass_trib').val('');
+            }
+        }
+
+        $('#inp-cst_ibscbs').on('change', filtrarClassTrib);
+
+        filtrarClassTrib();
     })
 
     $(document).on("click", "#salvar-adicionar-outro", function (e) {
@@ -1461,6 +1505,7 @@
     @if(isset($item) && !$item->_ncm)
     swal('Alerta', 'O NCM {{ $item->ncm }} não esta cadastrado no sistema, avise o administrador!', 'warning')
     @endif
+
 </script>
 <script src="/assets/vendor/twitter-bootstrap-wizard/jquery.bootstrap.wizard.min.js"></script>
 <script src="/assets/js/pages/demo.form-wizard.js"></script>

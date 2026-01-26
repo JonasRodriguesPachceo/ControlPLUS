@@ -37,9 +37,11 @@
 						</div>
 					</div>
 
+					@if($modelo != 'pedido')
 					<button class="btn produto-btn-info d-none" id="btnEscolherAdicionais">
 						Escolher Adicionais
 					</button>
+					@endif
 
 				</div>
 

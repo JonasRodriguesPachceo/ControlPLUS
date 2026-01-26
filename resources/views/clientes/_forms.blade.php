@@ -368,6 +368,13 @@
     <script type="text/javascript" src="/js/busca_cep.js"></script>
     <script>
 
+        $('input').on('keydown', function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                return false;
+            }
+        });
+
         $(document).on("blur", "#inp-cpf_cnpj", function () {
 
             let cpf_cnpj = $(this).val().replace(/[^0-9]/g,'')

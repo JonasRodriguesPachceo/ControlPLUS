@@ -1,8 +1,10 @@
 <div class="modal fade modal-suprimento" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Suprimento</h5>
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="staticBackdropLabel">
+                    <i class="ri-arrow-down-line"></i> Suprimento
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -23,7 +25,9 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary btn-salvar-suprimento" data-bs-dismiss="modal">Salvar</button>
+                <button type="button" class="btn btn-success btn-salvar-suprimento" data-bs-dismiss="modal">
+                    <i class="ri-checkbox-circle-line"></i>Salvar
+                </button>
             </div>
         </div>
     </div>

@@ -6,6 +6,7 @@
                 <th>#</th>
                 <th>Produto</th>
                 <th>Categoria</th>
+                <th>Código de barras</th>
                 <th>Quantidade</th>
                 <th>Valor de venda</th>
                 <th>Unidade</th>
@@ -24,6 +25,7 @@
                     {{ $item->descricao() }}
                 </td>
                 <td data-label="Categoria">{{ $item->produto->categoria ? $item->produto->categoria->nome : '' }}</td>
+                <td data-label="Categoria">{{ $item->produto->codigo_barras ? $item->produto->codigo_barras : '' }}</td>
                 <td data-label="Quantidade">
                     @if(!$item->produto->unidadeDecimal())
                     {{ number_format($item->quantidade, 0, '.', '') }}
@@ -48,7 +50,7 @@
                         @csrf
                         @can('estoque_edit')
                         <a title="Editar estoque" href="{{ route('estoque.edit', [$item->id]) }}" class="btn btn-dark btn-sm">
-                            <i class="ri-pencil-fill"></i>
+                            <i class="ri-edit-2-line"></i>
                         </a>
                         @endcan
                         @can('produtos_edit')

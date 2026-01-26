@@ -14,30 +14,25 @@ use Illuminate\Support\Str;
 
 class ClienteController extends Controller
 {
-    public function __construct()
-    {
-        // session_start();
-        $this->middleware('web');
-        $this->middleware('web');
+    public function __construct(){
+        session_start();
     }
 
-    public function cadastro(Request $request)
-    {
+    public function cadastro(Request $request){
         $config = EcommerceConfig::findOrfail($request->loja_id);
         $carrinho = $this->_getCarrinho();
         $categorias = CategoriaProduto::where('ecommerce', 1)->where('status', 1)
-            ->where('empresa_id', $config->empresa_id)->get();
+        ->where('empresa_id', $config->empresa_id)->get();
         return view('loja.cadastro', compact('carrinho', 'config', 'categorias'));
     }
 
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id){
         $item = Cliente::findOrFail($id);
-        try {
+        try{
             $item->razao_social = $request->nome;
             $item->email = $request->email;
-            if ($request->senha) {
-                if (strlen($request->senha) < 6) {
+            if($request->senha){
+                if(strlen($request->senha) < 6){
                     session()->flash("flash_error", 'Senha deve ter no mínimo 6 caracteres!');
                     return redirect()->back();
                 }
@@ -45,24 +40,22 @@ class ClienteController extends Controller
             }
             $item->save();
             session()->flash("flash_success", "Dados atualizados!");
-        } catch (\Exception $e) {
+        }catch(\Exception $e){
             session()->flash("flash_error", 'Algo deu errado: ' . $e->getMessage());
         }
         return redirect()->back();
     }
 
-    private function _getCarrinho()
-    {
+    private function _getCarrinho(){
         $data = [];
-        if (isset($_SESSION["session_cart"])) {
+        if(isset($_SESSION["session_cart"])){
             $data = Carrinho::where('session_cart', $_SESSION["session_cart"])
-                ->first();
+            ->first();
         }
         return $data;
     }
 
-    public function cadastroStore(Request $request)
-    {
+    public function cadastroStore(Request $request){
         $this->_validate($request);
         $config = EcommerceConfig::findOrfail($request->loja_id);
 
@@ -99,17 +92,18 @@ class ClienteController extends Controller
                 return $cli;
             });
             session()->flash("flash_success", "Bem vindo " . $request->nome);
+
         } catch (\Exception $e) {
             // echo $e->getMessage() . '<br>' . $e->getLine();
             // die;
-            session()->flash("flash_error", 'Algo deu errado: ' . $e->getMessage());
+            session()->flash("flash_error", 'Algo deu errado: '. $e->getMessage());
             return redirect()->back();
         }
-        return redirect()->route('loja.carrinho', 'link=' . $config->loja_id);
+        return redirect()->route('loja.carrinho', 'link='.$config->loja_id);
+
     }
 
-    private function _validate(Request $request)
-    {
+    private function _validate(Request $request){
         $doc = $request->cpf_cnpj;
 
         $rules = [
@@ -131,33 +125,31 @@ class ClienteController extends Controller
         $this->validate($request, $rules, $messages);
     }
 
-    private function _getClienteLogado()
-    {
-        if (isset($_SESSION['cliente_ecommerce'])) {
+    private function _getClienteLogado(){
+        if(isset($_SESSION['cliente_ecommerce'])){
             return $_SESSION['cliente_ecommerce'];
         }
         return null;
     }
 
-    public function minhaConta(Request $request)
-    {
+    public function minhaConta(Request $request){
         $clienteLogado = $this->_getClienteLogado();
         $config = EcommerceConfig::findOrfail($request->loja_id);
 
-        if ($clienteLogado == null) {
-            return redirect()->route('loja.cadastro', 'link=' . $config->loja_id);
+        if($clienteLogado == null){
+            return redirect()->route('loja.cadastro', 'link='.$config->loja_id);
         }
 
         $cliente = Cliente::findOrFail($clienteLogado);
         $categorias = CategoriaProduto::where('ecommerce', 1)->where('status', 1)
-            ->where('empresa_id', $config->empresa_id)->get();
+        ->where('empresa_id', $config->empresa_id)->get();
         $carrinho = $this->_getCarrinho();
 
         \MercadoPago\SDK::setAccessToken($config->mercadopago_access_token);
-        foreach ($cliente->pedidosEcommerce as $p) {
-            if ($p->transacao_id && $p->status_pagamento != 'approved') {
+        foreach($cliente->pedidosEcommerce as $p){
+            if($p->transacao_id && $p->status_pagamento != 'approved'){
                 $payStatus = \MercadoPago\Payment::find_by_id($p->transacao_id);
-                if ($payStatus) {
+                if($payStatus){
                     $p->status_pagamento = $payStatus->status;
                     $p->save();
                 }
@@ -167,65 +159,64 @@ class ClienteController extends Controller
         return view('loja.minha_conta', compact('cliente', 'config', 'categorias', 'carrinho'));
     }
 
-    public function storeEndereco(Request $request)
-    {
+    public function storeEndereco(Request $request){
         $clienteLogado = $this->_getClienteLogado();
         $request->merge([
             'cliente_id' => $clienteLogado,
             'padrao' => $request->padrao ? 1 : 0,
         ]);
 
-        if ($request->padrao) {
+        if($request->padrao){
             EnderecoEcommerce::where('cliente_id', $clienteLogado)->update(['padrao' => 0]);
         }
-        if ($request->endereco_id) {
+        if($request->endereco_id){
             $endereco = EnderecoEcommerce::findOrfail($request->endereco_id);
 
             $endereco->fill($request->all())->save();
             session()->flash("flash_success", "Endereço atualizado!");
-        } else {
+
+        }else{
             EnderecoEcommerce::create($request->all());
             session()->flash("flash_success", "Endereço cadastrado!");
         }
         return redirect()->back();
     }
 
-    public function logoff()
-    {
+    public function logoff(){
         $_SESSION['cliente_ecommerce'] = null;
         return redirect()->back();
     }
 
-    public function login(Request $request)
-    {
+    public function login(Request $request){
         $clienteLogado = $this->_getClienteLogado();
         $config = EcommerceConfig::findOrfail($request->loja_id);
-
-        if ($clienteLogado) {
-            return redirect()->route('loja.minha-conta', 'link=' . $config->loja_id);
+        
+        if($clienteLogado){
+            return redirect()->route('loja.minha-conta', 'link='.$config->loja_id);
         }
         $categorias = CategoriaProduto::where('ecommerce', 1)->where('status', 1)
-            ->where('empresa_id', $config->empresa_id)->get();
+        ->where('empresa_id', $config->empresa_id)->get();
         return view('loja.login', compact('config', 'categorias'));
+        
     }
 
-    public function auth(Request $request)
-    {
+    public function auth(Request $request){
         $config = EcommerceConfig::findOrfail($request->loja_id);
-
+        
         $email = $request->email;
         $senha = $request->senha;
         $cliente = Cliente::where('email', $email)
-            ->where('empresa_id', $config->empresa_id)
-            ->where('senha', md5($senha))
-            ->first();
+        ->where('empresa_id', $config->empresa_id)
+        ->where('senha', md5($senha))
+        ->first();
 
-        if ($cliente == null) {
+        if($cliente == null){
             session()->flash("flash_error", "Credenciais incorretas!");
             return redirect()->back();
         }
-
+        
         $_SESSION['cliente_ecommerce'] = $cliente->id;
-        return redirect()->route('loja.index', 'link=' . $config->loja_id);
+        return redirect()->route('loja.index', 'link='.$config->loja_id);
+
     }
 }

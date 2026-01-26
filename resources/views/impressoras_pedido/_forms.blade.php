@@ -14,6 +14,11 @@
         {!!Form::text('requisicao_segundos', 'Timeout de requisição')->required()
         !!}
     </div>
+
+    <div class="col-md-2">
+        {!!Form::text('printer', 'Printer')
+        !!}
+    </div>
     
     <div class="col-md-12 mt-3">
         {!!Form::select('produtos[]', 'Produtos', $produtos->pluck('nome', 'id')->all())

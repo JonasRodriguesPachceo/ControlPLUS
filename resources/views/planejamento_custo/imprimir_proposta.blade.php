@@ -674,25 +674,22 @@
         * {
             font-family: "Lucida Console", "Courier New", monospace;
         }
+
     </style>
 </head>
 <header>
     <div class="headReport" style="display:flex; justify-content:  padding-top:1rem">
 
-        @if ($config->logo != null)
-            <img style="margin-top: -65px; height: 80px;"
-                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('/uploads/logos/' . $config->logo))) }}"
-                alt="Logo" class="mb-2">
+        @if($config->logo != null)
+        <img style="margin-top: -65px; height: 80px;" src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('/uploads/logos/'. $config->logo)))}}" alt="Logo" class="mb-2">
         @else
-            <img style="margin-top: -75px;"
-                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}"
-                alt="Logo" class="mb-2">
+        <img style="margin-top: -75px;" src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.png')))}}" alt="Logo" class="mb-2">
         @endif
-
+        
         <div class="row text-right">
             <div class="col-12" style="margin-top: -50px;">
                 <small class="float-right" style="color:grey; font-size: 11px;">Emissão:
-                    {{ date('d/m/Y - H:i') }}</small><br>
+                {{ date('d/m/Y - H:i') }}</small><br>
             </div>
         </div>
 
@@ -702,7 +699,6 @@
 
     </div>
 </header>
-
 <body>
     <table>
         <tr>
@@ -714,7 +710,7 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 450px;">
-                Razão social: <strong>{{ $config->nome }}</strong>
+                Razão social: <strong>{{$config->nome}}</strong>
             </td>
             <td class="b-top" style="width: 247px;">
                 Documento: <strong>{{ __setMask($config->cpf_cnpj) }}</strong>
@@ -724,28 +720,27 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 700px;">
-                Endereço: <strong>{{ $config->rua }}, {{ $config->numero }} - {{ $config->bairro }} -
-                    {{ $config->cidade->nome }} ({{ $config->cidade->uf }})</strong>
+                Endereço: <strong>{{$config->rua}}, {{$config->numero}} - {{$config->bairro}} - {{$config->cidade->nome}} ({{$config->cidade->uf}})</strong>
             </td>
         </tr>
     </table>
     <table>
         <tr>
             <td class="b-top b-bottom text-left" style="width: 300px;">
-                Complemento: <strong>{{ $config->complemento }}</strong>
+                Complemento: <strong>{{$config->complemento}}</strong>
             </td>
             <td class="b-top b-bottom text-left" style="width: 200px;">
-                CEP: <strong>{{ $config->cep }}</strong>
+                CEP: <strong>{{$config->cep}}</strong>
             </td>
             <td class="b-top b-bottom text-left" style="width: 200px;">
-                Telefone: <strong>{{ $config->celular }}</strong>
+                Telefone: <strong>{{$config->celular}}</strong>
             </td>
         </tr>
     </table>
     <table>
         <tr>
             <td class="b-bottom text-left" style="width: 700px;">
-                Email: <strong>{{ $config->email }}</strong>
+                Email: <strong>{{$config->email}}</strong>
             </td>
 
         </tr>
@@ -763,23 +758,21 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 450px;">
-                Nome: <strong>{{ $item->cliente->razao_social }}</strong>
+                Nome: <strong>{{$item->cliente->razao_social}}</strong>
             </td>
             <td class="b-top" style="width: 247px;">
-                CPF/CNPJ: <strong>{{ $item->cliente->cpf_cnpj }}</strong>
+                CPF/CNPJ: <strong>{{$item->cliente->cpf_cnpj}}</strong>
             </td>
         </tr>
     </table>
     <table>
         <tr>
             <td class="b-top text-left" style="width: 500px;">
-                Endereço: <strong>{{ $item->cliente->rua }}, {{ $item->cliente->numero }} -
-                    {{ $item->cliente->bairro }} -
-                    {{ $item->cliente->cidade ? $item->cliente->cidade->info : '' }}</strong>
+                Endereço: <strong>{{$item->cliente->rua}}, {{$item->cliente->numero}} - {{$item->cliente->bairro}} - {{ $item->cliente->cidade ? $item->cliente->cidade->info : '' }}</strong>
             </td>
 
             <td class="b-top text-left" style="width: 200px;">
-                CEP: <strong>{{ $item->cliente->cep }}</strong>
+                CEP: <strong>{{$item->cliente->cep}}</strong>
             </td>
         </tr>
     </table>
@@ -787,20 +780,20 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 300px;">
-                Complemento: <strong>{{ $item->cliente->complemento }}</strong>
+                Complemento: <strong>{{$item->cliente->complemento }}</strong>
             </td>
 
             <td class="b-top text-left" style="width: 200px;">
-                Telefone: <strong>{{ $item->cliente->telefone }}</strong>
+                Telefone: <strong>{{$item->cliente->telefone}}</strong>
             </td>
-
+            
         </tr>
     </table>
 
     <table>
         <tr>
             <td class="b-top text-left" style="width: 700px;">
-                Email: <strong>{{ $item->cliente->email }}</strong>
+                Email: <strong>{{$item->cliente->email}}</strong>
             </td>
 
         </tr>
@@ -842,28 +835,28 @@
                 <td class="" style="width: 120px; text-align: left;">
                     R$ Subtotal
                 </td>
-
+                
             </tr>
         </thead>
 
-        @php
-            $somaItens = 0;
-            $somaSubtotal = 0;
+        @php 
+        $somaItens = 0;
+        $somaSubtotal = 0;
         @endphp
         <tbody>
-            @foreach ($item->itensProposta->where('produto_id', '!=', null) as $i)
-<tr>
+            @foreach($item->itensProposta->where('produto_id', '!=', null) as $i)
+            <tr>
 
                 <th class="b-top" style="text-align: left;">
                     {{ $i->descricao }}
                 </th>
                 <th class="b-top" style="text-align: left;">
 
-                    @if (!$i->produto->unidadeDecimal())
-{{ number_format($i->quantidade, 0, '.', '') }}
-@else
-{{ number_format($i->quantidade, 3, '.', '') }}
-@endif
+                    @if(!$i->produto->unidadeDecimal())
+                    {{ number_format($i->quantidade, 0, '.', '') }}
+                    @else
+                    {{ number_format($i->quantidade, 3, '.', '') }}
+                    @endif
                 </th>
                 <th class="b-top" style="text-align: left;">
                     {{ __moeda($i->valor_unitario_final) }}
@@ -873,19 +866,20 @@
                 </th>
 
             </tr>
-            @if ($i->observacao)
-<tr>
+            @if($i->observacao)
+            <tr>
                 <th colspan="2" class="b-top" style="text-align: left;">
                     Observação: {{ $i->observacao }}
                 </th>
             </tr>
-@endif
+            @endif
 
-            @php
-                $somaItens += $i->quantidade;
-                $somaSubtotal += $i->sub_total_final;
+            @php 
+            $somaItens += $i->quantidade;
+            $somaSubtotal += $i->sub_total_final;
             @endphp
-@endforeach
+            
+            @endforeach
         </tbody>
         <tfoot>
             <tr>
@@ -920,17 +914,17 @@
                 <td class="" style="width: 120px; text-align: left;">
                     R$ Subtotal
                 </td>
-
+                
             </tr>
         </thead>
 
-        @php
-            $somaItens = 0;
-            $somaSubtotal = 0;
+        @php 
+        $somaItens = 0;
+        $somaSubtotal = 0;
         @endphp
         <tbody>
-            @foreach ($item->itensProposta->where('servico_id', '!=', null) as $i)
-<tr>
+            @foreach($item->itensProposta->where('servico_id', '!=', null) as $i)
+            <tr>
 
                 <th class="b-top" style="text-align: left;">
                     {{ $i->descricao }}
@@ -946,18 +940,19 @@
                 </th>
 
             </tr>
-            @if ($i->observacao)
-<tr>
+            @if($i->observacao)
+            <tr>
                 <th colspan="2" class="b-top" style="text-align: left;">
                     Observação: {{ $i->observacao }}
                 </th>
             </tr>
-@endif
-            @php
-                $somaItens += $i->quantidade;
-                $somaSubtotal += $i->sub_total_final;
+            @endif
+            @php 
+            $somaItens += $i->quantidade;
+            $somaSubtotal += $i->sub_total_final;
             @endphp
-@endforeach
+            
+            @endforeach
         </tbody>
         <tfoot>
             <tr>
@@ -992,43 +987,44 @@
                 <td class="" style="width: 120px; text-align: left;">
                     R$ Subtotal
                 </td>
-
+                
             </tr>
         </thead>
 
-        @php
-            $somaItens = 0;
-            $somaSubtotal = 0;
+        @php 
+        $somaItens = 0;
+        $somaSubtotal = 0;
         @endphp
         <tbody>
-            @foreach ($item->itensProposta->where('servico_id', null)->where('produto_id', null) as $i)
-                <tr>
+            @foreach($item->itensProposta->where('servico_id', null)->where('produto_id', null) as $i)
+            <tr>
 
-                    <th class="b-top" style="text-align: left;">
-                        {{ $i->descricao }}
-                    </th>
-                    <th class="b-top" style="text-align: left;">
-                        {{ number_format($i->quantidade, 0, '.', '') }}
-                    </th>
-                    <th class="b-top" style="text-align: left;">
-                        {{ __moeda($i->valor_unitario_final) }}
-                    </th>
-                    <th class="b-top" style="text-align: left;">
-                        {{ __moeda($i->sub_total_final) }}
-                    </th>
+                <th class="b-top" style="text-align: left;">
+                    {{ $i->descricao }}
+                </th>
+                <th class="b-top" style="text-align: left;">
+                    {{ number_format($i->quantidade, 0, '.', '') }}
+                </th>
+                <th class="b-top" style="text-align: left;">
+                    {{ __moeda($i->valor_unitario_final) }}
+                </th>
+                <th class="b-top" style="text-align: left;">
+                    {{ __moeda($i->sub_total_final) }}
+                </th>
 
-                </tr>
-                @if ($i->observacao)
-                    <tr>
-                        <th colspan="2" class="b-top" style="text-align: left;">
-                            Observação: {{ $i->observacao }}
-                        </th>
-                    </tr>
-                @endif
-                @php
-                    $somaItens += $i->quantidade;
-                    $somaSubtotal += $i->sub_total_final;
-                @endphp
+            </tr>
+            @if($i->observacao)
+            <tr>
+                <th colspan="2" class="b-top" style="text-align: left;">
+                    Observação: {{ $i->observacao }}
+                </th>
+            </tr>
+            @endif
+            @php 
+            $somaItens += $i->quantidade;
+            $somaSubtotal += $i->sub_total_final;
+            @endphp
+            
             @endforeach
         </tbody>
         <tfoot>
@@ -1045,10 +1041,10 @@
             <td class="text-left" style="width: 400px;">
                 Data de cadastro: <strong>{{ __data_pt($item->created_at) }}</strong>
             </td>
-
+            
             <td class="" style="width: 300px;">
-                @if ($item->data_prevista_entrega != null)
-                    Data prevista de entrega: <strong>{{ __data_pt($item->data_prevista_entrega, 0) }}</strong>
+                @if($item->data_prevista_entrega != null)
+                Data prevista de entrega: <strong>{{ __data_pt($item->data_prevista_entrega, 0) }}</strong>
                 @endif
             </td>
         </tr>
@@ -1059,7 +1055,7 @@
             <td class="text-left" style="width: 250px;">
                 Desconto (-):
                 <strong>
-                    {{ __moeda($item->desconto) }}
+                    {{__moeda($item->desconto)}}
                 </strong>
             </td>
 
@@ -1073,39 +1069,39 @@
             <td class="" style="width: 230px;">
                 Valor Total:
                 <strong>
-                    R$ {{ __moeda($item->total_final + $item->frete - $item->desconto) }}
+                    R$ {{ __moeda($item->total_final+$item->frete-$item->desconto) }}
                 </strong>
             </td>
 
         </tr>
     </table>
 
-    @if ($item->observacao != '')
-        <table>
-            <tr>
-                <td class="text-left" style="width: 700px;">
-                    <span>Observação:
-                        <strong>
-                            {!! $item->observacao !!}
-                        </strong>
-                    </span>
-                </td>
-            </tr>
-        </table>
+    @if($item->observacao != "")
+    <table>
+        <tr>
+            <td class="text-left" style="width: 700px;">
+                <span>Observação:
+                    <strong>
+                        {!! $item->observacao !!}
+                    </strong>
+                </span>
+            </td>
+        </tr>
+    </table>
     @endif
 
-    @if ($item->descricao != '')
-        <table>
-            <tr>
-                <td class="text-left" style="width: 700px;">
-                    <span>Observação:
-                        <strong>
-                            {!! $item->descricao !!}
-                        </strong>
-                    </span>
-                </td>
-            </tr>
-        </table>
+    @if($item->descricao != "")
+    <table>
+        <tr>
+            <td class="text-left" style="width: 700px;">
+                <span>Observação:
+                    <strong>
+                        {!! $item->descricao !!}
+                    </strong>
+                </span>
+            </td>
+        </tr>
+    </table>
     @endif
 
     <br><br><br>
@@ -1115,7 +1111,7 @@
                 <strong>
                     ________________________________________
                 </strong><br>
-                <span style="font-size: 11px;">{{ $config->nome }}</span>
+                <span style="font-size: 11px;">{{$config->nome}}</span>
 
             </td>
 
@@ -1124,12 +1120,12 @@
                     ________________________________________
                 </strong><br>
 
-                <span style="font-size: 11px;">{{ $item->cliente->razao_social }}</span>
+                <span style="font-size: 11px;">{{$item->cliente->razao_social}}</span>
             </td>
         </tr>
     </table>
 
-
+    
 
 
 </body>
@@ -1138,16 +1134,14 @@
         <tbody>
             <tr>
                 <td class="text-left ml-3 mb-3">
-                    {{ env('SITE_SUPORTE') }}
+                    {{env('SITE_SUPORTE')}}
                 </td>
                 <td class="text-right">
 
-                    <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}"
-                        alt="Logo" class="mr-3">
+                    <img src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.png')))}}" alt="Logo" class="mr-3">
                 </td>
             </tr>
         </tbody>
     </table>
 </footer>
-
 </html>

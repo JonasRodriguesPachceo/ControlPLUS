@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ConfigGeral;
+use App\Models\Nfce;
 use Illuminate\Http\Request;
 use App\Models\ConfiguracaoCardapio;
 use Illuminate\Support\Facades\File;
@@ -24,7 +25,22 @@ class ConfigGeralController extends Controller
         $path = public_path('assets/images/small');
         $smallImages = File::files($path);
 
-        return view('config_geral.index', compact('item', 'config', 'smallImages'));
+        $tiposPagamento = Nfce::tiposPagamento();
+        // dd($tiposPagamento);
+        if($item != null){
+
+            $temp = [];
+            if(sizeof($item->tipos_pagamento_pdv) > 0){
+                foreach($tiposPagamento as $key => $t){
+                    if(in_array($t, $item->tipos_pagamento_pdv)){
+                        $temp[$key] = $t;
+                    }
+                }
+                $tiposPagamento = $temp;
+            }
+        }
+
+        return view('config_geral.index', compact('item', 'config', 'smallImages', 'tiposPagamento'));
     }
 
     public function store(Request $request)
@@ -98,7 +114,9 @@ class ConfigGeralController extends Controller
                 'percentual_lucro_produto' => $request->percentual_lucro_produto ?? 0,
                 'ultimo_codigo_produto' => $request->ultimo_codigo_produto ?? 0,
                 'ultimo_codigo_cliente' => $request->ultimo_codigo_cliente ?? 0,
+                'margem_lateral_impressao' => $request->margem_lateral_impressao ?? 0,
                 'itens_por_pagina' => $request->itens_por_pagina ?? 30,
+                'tipo_pagamento_padrao' => $request->tipo_pagamento_padrao ?? 30,
                 'ultimo_codigo_fornecedor' => $request->ultimo_codigo_fornecedor ?? 0,
                 'mensagem_padrao_impressao_venda' => $request->mensagem_padrao_impressao_venda ?? '',
                 'mensagem_wpp_link' => $request->mensagem_wpp_link ?? '',

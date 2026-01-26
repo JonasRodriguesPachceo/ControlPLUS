@@ -17,15 +17,6 @@
         <div class="card">
             <div class="card-body">
 
-                <!-- Invoice Logo-->
-                <div class="clearfix">
-                    <div class="float-start mb-3">
-
-                    </div>
-                    <div class="float-end">
-                        <h4 class="m-0">{{ $item->nome }}</h4>
-                    </div>
-                </div>
 
                 <!-- Invoice Detail-->
                 <div class="row">
@@ -36,7 +27,7 @@
                                 <i class="ri-edit-line"></i> Editar cliente
                             </a>
                             @endcan
-                            <h4>#{{ $item->numero_sequencial }}</h4>
+                            <h4 class="text-primary">#{{ $item->numero_sequencial }}</h4>
 
                             <p>
                                 <b>Cliente: <strong class="text-primary">{{ $item->cliente->razao_social }}</strong></b> 
@@ -109,7 +100,7 @@
                                     @foreach($item->itens as $i)
                                     <tr>
                                         <td>{{ $i->servico->nome }}</td>
-                                        <td>{{ number_format($i->quantidade, 2) }}</td>
+                                        <td>{{ number_format($i->quantidade, 0) }}</td>
                                         <td>{{ __moeda($i->valor) }}</td>
 
                                     </tr>
@@ -118,7 +109,7 @@
                                 <tfoot>
                                     <tr>
                                         <td></td>
-                                        <td class="text-success">Total</td>
+                                        <td class="text-muted">Total</td>
                                         <td class="text-success">R$ {{ __moeda($item->total) }}</td>
                                     </tr>
                                 </tfoot>

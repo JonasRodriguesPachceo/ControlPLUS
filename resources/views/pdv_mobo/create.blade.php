@@ -1,5 +1,4 @@
-@extends('pdv_mobo.default', 
-['title' => $title ])
+@extends('pdv_mobo.default', ['title' => $title ])
 @section('content')
 
 <!-- {!!Form::open()
@@ -11,6 +10,9 @@
 </div>
 <!-- {!!Form::close()!!} -->
 
+<button id="btnInstallPwa" onclick="installPwa()" style="position:fixed;right:16px;bottom:16px;z-index:99999;display:none;" class="btn btn-success">
+    Instalar PDV
+</button>
 
 @include('pdv_mobo.partials.modal_produto')
 @include('pdv_mobo.partials.modal_carrinho')
@@ -22,6 +24,7 @@
 @include('pdv_mobo.partials.modal_adicionais')
 @include('pdv_mobo.partials.modal_comandas')
 @include('pdv_mobo.partials.modal_vendas_diaria')
+@include('pdv_mobo.partials.modal_frete')
 @endsection
 @section('js')
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>

@@ -21,7 +21,7 @@
 			<td>{{ $item['cliente'] }}</td>
 			<td>{{ __moeda($item['valor_venda']) }}</td>
 			<td>{{ __moeda($item['valor_custo']) }}</td>
-			<td>{{ $item['data'] }}</td>
+			<td>{{ __data_pt($item['data']) }}</td>
 			<td>{{ __moeda($item['valor_venda']-$item['valor_custo']) }}</td>
 			@if(__countLocalAtivo() > 1)
             <td class="text-danger">{{ $item['localizacao']->descricao }}</td>

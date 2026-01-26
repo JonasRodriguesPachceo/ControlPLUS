@@ -18,33 +18,30 @@ use App\Utils\CorreioUtil;
 class CarrinhoController extends Controller
 {
 
-    public function __construct(CorreioUtil $util)
-    {
-        // session_start();
-        $this->middleware('web');
+    public function __construct(CorreioUtil $util){
+        session_start();
         $this->util = $util;
     }
 
-    public function index(Request $request)
-    {
+    public function index(Request $request){
         $item = $this->_getCarrinho();
         $config = EcommerceConfig::findOrfail($request->loja_id);
-        if (isset($_SESSION["session_cart"])) {
+        if(isset($_SESSION["session_cart"])){
             $item = Carrinho::where('session_cart', $_SESSION["session_cart"])
-                ->first();
+            ->first();
         }
 
         $categorias = CategoriaProduto::where('ecommerce', 1)->where('status', 1)
-            ->where('empresa_id', $config->empresa_id)->get();
+        ->where('empresa_id', $config->empresa_id)->get();
         $clienteLogado = $this->_getClienteLogado();
 
         $cliente = null;
         $enderecos = [];
         $dataFrete = null;
-        if ($item == null) {
-            return redirect()->route('loja.index', 'link=' . $config->loja_id);
+        if($item == null){
+            return redirect()->route('loja.index', 'link='.$config->loja_id);
         }
-        if ($clienteLogado) {
+        if($clienteLogado){
             $cliente = Cliente::findOrFail($clienteLogado);
 
             $somaPeso = $item->somaPeso();
@@ -52,7 +49,7 @@ class CarrinhoController extends Controller
             $cepOrigem = str_replace("-", "", $config->cep);
 
             $total = $item->valor_total;
-            foreach ($cliente->enderecosEcommerce as $endereco) {
+            foreach($cliente->enderecosEcommerce as $endereco){
                 $cepDestino = str_replace("-", "", $endereco->cep);
                 $data = $this->util->getValores($cepOrigem, $cepDestino, $dimensoes['altura'], $dimensoes['largura'], $dimensoes['comprimento'], $somaPeso);
                 $dataFrete .= view('loja.partials.calculo_frete_enderecos', compact('data', 'config', 'endereco', 'total'));
@@ -62,23 +59,21 @@ class CarrinhoController extends Controller
         return view('loja.carrinho', compact('item', 'config', 'categorias', 'cliente', 'enderecos', 'dataFrete'));
     }
 
-    private function _getCarrinho()
-    {
+    private function _getCarrinho(){
         $data = [];
-        if (isset($_SESSION["session_cart"])) {
+        if(isset($_SESSION["session_cart"])){
             $data = Carrinho::where('session_cart', $_SESSION["session_cart"])
-                ->first();
+            ->first();
         }
         return $data;
     }
 
-    public function adicionar(Request $request)
-    {
+    public function adicionar(Request $request){
 
-        if (!isset($_SESSION["session_cart"])) {
+        if(!isset($_SESSION["session_cart"])){
             $session_cart = Str::random(30);
             $_SESSION['session_cart'] = $session_cart;
-        } else {
+        }else{
             $session_cart = $_SESSION['session_cart'];
         }
 
@@ -88,21 +83,21 @@ class CarrinhoController extends Controller
         $quantidade = __convert_value_bd($request->quantidade);
 
         // dd($request->all());
-        if ($produto->gerenciar_estoque) {
-            if (!$produto->estoque) {
+        if($produto->gerenciar_estoque){
+            if(!$produto->estoque){
                 session()->flash("flash_error", 'Produto sem estoque');
                 return redirect()->back();
             }
 
-            if (sizeof($produto->variacoes) == 0) {
-                if ($quantidade > $produto->estoque->quantidade) {
+            if(sizeof($produto->variacoes) == 0){
+                if($quantidade > $produto->estoque->quantidade){
                     session()->flash("flash_error", 'Estoque insuficinete, quantidade máxima de ' . number_format($produto->estoque->quantidade, 0) . ' ' . $produto->unidade .  ' para este item!');
                     return redirect()->back();
                 }
-            } else {
+            }else{
                 $estoque = Estoque::where('produto_id', $produto->id)->where('produto_variacao_id', $request->variacao_id)
-                    ->first();
-                if ($quantidade > $estoque->quantidade) {
+                ->first();
+                if($quantidade > $estoque->quantidade){
                     session()->flash("flash_error", 'Estoque insuficinete, quantidade máxima de ' . number_format($estoque->quantidade, 0) . ' ' . $produto->unidade .  ' para este item!');
                     return redirect()->back();
                 }
@@ -110,20 +105,20 @@ class CarrinhoController extends Controller
         }
 
         $carrinho = Carrinho::where('session_cart', $session_cart)
-            ->first();
+        ->first();
 
 
         $produtoVariacao = null;
-        if (isset($request->variacao_id)) {
+        if(isset($request->variacao_id)){
             $produtoVariacao = ProdutoVariacao::findOrfail($request->variacao_id);
             $produto->valor_ecommerce = $produtoVariacao->valor;
-        } else {
-            if ($produto->valor_ecommerce == null) {
+        }else{
+            if($produto->valor_ecommerce == null){
                 $produto->valor_ecommerce = $produto->valor_unitario;
             }
         }
 
-        if ($carrinho == null) {
+        if($carrinho == null){
             //novo carrinho
             $clienteLogado = $this->_getClienteLogado();
 
@@ -146,7 +141,7 @@ class CarrinhoController extends Controller
                 'sub_total' => $produto->valor_ecommerce * $quantidade
             ]);
             session()->flash("flash_success", "Produto adicionado ao carrinho!");
-        } else {
+        }else{
 
             ItemCarrinho::create([
                 'carrinho_id' => $carrinho->id,
@@ -160,20 +155,18 @@ class CarrinhoController extends Controller
             session()->flash("flash_success", "Produto adicionado ao carrinho!");
         }
         $this->_atualizaValorCarrinho($carrinho->id);
-
-        return redirect()->route('loja.carrinho', 'link=' . $config->loja_id);
+        
+        return redirect()->route('loja.carrinho', 'link='.$config->loja_id);
     }
 
-    private function _getClienteLogado()
-    {
-        if (isset($_SESSION['cliente_ecommerce'])) {
+    private function _getClienteLogado(){
+        if(isset($_SESSION['cliente_ecommerce'])){
             return $_SESSION['cliente_ecommerce'];
         }
         return null;
     }
 
-    public function removeItem(Request $request, $id)
-    {
+    public function removeItem(Request $request, $id){
         $item = ItemCarrinho::findOrfail($id);
         try {
             $item->delete();
@@ -186,34 +179,32 @@ class CarrinhoController extends Controller
         return redirect()->back();
     }
 
-    private function _atualizaValorCarrinho($carrinho_id)
-    {
+    private function _atualizaValorCarrinho($carrinho_id){
         $item = Carrinho::findOrfail($carrinho_id);
         $item->valor_total = $item->itens->sum('sub_total') + $item->valor_frete;
         $item->save();
     }
 
-    public function atualizaQuantidade(Request $request, $id)
-    {
+    public function atualizaQuantidade(Request $request, $id){
         $item = ItemCarrinho::findOrfail($id);
         try {
 
             $item->quantidade = (float)$request->quantidade;
-            if ($item->produto->gerenciar_estoque) {
+            if($item->produto->gerenciar_estoque){
 
 
 
-                if (sizeof($item->produto->variacoes) == 0) {
+                if(sizeof($item->produto->variacoes) == 0){
 
-                    if ($item->quantidade > $item->produto->estoque->quantidade) {
+                    if($item->quantidade > $item->produto->estoque->quantidade){
                         session()->flash("flash_error", 'Estoque insuficinete, quantidade máxima de ' . number_format($item->produto->estoque->quantidade, 0) . ' ' . $item->produto->unidade .  ' para este item!');
                         return redirect()->back();
                     }
-                } else {
+                }else{
                     $estoque = Estoque::where('produto_id', $item->produto->id)->where('produto_variacao_id', $request->produto_variacao_id)
-                        ->first();
+                    ->first();
                     // dd($estoque);
-                    if ($item->quantidade > $estoque->quantidade) {
+                    if($item->quantidade > $estoque->quantidade){
                         session()->flash("flash_error", 'Estoque insuficinete, quantidade máxima de ' . number_format($estoque->quantidade, 0) . ' ' . $item->produto->unidade .  ' para este item!');
                         return redirect()->back();
                     }
@@ -230,8 +221,7 @@ class CarrinhoController extends Controller
         return redirect()->back();
     }
 
-    public function setarFrete(Request $request)
-    {
+    public function setarFrete(Request $request){
         // dd($request->all());
         $item = $this->_getCarrinho();
         $item->valor_frete = $request->valor_frete;
@@ -243,10 +233,12 @@ class CarrinhoController extends Controller
         $this->_atualizaValorCarrinho($item->id);
         $config = EcommerceConfig::findOrfail($request->loja_id);
         $clienteLogado = $this->_getClienteLogado();
-        if ($clienteLogado == null) {
-            return redirect()->route('loja.cadastro', 'link=' . $config->loja_id);
+        if($clienteLogado == null){
+            return redirect()->route('loja.cadastro', 'link='.$config->loja_id);
         }
 
-        return redirect()->route('loja.pagamento', 'link=' . $config->loja_id);
+        return redirect()->route('loja.pagamento', 'link='.$config->loja_id);
+
     }
+    
 }

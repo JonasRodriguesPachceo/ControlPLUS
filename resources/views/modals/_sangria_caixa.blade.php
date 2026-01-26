@@ -25,12 +25,15 @@
                     <div class="col-md-6">
                         {!! Form::tel('valor', 'Valor')->attrs(['class' => 'moeda'])->required() !!}
                     </div>
-                    <div class="col-md-12 div-conta-empresa">
-                        {!!Form::select('conta_empresa_sangria_id', 'Conta empresa')
-                        ->attrs(['class' => 'conta_empresa'])
+                    
+                    @if(isset($item) && $item->contaEmpresa && isset($contasEmpresa))
+                    <div class="col-md-12 div-conta-empresa mt-1">
+                        {!!Form::select('conta_empresa_sangria_id', 'Conta empresa', ['' => 'Selecione'] + $contasEmpresa->pluck('nome', 'id')->all())
+                        ->attrs(['class' => 'conta_empresa form-select'])
                         ->required()
                         !!}
                     </div>
+                    @endif
 
                     <div class="col-md-12 mt-2">
                         {!! Form::textarea('observacao', 'Observação')->attrs(['rows' => '3']) !!}

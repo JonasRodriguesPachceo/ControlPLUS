@@ -21,6 +21,22 @@
                     <input type="tel" class="form-control finalizar-input cpf_cnpj" id="cpfNota" placeholder="Documento">
                 </div>
 
+                @if($modelo == 'pedido')
+                <div class="col-12 mb-1">
+                    <label>Natureza de operação</label>
+                    <select class="form-control form-select sangria-select" id="naturezaOperacao">
+                        <option value="">Selecione</option>
+                        @foreach($naturezas as $n)
+                        <option
+                        @if(isset($naturezaPadrao) && $naturezaPadrao != null && $naturezaPadrao->id == $n->id)
+                        selected
+                        @endif
+                        value="{{ $n->id }}">{{ $n->descricao }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+
                 <div class="mb-1">
                     <label>Desconto</label>
                     <input type="tel" class="form-control finalizar-input moeda" id="finalizarDesconto" placeholder="0,00">
@@ -53,6 +69,7 @@
                 </div>
 
                 <button class="btn btn-dark w-100" id="btnAdicionarForma">
+                    <i class="ri-add-circle-fill"></i>
                     Adicionar
                 </button>
 
@@ -80,6 +97,11 @@
                     <label class="form-label">Observação</label>
                     <textarea class="form-control finalizar-input" rows="2" id="finalizarObs"></textarea>
                 </div>
+
+                <button class="btn btn-light w-100 mt-1" id="btnFrete">
+                    <i class="ri-truck-fill"></i>
+                    Frete
+                </button>
 
             </div>
 

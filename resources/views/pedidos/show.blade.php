@@ -170,13 +170,12 @@
 							@endif
 						</h3>
 						@if($item->_mesa)
-						<h4 class="text-danger">{{ $item->_mesa->nome }} 
-							<button type="button" data-bs-toggle="modal" data-bs-target="#modal-mesa" class="btn btn-sm btn-light">
-								Alterar mesa
-							</button>
-						</h4>
-						
+						<h4 class="text-danger">{{ $item->_mesa->nome }} </h4>
 						@endif
+						<button type="button" data-bs-toggle="modal" data-bs-target="#modal-mesa" class="btn float-end btn-light">
+							<i class="ri-refresh-line"></i>
+							Alterar mesa/comanda
+						</button>
 						<button class="float-end btn btn-dark" onclick="print('{{ $item->id }}')">
 							<i class="ri-printer-line"></i>
 							Imprimir
@@ -191,7 +190,7 @@
 					
 					<div class="table-responsive col-12" style="min-height: 300px;">
 						<table class="table">
-							<thead>
+							<thead class="table-dark">
 								<tr>
 									<th>Produto</th>
 									<th>Quantidade</th>
@@ -202,7 +201,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								@foreach($item->itens as $i)
+								@forelse($item->itens as $i)
 								<tr class="bg-{{ $i->estado }}">
 									<td>
 										{{ $i->produto->nome }}
@@ -269,7 +268,11 @@
 									</td>
 								</tr>
 								@endif
-								@endforeach
+								@empty
+								<tr>
+									<td>Sem nenhum item por enquanto!</td>
+								</tr>
+								@endforelse
 
 								<!-- serviços -->
 
@@ -392,16 +395,22 @@
 			@method('put')
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="exampleModalLabel">Alterar mesa</h5>
+					<h5 class="modal-title" id="exampleModalLabel">Alterar mesa/comanda</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
 
-					<div class="col-md-12">
+					<div class="col-md-12 mb-2">
 						{!!Form::select('mesa_id', 'Mesa', ['' => 'Selecione'] + 
 						$mesas->pluck('nome', 'id')->all())
 						->attrs(['class' => 'form-select'])
 						->value($item->mesa_id)
+						!!}
+					</div>
+
+					<div class="col-md-12">
+						{!!Form::tel('comanda', 'Comanda')
+						->value($item->comanda)
 						!!}
 					</div>
 				</div>

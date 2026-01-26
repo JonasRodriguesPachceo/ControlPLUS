@@ -10,7 +10,7 @@ class ImpressoraPedido extends Model
     use HasFactory;
 
     protected $fillable = [
-        'empresa_id', 'descricao', 'status', 'requisicao_segundos'
+        'empresa_id', 'descricao', 'status', 'requisicao_segundos', 'printer'
     ];
 
     public function produtos()

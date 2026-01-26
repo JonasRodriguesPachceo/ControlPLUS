@@ -91,7 +91,7 @@ class GraficoController extends Controller
             return $query->whereDate('created_at', date('Y-m-d'));
         })
         ->when($periodo == 7, function ($query) {
-            return $query->whereRaw('WEEK(created_at) = ' . (date('W')-1));
+            return $query->whereRaw('WEEK(created_at) = ' . (date('W')-1))->whereYear('created_at', date('Y'));
         })
         ->when($periodo == 30, function ($query) {
             return $query->whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'));
@@ -117,7 +117,7 @@ class GraficoController extends Controller
             return $query->whereDate('created_at', date('Y-m-d'));
         })
         ->when($periodo == 7, function ($query) {
-            return $query->whereRaw('WEEK(created_at) = ' . (date('W')-1));
+            return $query->whereRaw('WEEK(created_at) = ' . (date('W')-1))->whereYear('created_at', date('Y'));
         })
         ->when($periodo == 30, function ($query) {
             return $query->whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'));
@@ -180,10 +180,10 @@ class GraficoController extends Controller
             return $query->whereDate('created_at', date('Y-m-d'));
         })
         ->when($periodo == 7, function ($query) {
-            return $query->whereRaw('WEEK(created_at) = ' . (date('W')-1));
+            return $query->whereRaw('WEEK(created_at) = ' . (date('W')-1))->whereYear('created_at', date('Y'));
         })
         ->when($periodo == 30, function ($query) {
-            return $query->whereMonth('created_at', date('m'));
+            return $query->whereMonth('created_at', date('m'))->whereYear('created_at', date('Y'));
         })
         ->when($periodo == 365, function ($query) {
             return $query->whereYear('created_at', date('Y'));
@@ -204,10 +204,10 @@ class GraficoController extends Controller
             return $query->whereDate('data_vencimento', date('Y-m-d'));
         })
         ->when($periodo == 7, function ($query) {
-            return $query->whereRaw('WEEK(data_vencimento) = ' . (date('W')-1));
+            return $query->whereRaw('WEEK(data_vencimento) = ' . (date('W')-1))->whereYear('created_at', date('Y'));
         })
         ->when($periodo == 30, function ($query) {
-            return $query->whereMonth('data_vencimento', date('m'));
+            return $query->whereMonth('data_vencimento', date('m'))->whereYear('created_at', date('Y'));
         })
         ->when($periodo == 365, function ($query) {
             return $query->whereYear('data_vencimento', date('Y'));
@@ -227,10 +227,10 @@ class GraficoController extends Controller
             return $query->whereDate('data_vencimento', date('Y-m-d'));
         })
         ->when($periodo == 7, function ($query) {
-            return $query->whereRaw('WEEK(data_vencimento) = ' . (date('W')-1));
+            return $query->whereRaw('WEEK(data_vencimento) = ' . (date('W')-1))->whereYear('created_at', date('Y'));
         })
         ->when($periodo == 30, function ($query) {
-            return $query->whereMonth('data_vencimento', date('m'));
+            return $query->whereMonth('data_vencimento', date('m'))->whereYear('created_at', date('Y'));
         })
         ->when($periodo == 365, function ($query) {
             return $query->whereYear('data_vencimento', date('Y'));

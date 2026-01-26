@@ -674,37 +674,33 @@
         * {
             font-family: "Lucida Console", "Courier New", monospace;
         }
+
     </style>
 </head>
 <header>
     <div class="headReport" style="display:flex; justify-content:  padding-top:1rem">
 
-        @if ($config->logo != null)
-            <img style="margin-top: -65px; height: 80px;"
-                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('/uploads/logos/' . $config->logo))) }}"
-                alt="Logo" class="mb-2">
+        @if($config->logo != null)
+        <img style="margin-top: -65px; height: 80px;" src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('/uploads/logos/'. $config->logo)))}}" alt="Logo" class="mb-2">
         @else
-            <img style="margin-top: -75px;"
-                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}"
-                alt="Logo" class="mb-2">
+        <img style="margin-top: -75px;" src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.png')))}}" alt="Logo" class="mb-2">
         @endif
-
+        
         <div class="row text-right">
             <div class="col-12" style="margin-top: -50px;">
                 <small class="float-right" style="color:grey; font-size: 11px;">Emissão:
-                    {{ date('d/m/Y - H:i') }}</small><br>
+                {{ date('d/m/Y - H:i') }}</small><br>
             </div>
         </div>
 
         <div class="row">
 
             <h4 style="text-align:center; margin-top: -50px;">Reserva #{{ $item->numero_sequencial }}</h4>
-
+            
         </div>
 
     </div>
 </header>
-
 <body>
     <table>
         <tr>
@@ -716,7 +712,7 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 450px;">
-                Razão social: <strong>{{ $config->nome }}</strong>
+                Razão social: <strong>{{$config->nome}}</strong>
             </td>
             <td class="b-top" style="width: 247px;">
                 Documento: <strong>{{ __setMask($config->cpf_cnpj) }}</strong>
@@ -726,18 +722,17 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 700px;">
-                Endereço: <strong>{{ $config->rua }}, {{ $config->numero }} - {{ $config->bairro }} -
-                    {{ $config->cidade->nome }} ({{ $config->cidade->uf }})</strong>
+                Endereço: <strong>{{$config->rua}}, {{$config->numero}} - {{$config->bairro}} - {{$config->cidade->nome}} ({{$config->cidade->uf}})</strong>
             </td>
         </tr>
     </table>
     <table>
         <tr>
             <td class="b-top b-bottom text-left" style="width: 300px;">
-                Complemento: <strong>{{ $config->complemento }}</strong>
+                Complemento: <strong>{{$config->complemento}}</strong>
             </td>
             <td class="b-top b-bottom text-left" style="width: 200px;">
-                CEP: <strong>{{ $config->cep }}</strong>
+                CEP: <strong>{{$config->cep}}</strong>
             </td>
             <td class="b-top b-bottom text-left" style="width: 200px;">
                 Telefone: <strong>{{ $config->celular }}</strong>
@@ -747,7 +742,7 @@
     <table>
         <tr>
             <td class="b-bottom text-left" style="width: 700px;">
-                Email: <strong>{{ $config->email }}</strong>
+                Email: <strong>{{$config->email}}</strong>
             </td>
 
         </tr>
@@ -765,26 +760,25 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 450px;">
-                Nome: <strong>{{ $item->cliente->razao_social }}</strong>
+                Nome: <strong>{{$item->cliente->razao_social}}</strong>
             </td>
             <td class="b-top" style="width: 247px;">
-                CPF/CNPJ: <strong>{{ $item->cliente->cpf_cnpj }}</strong>
+                CPF/CNPJ: <strong>{{$item->cliente->cpf_cnpj}}</strong>
             </td>
         </tr>
     </table>
     <table>
         <tr>
             <td class="b-top text-left" style="width: 500px;">
-                Endereço: <strong>{{ $item->cliente->rua }}, {{ $item->cliente->numero }} -
-                    {{ $item->cliente->bairro }} -
-                    @if ($item->cliente->cidade)
-                        {{ $item->cliente->cidade->nome }} ({{ $item->cliente->cidade->uf }})
+                Endereço: <strong>{{$item->cliente->rua}}, {{$item->cliente->numero}} - {{$item->cliente->bairro}} - 
+                    @if($item->cliente->cidade)
+                    {{$item->cliente->cidade->nome}} ({{$item->cliente->cidade->uf}})
                     @endif
                 </strong>
             </td>
 
             <td class="b-top text-left" style="width: 200px;">
-                CEP: <strong>{{ $item->cliente->cep }}</strong>
+                CEP: <strong>{{$item->cliente->cep}}</strong>
             </td>
         </tr>
     </table>
@@ -792,20 +786,20 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 300px;">
-                Complemento: <strong>{{ $item->cliente->complemento }}</strong>
+                Complemento: <strong>{{$item->cliente->complemento }}</strong>
             </td>
 
             <td class="b-top text-left" style="width: 200px;">
-                Telefone: <strong>{{ $item->cliente->telefone }}</strong>
+                Telefone: <strong>{{$item->cliente->telefone}}</strong>
             </td>
-
+            
         </tr>
     </table>
 
     <table>
         <tr>
             <td class="b-top text-left" style="width: 700px;">
-                Email: <strong>{{ $item->cliente->email }}</strong>
+                Email: <strong>{{$item->cliente->email}}</strong>
             </td>
 
         </tr>
@@ -815,7 +809,7 @@
     <table>
         <tr>
             <td class="b-top text-left" style="width: 350px;">
-                Nº Doc: <strong>{{ $item->numero_sequencial }}</strong>
+                Nº Doc: <strong>{{$item->numero_sequencial}}</strong>
             </td>
             <td class="b-top" style="width: 347px;">
 
@@ -837,7 +831,7 @@
                 <td class="" style="width: 400px;">
                     Produto
                 </td>
-
+                
                 <td class="" style="width: 100px;">
                     Qtd.
                 </td>
@@ -852,19 +846,21 @@
 
 
         <tbody>
-            @foreach ($item->consumoProdutos as $i)
-                <tr>
+            @foreach($item->consumoProdutos as $i)
+            <tr>
 
-                    <th class="b-top">
-                        {{ $i->produto->nome }}
-                    </th>
-                    <th class="b-top">
-                        {{ __moeda($i->quantidade) }}
-                    </th>
-                    <th class="b-top">{{ __moeda($i->valor_unitario) }}</th>
-                    <th class="b-top">{{ __moeda($i->sub_total) }}</th>
+                <th class="b-top">
+                    {{ $i->produto->nome }}
+                </th>
+                <th class="b-top">
+                    {{ __moeda($i->quantidade) }}
+                </th>
+                <th class="b-top">{{ __moeda($i->valor_unitario) }}</th>
+                <th class="b-top">{{ __moeda($i->sub_total) }}</th>
 
-                </tr>
+            </tr>
+            
+
             @endforeach
         </tbody>
     </table>
@@ -873,8 +869,8 @@
         <tr>
             <td class="b-top b-bottom" style="width: 350px;">
                 <center><strong>Valor de produtos:
-                        R$ {{ __moeda($item->consumoProdutos->sum('sub_total')) }}
-                    </strong></center>
+                    R$ {{ __moeda($item->consumoProdutos->sum('sub_total')) }}
+                </strong></center>
             </td>
         </tr>
     </table>
@@ -894,7 +890,7 @@
                 <td class="" style="width: 400px;">
                     Serviço
                 </td>
-
+                
                 <td class="" style="width: 100px;">
                     Qtd.
                 </td>
@@ -909,19 +905,21 @@
 
 
         <tbody>
-            @foreach ($item->consumoServicos as $i)
-                <tr>
+            @foreach($item->consumoServicos as $i)
+            <tr>
 
-                    <th class="b-top">
-                        {{ $i->servico->nome }}
-                    </th>
-                    <th class="b-top">
-                        {{ __moeda($i->quantidade) }}
-                    </th>
-                    <th class="b-top">{{ __moeda($i->valor_unitario) }}</th>
-                    <th class="b-top">{{ __moeda($i->sub_total) }}</th>
+                <th class="b-top">
+                    {{ $i->servico->nome }}
+                </th>
+                <th class="b-top">
+                    {{ __moeda($i->quantidade) }}
+                </th>
+                <th class="b-top">{{ __moeda($i->valor_unitario) }}</th>
+                <th class="b-top">{{ __moeda($i->sub_total) }}</th>
 
-                </tr>
+            </tr>
+            
+
             @endforeach
         </tbody>
     </table>
@@ -931,61 +929,61 @@
         <tr>
             <td class="b-top b-bottom" style="width: 350px;">
                 <center><strong>Valor de serviços extras:
-                        R$ {{ __moeda($item->consumoServicos->sum('sub_total')) }}
-                    </strong></center>
+                    R$ {{ __moeda($item->consumoServicos->sum('sub_total')) }}
+                </strong></center>
             </td>
         </tr>
     </table>
 
-    @if (sizeof($item->fatura) > 0)
+    @if(sizeof($item->fatura) > 0)
 
-        <hr>
+    <hr>
 
-        <table>
+    <table>
+        <tr>
+            <td class="b-bottom" style="width: 700px; height: 50px;">
+                <strong>FATURA</strong>
+            </td>
+        </tr>
+    </table>
+    <table>
+        <thead>
             <tr>
-                <td class="b-bottom" style="width: 700px; height: 50px;">
-                    <strong>FATURA</strong>
+                <td class="" style="width: 200px;">
+                    Tipo de pagamento
+                </td>
+                <td class="b-bottom" style="width: 180px;">
+                    Vencimento
+                </td>
+                <td class="b-bottom" style="width: 180px;">
+                    Valor
                 </td>
             </tr>
-        </table>
-        <table>
-            <thead>
-                <tr>
-                    <td class="" style="width: 200px;">
-                        Tipo de pagamento
-                    </td>
-                    <td class="b-bottom" style="width: 180px;">
-                        Vencimento
-                    </td>
-                    <td class="b-bottom" style="width: 180px;">
-                        Valor
-                    </td>
-                </tr>
-            </thead>
+        </thead>
 
-            <tbody>
-                @foreach ($item->fatura as $key => $d)
-                    <tr>
-                        <td class="b-top">
-                            <strong>{{ App\Models\FaturaReserva::getTipoPagamento($d->tipo_pagamento) }}</strong>
-                        </td>
-                        <td class="b-top">
-                            <strong>{{ __data_pt($d->data_vencimento, 0) }}</strong>
-                        </td>
-                        <td class="b-top">
-                            <strong>{{ __moeda($d->valor) }}</strong>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
+        <tbody>
+            @foreach($item->fatura as $key => $d)
             <tr>
-                <td></td>
-                <td>Soma</td>
-                <td>{{ __moeda($item->fatura->sum('valor')) }}</td>
+                <td class="b-top">
+                    <strong>{{ App\Models\FaturaReserva::getTipoPagamento($d->tipo_pagamento) }}</strong>
+                </td>
+                <td class="b-top">
+                    <strong>{{ __data_pt($d->data_vencimento, 0) }}</strong>
+                </td>
+                <td class="b-top">
+                    <strong>{{ __moeda($d->valor) }}</strong>
+                </td>
             </tr>
-        </table>
+            @endforeach
+        </tbody>
+        <tr>
+            <td></td>
+            <td>Soma</td>
+            <td>{{ __moeda($item->fatura->sum('valor')) }}</td>
+        </tr>
+    </table>
 
-        <hr>
+    <hr>
 
     @endif
     <br>
@@ -994,12 +992,11 @@
             <td class="text-left" style="width: 300px;">
                 Data de registro: <strong>{{ __data_pt($item->created_at) }}</strong>
             </td>
-
+            
             <td class="text-left" style="width: 400px;">
-                Data de checkin/checkout: <strong>{{ __data_pt($item->data_checkin, 0) }} -
-                    {{ __data_pt($item->data_checkout, 0) }}</strong>
+                Data de checkin/checkout: <strong>{{ __data_pt($item->data_checkin, 0) }} - {{ __data_pt($item->data_checkout, 0) }}</strong>
             </td>
-
+            
         </tr>
     </table>
 
@@ -1008,21 +1005,21 @@
             <td class="text-left" style="width: 233px;">
                 Desconto (-):
                 <strong>
-                    R$ {{ __moeda($item->desconto) }}
+                    R$ {{__moeda($item->desconto)}}
                 </strong>
             </td>
 
             <td class="text-left" style="width: 233px;">
                 Acrescimo (+):
                 <strong>
-                    R$ {{ __moeda($item->valor_outros) }}
+                    R$ {{__moeda($item->valor_outros)}}
                 </strong>
             </td>
 
             <td class="text-left" style="width: 233px;">
                 Estádia (+):
                 <strong>
-                    R$ {{ __moeda($item->valor_estadia) }}
+                    R$ {{__moeda($item->valor_estadia)}}
                 </strong>
             </td>
         </tr>
@@ -1030,7 +1027,7 @@
             <td class="text-left" style="width: 233px;">
                 Valor total:
                 <strong>
-                    R$ {{ __moeda($item->valor_total) }}
+                    R$ {{ __moeda($item->valor_total)}}
                 </strong>
             </td>
 
@@ -1043,16 +1040,16 @@
         </tr>
     </table>
 
-    @if ($item->observacao != '')
-        <table>
-            <tr>
-                <td class="" style="width: 700px;">
-                    <span>Observação:
-                        <strong> {{ $item->observacao }} </strong>
-                    </span>
-                </td>
-            </tr>
-        </table>
+    @if($item->observacao != "")
+    <table>
+        <tr>
+            <td class="" style="width: 700px;">
+                <span>Observação:
+                    <strong> {{ $item->observacao }} </strong>
+                </span>
+            </td>
+        </tr>
+    </table>
     @endif
 
     <br><br><br>
@@ -1062,7 +1059,7 @@
                 <strong>
                     ________________________________________
                 </strong><br>
-                <span style="font-size: 11px;">{{ $config->nome }}</span>
+                <span style="font-size: 11px;">{{$config->nome}}</span>
 
             </td>
 
@@ -1089,12 +1086,10 @@
                 </td>
                 <td class="text-right">
 
-                    <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}"
-                        alt="Logo" class="mr-3">
+                    <img src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.png')))}}" alt="Logo" class="mr-3">
                 </td>
             </tr>
         </tbody>
     </table>
 </footer>
-
 </html>

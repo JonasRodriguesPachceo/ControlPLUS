@@ -14,7 +14,3 @@
 @include('modals._novo_cliente')
 
 @endsection
-
-
-
-

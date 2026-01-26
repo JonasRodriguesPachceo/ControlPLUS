@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Utils\TradeinCreditUtil;
 
 class Nfe extends Model
 {
@@ -20,7 +19,7 @@ class Nfe extends Model
         'data_emissao_saida', 'data_emissao_retroativa', 'bandeira_cartao', 'cnpj_cartao', 'cAut_cartao', 'tipo_pagamento',
         'numero_sequencial', 'crt', 'local_id', 'user_id', 'data_entrega', 'funcionario_id',
         'nome_entrega', 'documento_entrega', 'rua_entrega', 'numero_entrega', 'bairro_entrega', 'cep_entrega', 'complemento_entrega',
-        'cidade_id_entrega', 'marca'
+        'cidade_id_entrega', 'marca', 'fiscal_status', 'fiscal_risco', 'fiscal_mensagens'
     ];
 
     public function getInfoAttribute()
@@ -53,6 +52,25 @@ class Nfe extends Model
         return $this->belongsTo(Funcionario::class, 'funcionario_id');
     }
 
+    public function estadoSeparacao(){
+        $ordemSeparacao = $this->ordemSeparacao;
+        if(!$ordemSeparacao){
+            return "--";
+        }
+        $statusMap = [
+            'em_separacao' => '<span class="badge p-1 bg-warning">Em Separação</span>',
+            'finalizado' => '<span class="badge p-1 bg-success">Finalizado</span>',
+            'cancelado' => '<span class="badge p-1 bg-danger">Cancelado</span>',
+        ];
+        return $statusMap[$ordemSeparacao->status];
+
+    }
+
+    public function ordemSeparacao()
+    {
+        return $this->hasOne(OrdemSeparacao::class, 'nfe_id');
+    }
+
     public function vendedor()
     {
         $funcionario = Funcionario::find($this->funcionario_id);
@@ -63,6 +81,15 @@ class Nfe extends Model
     public function caixa()
     {
         return $this->belongsTo(Caixa::class, 'caixa_id');
+    }
+
+    public function outroEstado()
+    {
+        if(!$this->cliente) return 0;
+        if($this->cliente->cidade->uf != $this->empresa->cidade->uf){
+            return 1;
+        }
+        return 0;
     }
 
     public function cliente()
@@ -160,6 +187,11 @@ class Nfe extends Model
         return $this->hasMany(ContaReceber::class, 'nfe_id');
     }
 
+    public function contaReceber()
+    {
+        return $this->hasMany(ContaReceber::class, 'nfe_id');
+    }
+
     public function troca()
     {
         return $this->hasMany(Troca::class, 'nfe_id');
@@ -193,7 +225,6 @@ class Nfe extends Model
             '17' => 'Pagamento Instantâneo (PIX)',
             '18' => 'Transferência bancária, Carteira Digital',
             '19' => 'Programa de fidelidade, Cashback, Crédito Virtual',
-            TradeinCreditMovement::PAYMENT_CODE => TradeinCreditMovement::PAYMENT_LABEL,
             // '20' => 'Pagamento Instantâneo (PIX) – Estático',
             // '21' => 'Crédito em Loja',
             // '22' => 'Pagamento Eletrônico não Informado - falha de hardware do sistema emissor',
@@ -231,7 +262,6 @@ class Nfe extends Model
             'Boleto Bancário' => '15',
             'Depósito Bancário' => '16',
             'Pagamento Instantâneo (PIX)' => '17',
-            TradeinCreditMovement::PAYMENT_LABEL => TradeinCreditMovement::PAYMENT_CODE,
             'Sem Pagamento' => '90',
             // 'Outros' => '99',
         ];
@@ -302,14 +332,5 @@ class Nfe extends Model
             '2' => 'Importação por conta e ordem',
             '3' => 'Importação por encomenda'
         ];
-    }
-
-    protected static function booted()
-    {
-        static::updated(function (Nfe $nfe) {
-            if ($nfe->isDirty('estado') && $nfe->estado == 'cancelado' && $nfe->getOriginal('estado') != 'cancelado' && $nfe->tpNF == 1) {
-                app(TradeinCreditUtil::class)->estornarPorNfe($nfe);
-            }
-        });
     }
 }

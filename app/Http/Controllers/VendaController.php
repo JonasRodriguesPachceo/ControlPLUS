@@ -39,6 +39,9 @@ class VendaController extends Controller
         ->when(!empty($cliente_id), function ($query) use ($cliente_id) {
             return $query->where('cliente_id', $cliente_id);
         })
+        ->when(!empty($local_id), function ($query) use ($local_id) {
+            return $query->where('localizacaos.id', $local_id);
+        })
         ->when($estado != "", function ($query) use ($estado) {
             return $query->where('estado', $estado);
         });
@@ -60,6 +63,9 @@ class VendaController extends Controller
         ->when(!empty($cliente_id), function ($query) use ($cliente_id) {
             return $query->where('cliente_id', $cliente_id);
         })
+        ->when(!empty($local_id), function ($query) use ($local_id) {
+            return $query->where('localizacaos.id', $local_id);
+        })
         ->when($estado != "", function ($query) use ($estado) {
             return $query->where('estado', $estado);
         });
@@ -73,6 +79,7 @@ class VendaController extends Controller
         ->mergeBindings($unionQuery->getQuery())
         ->sum('total');
 
+        $perPage = __itensPagina() ?: 20;
         $data = $sub->orderBy('created_at', 'desc')
         ->paginate(__itensPagina());
 

@@ -1,4 +1,84 @@
 @extends('layouts.app', ['title' => 'Lista de Vendas PDV'])
+@section('css')
+<style type="text/css">
+    .btn{
+        margin-top: 3px;
+    }
+    .fiscal-loader {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.75);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .fiscal-box {
+        background: #fff;
+        width: 480px;
+        max-width: 92%;
+        border-radius: 14px;
+        padding: 28px;
+        text-align: center;
+        animation: fadeIn .25s ease;
+    }
+
+    .fiscal-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        color: #fff;
+    }
+
+    .fiscal-icon.error {
+        background: #dc3545;
+    }
+
+    .fiscal-icon.warning {
+        background: #f59e0b;
+    }
+
+    .fiscal-icon.success {
+        background: #16a34a;
+    }
+
+    .fiscal-content {
+        text-align: left;
+        margin: 16px 0;
+        max-height: 240px;
+        overflow-y: auto;
+    }
+
+    .fiscal-content ul {
+        padding-left: 18px;
+    }
+
+    .fiscal-content li {
+        margin-bottom: 8px;
+    }
+
+    .fiscal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(.96); }
+        to   { opacity: 1; transform: scale(1); }
+    }
+
+    .bg-fiscal:hover{
+        cursor: pointer;
+    }
+</style>
+@endsection
 @section('content')
 <div class="mt-1">
     <div class="row">
@@ -78,6 +158,7 @@
                                     <th>Cliente</th>
                                     <th>CPF/CNPJ</th>
                                     <th>Valor</th>
+                                    <th>Status Fiscal</th>
                                     <th>Estado</th>
                                     <th>Ambiente</th>
                                     <th>Número NFCe</th>
@@ -91,159 +172,15 @@
                                 @forelse($data as $item)
                                 <tr>
                                     <td class="text-start d-none d-md-table-cell">
-                                        <div class="dropdown">
-                                            <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-display="static">
-                                                Ações
-                                            </button>
-
-                                            <ul class="dropdown-menu dropdown-menu-end shadow">
-
-                                                <form action="{{ route('frontbox.destroy', $item->id) }}" method="post" id="form-{{$item->id}}">
-                                                    @csrf
-                                                    @method('delete')
-
-                                                    <li>
-                                                        <button type="button" class="dropdown-item" onclick="imprimir('{{$item->id}}')">
-                                                            <i class="ri-printer-line me-1 text-primary"></i> Imprimir Não Fiscal
-                                                        </button>
-                                                    </li>
-
-                                                    <li>
-                                                        <button type="button" class="dropdown-item" onclick="imprimirA4('{{$item->id}}')">
-                                                            <i class="ri-printer-fill me-1"></i> Imprimir A4
-                                                        </button>
-                                                    </li>
-
-                                                    @can('pdv_delete')
-                                                    @if($item->estado == 'novo' || $item->estado == 'rejeitado')
-                                                    <li>
-                                                        <button type="button" class="dropdown-item text-danger btn-delete" data-id="{{ $item->id }}">
-                                                            <i class="ri-delete-bin-line me-1"></i> Excluir
-                                                        </button>
-                                                    </li>
-                                                    @endif
-                                                    @endcan
-
-                                                    @if($item->estado == 'novo' || $item->estado == 'rejeitado')
-                                                    <li>
-                                                        <button type="button" class="dropdown-item text-success" onclick="transmitir('{{$item->id}}')">
-                                                            <i class="ri-send-plane-fill me-1"></i> Transmitir NFC-e
-                                                        </button>
-                                                    </li>
-
-                                                    @can('pdv_edit')
-                                                    <li>
-                                                        <a class="dropdown-item text-warning" href="{{ route('frontbox.edit', $item->id) }}">
-                                                            <i class="ri-pencil-line me-1"></i> Editar Venda
-                                                        </a>
-                                                    </li>
-                                                    @endcan
-                                                    @endif
-
-                                                    @if($item->estado != 'aprovado')
-                                                    <li>
-                                                        <a class="dropdown-item" href="{{ route('frontbox.show', $item->id) }}">
-                                                            <i class="ri-eye-line me-1"></i> Detalhes
-                                                        </a>
-                                                    </li>
-
-                                                    <li>
-                                                        <a class="dropdown-item text-dark" target="_blank" href="{{ route('nfce.xml-temp', $item->id) }}">
-                                                            <i class="ri-file-line me-1"></i> XML Temporário
-                                                        </a>
-                                                    </li>
-                                                    @endif
-
-                                                    @if($item->estado == 'aprovado')
-                                                    <li>
-                                                        <a class="dropdown-item text-info" target="_blank" href="{{ route('nfce.imprimir', [$item->id]) }}">
-                                                            <i class="ri-printer-line me-1"></i> Imprimir NFC-e
-                                                        </a>
-                                                    </li>
-                                                    @endif
-
-                                                    @if($item->cliente && sizeof($item->fatura) > 0)
-                                                    <li>
-                                                        <a class="dropdown-item" target="_blank" href="{{ route('frontbox.imprimir-carne', [$item->id]) }}">
-                                                            <i class="ri-currency-line me-1"></i> Imprimir Carnê
-                                                        </a>
-                                                    </li>
-                                                    @endif
-
-                                                    @if($envioWppLink)
-                                                    <li>
-                                                        <button type="button" class="dropdown-item text-success" onclick="enviarWpp('{{$item->id}}', 'nfce')">
-                                                            <i class="ri-whatsapp-fill me-1"></i> Enviar WhatsApp
-                                                        </button>
-                                                    </li>
-                                                    @endif
-
-                                                </form>
-
-                                            </ul>
-                                        </div>
+                                        @if($usarDropdown)
+                                        @include('front_box.partials.dropdown_acoes', ['item' => $item])
+                                        @else
+                                        @include('front_box.partials.botoes_acoes', ['item' => $item])
+                                        @endif
                                     </td>
 
                                     <td class="d-md-none">
-                                        <form action="{{ route('frontbox.destroy', $item->id) }}" method="post" id="form-{{$item->id}}" style="width: 380px">
-                                            @method('delete')
-                                            @csrf
-
-                                            <a title="Imprimir não fiscal" onclick="imprimir('{{$item->id}}')" class="btn btn-primary btn-sm">
-                                                <i class="ri-printer-line"></i>
-                                            </a>
-
-                                            <a title="Imprimir A4" onclick="imprimirA4('{{$item->id}}')" class="btn btn-dark btn-sm">
-                                                <i class="ri-printer-fill"></i>
-                                            </a>
-
-                                            @can('pdv_delete')
-                                            @if($item->estado == 'novo' || $item->estado == 'rejeitado')
-                                            <button type="button" class="btn btn-danger btn-sm btn-delete">
-                                                <i class="ri-delete-bin-line"></i>
-                                            </button>
-                                            @endif
-                                            @endcan
-
-                                            @if($item->estado == 'novo' || $item->estado == 'rejeitado')
-                                            <button title="Transmitir NFCe" type="button" class="btn btn-success btn-sm" onclick="transmitir('{{$item->id}}')">
-                                                <i class="ri-send-plane-fill"></i>
-                                            </button>
-
-                                            @can('pdv_edit')
-                                            <a class="btn btn-warning btn-sm" title="Editar venda" href="{{ route('frontbox.edit', $item->id) }}">
-                                                <i class="ri-pencil-line"></i>
-                                            </a>
-                                            @endcan
-                                            @endif
-
-                                            @if($item->estado != 'aprovado')
-                                            <a class="btn btn-ligth btn-sm" title="Detalhes" href="{{ route('frontbox.show', $item->id) }}">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                            <a target="_blank" title="XML temporário" class="btn btn-dark btn-sm" href="{{ route('nfce.xml-temp', $item->id) }}">
-                                                <i class="ri-file-line"></i>
-                                            </a>
-                                            @endif
-
-                                            @if($item->estado == 'aprovado')
-                                            <a class="btn btn-info btn-sm" title="Imprimir NFCe" target="_blank" href="{{ route('nfce.imprimir', [$item->id]) }}">
-                                                <i class="ri-printer-line"></i>
-                                            </a>
-                                            @endif
-
-                                            @if($item->cliente && sizeof($item->fatura) > 0)
-                                            <a target="_blank" title="Imprimir carnê" href="{{ route('frontbox.imprimir-carne', [$item->id]) }}" class="btn btn-light btn-sm">
-                                                <i class="ri-currency-line"></i>
-                                            </a>
-                                            @endif
-
-                                            @if($envioWppLink)
-                                            <button title="Enviar Mensagem" onclick="enviarWpp('{{$item->id}}', 'nfce')" type="button" class="btn btn-success btn-sm">
-                                                <i class="ri-whatsapp-fill"></i>
-                                            </button>
-                                            @endif
-                                        </form>
+                                        @include('front_box.partials.botoes_acoes', ['item' => $item])
                                     </td>
 
                                     <td data-label="#">{{ $item->numero_sequencial }}</td>
@@ -260,7 +197,25 @@
                                         </label>
                                     </td>
 
-                                    <td data-label="Valor">{{ __moeda($item->total) }}</td>
+                                    <td data-label="Valor">
+                                        <label class="fs-16 mb-1" style="width: 120px;">
+                                            R$ {{ __moeda($item->total) }}
+                                        </label>
+                                        @if($item->valor_cashback > 0)
+                                        <br>
+                                        <span class="bg bg-danger text-white" style="border-radius: 5px; padding: 2px;">cashback R$ {{ __moeda($item->valor_cashback) }}</span>
+                                        @endif
+                                    </td>
+
+                                    <td data-label="Status Fiscal">
+                                        @if($item->fiscal_status === 'erro')
+                                        <span class="badge bg-danger p-1 bg-fiscal" onclick="consultarFiscal({{ $item->id }}, 'nfce')">Erro fiscal</span>
+                                        @elseif($item->fiscal_status === 'alerta')
+                                        <span class="badge bg-warning p-1 bg-fiscal" onclick="consultarFiscal({{ $item->id }}, 'nfce')">Alerta fiscal</span>
+                                        @else
+                                        <span class="badge bg-success p-1">Fiscal OK</span>
+                                        @endif
+                                    </td>
 
                                     <td data-label="Estado">
                                         @if($item->estado == 'aprovado')
@@ -309,6 +264,26 @@
 </div>
 @include('nfe.partials.modal_envio_wpp')
 
+<div id="fiscalLoader" class="fiscal-loader d-none">
+    <div class="fiscal-box">
+        <div id="fiscalIcon" class="fiscal-icon error">✖</div>
+
+        <h4 id="fiscalTitle">Erro Fiscal</h4>
+        <p id="fiscalSubtitle">
+            Foram encontrados problemas fiscais que impedem a transmissão.
+        </p>
+
+        <div id="fiscalContent" class="fiscal-content"></div>
+
+        <div class="fiscal-actions">
+            <button id="btnFiscalCancel" class="btn btn-secondary">
+                Fechar
+            </button>
+
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
@@ -335,5 +310,6 @@
     }
 </script>
 <script type="text/javascript" src="/js/enviar_fatura_wpp.js"></script>
+<script type="text/javascript" src="/js/consulta_fiscal.js"></script>
 
 @endsection

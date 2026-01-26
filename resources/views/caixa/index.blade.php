@@ -15,7 +15,7 @@
             <div class="card-body">
                 <div class="row">
 
-                    <div class="row  mt-1">
+                    <div class="row mt-1">
 
                         @if(__countLocalAtivo() > 1)
                         <h5 class="mt-2">Local: <strong class="text-danger">{{ $item->localizacao ? $item->localizacao->descricao : '' }}</strong></h5>

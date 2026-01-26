@@ -59,8 +59,18 @@
         !!}
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-2">
         {!!Form::text('equipamento', 'Equipamento')->required()
+        !!}
+    </div>
+
+    <div class="col-md-2">
+        {!!Form::text('marca', 'Marca')
+        !!}
+    </div>
+
+    <div class="col-md-2">
+        {!!Form::text('modelo', 'Modelo')
         !!}
     </div>
 

@@ -5,6 +5,7 @@ $('#btn-buscar-horarios').click(() => {
     $("#servicos > option:selected").each(function(){
         servicos.push($(this).val())
     })
+
     let js = {
         servicos: JSON.stringify(servicos),
         data: DATACHANGE,
@@ -16,6 +17,9 @@ $('#btn-buscar-horarios').click(() => {
         $.get(path_url + "api/agendamentos/buscar-horarios", js)
         .done((success) => {
             // console.log(success)
+            if(success == ""){
+                swal("Alerta", "Nenhum resultado encontrado verifique o dia", "warning")
+            }
             $('#tabela-novo-agendamento tbody').html(success)
         })
         .fail((err) => {
@@ -36,6 +40,9 @@ function escolheHorario(data){
     $('#inp-termino').val(data.fim)
     $('#inp-total').val(convertFloatToMoeda(data.total))
     $('#funcionario').val(data.funcionario_id)
+
+    var newOption = new Option(data.funcionario_nome, data.funcionario_id, false, false);
+    $('#inp-funcionario_id').append(newOption);
     TEMPOSERVICO = data.tempoServico
 }
 

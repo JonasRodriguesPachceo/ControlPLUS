@@ -319,7 +319,7 @@ $(document).on("click", ".btn-modal-altera", function () {
     setTimeout(() => {
         if($inpSubCategoriaId.val() > 0){
             var newOption = new Option($inpSubCategoriaNome.val(), $inpSubCategoriaId.val(), false, 1);
-            console.log(newOption)
+            // console.log(newOption)
             $('#modal_sub_categoria_id').append(newOption);
         }
     }, 100)

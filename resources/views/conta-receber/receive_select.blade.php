@@ -19,6 +19,10 @@
 			->put()
 			->route('conta-receber.receive-select')
 			!!}
+
+			@isset($redirectPdv)
+			<input type="hidden" value="1" name="redirect_pdv">
+			@endif
 			<div class="pl-lg-4">
 				@foreach($data as $key => $item)
 				<div class="row">

@@ -50,13 +50,13 @@ class CategoriaProdutoController extends Controller
     {
         try {
 
-            $categoria = CategoriaProduto::where('nome', $request->nome)
-            ->where('empresa_id', $request->empresa_id)->first();
+            // $categoria = CategoriaProduto::where('nome', $request->nome)
+            // ->where('empresa_id', $request->empresa_id)->first();
 
-            if($categoria != null){
-                session()->flash("flash_warning", 'Já existe uma categoria com este nome');
-                return redirect()->back();
-            }
+            // if($categoria != null){
+            //     session()->flash("flash_warning", 'Já existe uma categoria com este nome!');
+            //     return redirect()->back();
+            // }
 
             if ($request->ecommerce) {
                 $request->merge([

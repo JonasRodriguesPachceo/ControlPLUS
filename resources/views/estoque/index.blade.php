@@ -48,12 +48,73 @@
                             Retirada de Estoque
                         </a>
                         <a href="{{ route('apontamento.create') }}" class="btn btn-info">
-                            <i class="ri-settings-3-line"></i>
+                            <i class="ri-edit-box-fill"></i>
                             Apontamento de Produção
                         </a>
                     </div>
                     @endcan
                 </div>
+
+                <div class="row mt-3">
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card card-stats">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h4 class="fw-bold text-primary mb-0">
+                                            {{ $totalProdutos }}
+                                        </h4>
+
+                                        <small class="text-muted">
+                                            Total de produtos cadastrados
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card card-stats">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h4 class="fw-bold text-danger mb-0">
+                                            R$ {{ __moeda($totalCompra) }}
+                                        </h4>
+
+                                        <small class="text-muted">
+                                            Total em estoque valor compra
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card card-stats">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h4 class="fw-bold text-success mb-0">
+                                            R$ {{ __moeda($totalVenda) }}
+                                        </h4>
+
+                                        <small class="text-muted">
+                                            Total em estoque valor venda
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a class="btn btn-outline-primary btn-sm" href="{{ route('estoque.categoria') }}">
+                    <i class="ri-list-check-3"></i>Total em estoque por categoria
+                </a>
+
                 <hr class="mt-3">
                 <div class="col-lg-12">
                     {!!Form::open()->fill(request()->all())
@@ -61,7 +122,12 @@
                     !!}
                     <div class="row mt-3">
                         <div class="col-md-3">
-                            {!!Form::text('produto', 'Pesquisar por produto')
+                            {!!Form::text('produto', 'Pesquisar por nome')
+                            !!}
+                        </div>
+
+                        <div class="col-md-3">
+                            {!!Form::text('codigo_barras', 'Pesquisar por código de barras')
                             !!}
                         </div>
 

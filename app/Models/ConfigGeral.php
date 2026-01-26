@@ -22,7 +22,8 @@ class ConfigGeral extends Model
         'documento_pdv', 'numero_inicial_comanda', 'numero_final_comanda', 'corrigir_numeracao_fiscal', 'gerar_conta_pagar_padrao',
         'home_componentes', 'token_whatsapp', 'small_header_user', 'mensagem_wpp_link', 'status_wpp_link', 'enviar_danfe_wpp_link', 
         'enviar_xml_wpp_link', 'enviar_pedido_a4_wpp_link', 'produtos_exibe_tabela', 'itens_por_pagina', 'clientes_exibe_tabela',
-        'tipo_ordem_servico'
+        'tipo_ordem_servico', 'usar_dropdown_acoes', 'margem_lateral_impressao', 'tipo_pagamento_padrao', 'ticket_troca',
+        'mensagem_ticket_troca', 'limitar_cliente_inadimplente', 'atualizar_valor_venda_importacao'
     ];
 
     public function cliente()

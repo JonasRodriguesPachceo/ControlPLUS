@@ -125,7 +125,12 @@ class OrdemProducaoController extends Controller
                             'status' => 0,
                             'observacao' => $request->observacao_item[$i]
                         ]);
-                    }else{
+                    }
+                }
+
+                $i = 0;
+                for($j=0; $j<sizeof($request->item_select); $j++){
+                    if(isset($request->produto_id[$i])){
                         $dataItem = [
                             'ordem_producao_id' => $ordem->id,
                             'item_producao_id' => null,
@@ -138,14 +143,15 @@ class OrdemProducaoController extends Controller
                         ];
 
                         ItemOrdemProducao::create($dataItem);
+                        $i++;
                     }
                 }
-
                 session()->flash("flash_success", "Ordem de Produção criada com sucesso");
             });
             return redirect()->route('ordem-producao.index');
 
         }catch(\Exception $e){
+            dd($e->getMessage());
             session()->flash("flash_error", "Algo deu Errado" . $e->getMessage());
             return redirect()->back();
 
@@ -270,20 +276,36 @@ class OrdemProducaoController extends Controller
         // exit();
     }
 
-    public function imprimir($id){
+    public function imprimir($id)
+    {
         $item = OrdemProducao::findOrFail($id);
-
         $config = Empresa::findOrFail(request()->empresa_id);
-        $p = view('ordem_producao.imprimir', compact('item', 'config'));
+
+        $html = view('ordem_producao.imprimir_detalhe', compact('item', 'config'))->render();
+
         $domPdf = new Dompdf(["enable_remote" => true]);
-        $domPdf->loadHtml($p);
+        $domPdf->loadHtml($html);
 
-        $pdf = ob_get_clean();
-
-        $domPdf->setPaper("A4", "landscape");
+        $domPdf->setPaper("A4");
         $domPdf->render();
-        $domPdf->stream("Ordem de produção.pdf", array("Attachment" => false));
-        exit();
+        return $domPdf->stream("Ordem de produção.pdf", ["Attachment" => false]);
     }
+
+
+    // public function imprimir($id){
+    //     $item = OrdemProducao::findOrFail($id);
+
+    //     $config = Empresa::findOrFail(request()->empresa_id);
+    //     $p = view('ordem_producao.imprimir', compact('item', 'config'));
+    //     $domPdf = new Dompdf(["enable_remote" => true]);
+    //     $domPdf->loadHtml($p);
+
+    //     $pdf = ob_get_clean();
+
+    //     $domPdf->setPaper("A4", "landscape");
+    //     $domPdf->render();
+    //     $domPdf->stream("Ordem de produção.pdf", array("Attachment" => false));
+    //     exit();
+    // }
 
 }

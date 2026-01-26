@@ -30,6 +30,7 @@ use App\Utils\EstoqueUtil;
 use Illuminate\Support\Facades\DB;
 use App\Models\ProdutoLocalizacao;
 use App\Models\Localizacao;
+use App\Models\RastroXml;
 
 class CompraController extends Controller
 {
@@ -138,7 +139,13 @@ class CompraController extends Controller
         ->paginate(__itensPagina());
 
         $contigencia = $this->getContigencia($request->empresa_id);
-        return view('compras.index', compact('data', 'fornecedores', 'contigencia'));
+
+        $config = ConfigGeral::where('empresa_id', $request->empresa_id)->first();
+        $usarDropdown = 0;
+        if($config){
+            $usarDropdown = $config->usar_dropdown_acoes;
+        }
+        return view('compras.index', compact('data', 'fornecedores', 'contigencia', 'usarDropdown'));
     }
 
     /**
@@ -405,7 +412,11 @@ class CompraController extends Controller
                 $prod->observacao2 = $produto == null ? '' : $produto->observacao2;
                 $prod->observacao3 = $produto == null ? '' : $produto->observacao3;
                 $prod->observacao4 = $produto == null ? '' : $produto->observacao4;
-                $prod->disponibilidade = $produto == null ? $local : json_encode($produto->locais->pluck('localizacao_id')->toArray());
+                // $prod->disponibilidade = $produto == null ? $local : json_encode($produto->locais->pluck('localizacao_id')->toArray());
+
+                $prod->disponibilidade = $produto == null
+                ? $local
+                : json_encode(optional($produto->locais)->pluck('localizacao_id')->toArray());
 
 
                 $arr = (array_values((array)$item->imposto->ICMS));
@@ -460,8 +471,19 @@ class CompraController extends Controller
 
                 $prod->codigo_beneficio_fiscal = '';
 
+                $rastro = [];
+                if($item->prod->rastro){
+                    foreach($item->prod->rastro as $r){
+                        $rastro[] = (array)$r;
+                    }
+                }
+
+                $prod->rastro = $rastro;
+
                 array_push($itens, $prod);
             }
+
+            // dd($itens);
 
             $dadosXml = [
                 'chave' => $chave,
@@ -599,7 +621,6 @@ class CompraController extends Controller
     public function finishXml(Request $request)
     {
         try {
-
             $nfe = DB::transaction(function () use ($request) {
 
                 $fornecedor_id = isset($request->fornecedor_id) ? $request->fornecedor_id : null;
@@ -611,6 +632,8 @@ class CompraController extends Controller
                         $this->atualizaFornecedor($request);
                     }
                 }
+
+                $configGeral = ConfigGeral::where('empresa_id', $request->empresa_id)->first();
 
                 $transportadora_id = $request->transportadora_id;
                 if ($request->transportadora_id == null) {
@@ -683,7 +706,12 @@ class CompraController extends Controller
 
                         $product->nome = $request->nome_produto[$i];
                         $product->valor_compra = __convert_value_bd($request->valor_unitario[$i]);
-                        $product->valor_unitario = __convert_value_bd($request->valor_venda[$i]);
+
+                        //valor de venda
+                        if($configGeral->atualizar_valor_venda_importacao == 1){
+                            $product->valor_unitario = __convert_value_bd($request->valor_venda[$i]);
+                        }
+
                         $product->valor_atacado = ($request->_valor_atacado[$i]);
                         $product->percentual_lucro = __convert_value_bd($request->_margem[$i]);
 
@@ -723,7 +751,7 @@ class CompraController extends Controller
                     $valorVenda = __convert_value_bd($request->valor_venda[$i]);
                     $valorVenda = $valorVenda / ((float)$request->conversao_estoque[$i] == 0 ? 1 : (float)$request->conversao_estoque[$i]);
                     
-                    ItemNfe::create([
+                    $itemNfe = ItemNfe::create([
                         'nfe_id' => $nfe->id,
                         'produto_id' => $product->id,
                         'quantidade' => $quantidade,
@@ -748,8 +776,21 @@ class CompraController extends Controller
                         'fornecedor_id' => $fornecedor_id
                     ]);
 
+                    if ($request->has('rastro')) {
+                        $rastro = json_decode($request->rastro[$i]);
+                        foreach($rastro as $r){
+                            RastroXml::create([
+                                'item_nfe_id' => $itemNfe->id,
+                                'nLote' => $r->nLote,
+                                'qLote' => $r->qLote,
+                                'dFab' => $r->dFab,
+                                'dVal' => $r->dVal
+                            ]);
+                        }
+                    }
+
                     $product->valor_compra = $valorUnitario;
-                    $product->valor_unitario = $valorVenda;
+                    // $product->valor_unitario = $valorVenda;
                     $product->save();
 
                     if ($product->gerenciar_estoque) {
@@ -848,7 +889,7 @@ private function cadastrarProduto($request, $i, $local_id)
         'empresa_id' => $request->empresa_id,
         'nome' => $request->nome_produto[$i],
         'ncm' => $request->ncm[$i],
-        'padrao_id' => $request->padrao_id,
+        'padrao_id' => $padrao ? $padrao->id : null,
         'codigo_barras' => $request->codigo_barras[$i],
         'codigo_barras2' => $request->_codigo_barras2[$i],
         'gerenciar_estoque' => $request->_gerenciar_estoque[$i],
@@ -856,7 +897,6 @@ private function cadastrarProduto($request, $i, $local_id)
         'valor_unitario' => __convert_value_bd($request->valor_venda[$i]),
         'quantidade_atacado' => __convert_value_bd($request->_quantidade_atacado[$i]),
         'valor_minimo_venda' => ($request->_valor_minimo_venda[$i]),
-
         'valor_atacado' => ($request->_valor_atacado[$i]),
         'perc_red_bc' => __convert_value_bd($request->perc_red_bc[$i]),
         'cfop_estadual' => $cfopEstado,
@@ -865,6 +905,7 @@ private function cadastrarProduto($request, $i, $local_id)
 
         'cfop_entrada_estadual' => $padrao ? $padrao->cfop_entrada_estadual : '',
         'cfop_entrada_outro_estado' => $padrao ? $padrao->cfop_entrada_outro_estado : '',
+        'cEnq' => $padrao ? $padrao->cEnq : '',
 
         'valor_compra' => __convert_value_bd($request->valor_unitario[$i]),
 
@@ -1188,6 +1229,22 @@ public function downloadXmlImportado($id){
         session()->flash("flash_error", "Arquivo não encontrado");
         return redirect()->back();
     }
+}
+public function rastro(Request $request){
+    $data = RastroXml::with(['item.nfe'])
+    ->when($request->filled('nLote'), function ($q) use ($request) {
+        $q->where('nLote', 'like', "%{$request->nLote}%");
+    })
+    ->when($request->filled('dVal'), function ($q) use ($request) {
+        $q->whereDate('dVal', $request->dVal);
+    })
+    ->when($request->filled('dFab'), function ($q) use ($request) {
+        $q->whereDate('dFab', $request->dFab);
+    })
+    ->paginate(__itensPagina());
+
+
+    return view('compras.busca_rastro', compact('data'));
 }
 
 }

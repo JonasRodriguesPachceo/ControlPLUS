@@ -14,8 +14,8 @@
 			<input style="width: 150px;" type="tel" class="form-control moeda input-edit" name="valor_compra" value="{{ __moeda($p->valor_compra) }}">
 		</td>
 		<td>
-			<label class="text-muted">Atual {{ $p->estoque ? (!$p->unidadeDecimal() ? number_format($p->estoque->quantidade, 0, '.', '') : number_format($p->estoque->quantidade, 3, '.', '')) : 0 }}</label>
-			<input style="width: 150px;" type="tel" class="form-control quantidade input-edit" name="quantidade_estoque" value="{{ $p->estoque ? (!$p->unidadeDecimal() ? number_format($p->estoque->quantidade, 0, '.', '') : number_format($p->estoque->quantidade, 3, '.', '')) : 0 }}">
+			<label class="text-muted">Atual {{ $p->estoque ? (!$p->unidadeDecimal() ? number_format($p->estoque->quantidadeLocal($local_id), 0, '.', '') : number_format($p->estoque->quantidadeLocal($local_id), 3, '.', '')) : 0 }}</label>
+			<input style="width: 150px;" type="tel" class="form-control quantidade input-edit" name="quantidade_estoque" value="{{ $p->estoque ? (!$p->unidadeDecimal() ? number_format($p->estoque->quantidadeLocal($local_id), 0, '.', '') : number_format($p->estoque->quantidadeLocal($local_id), 3, '.', '')) : 0 }}">
 		</td>
 	</tr>
 @endforeach

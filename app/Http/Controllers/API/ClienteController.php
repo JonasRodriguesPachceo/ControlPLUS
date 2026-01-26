@@ -6,20 +6,70 @@ use App\Http\Controllers\Controller;
 use App\Models\Cliente;
 use App\Models\ContaReceber;
 use App\Models\CashBackConfig;
-use App\Models\TradeinCreditMovement;
+use App\Models\ConfigGeral;
+use App\Models\ItemNfe;
+use App\Models\ItemNfce;
 use Illuminate\Http\Request;
+use App\Models\TradeinCreditMovement;
 
 class ClienteController extends Controller
 {
-    public function find($id)
+public function find($id)
     {
-        $item = Cliente::with(['cidade', 'listaPreco', 'tributacao', 'fatura'])->findOrFail($id);
+        $item = Cliente::with(['cidade', 'listaPreco', 'tributacao', 'fatura'])
+            ->findOrFail($id);
+
+        // --- Trade-in credit ---
         $documento = TradeinCreditMovement::sanitizeDocumento($item->cpf_cnpj);
+
         $item->setAttribute('tradein_credit', [
             'documento' => $documento,
-            'saldo' => $documento ? TradeinCreditMovement::saldoDisponivel($item->empresa_id, $documento) : 0,
+            'saldo' => $documento
+                ? TradeinCreditMovement::saldoDisponivel($item->empresa_id, $documento)
+                : 0,
         ]);
+
+        // --- Inadimplência ---
+        $config = ConfigGeral::where('empresa_id', $item->empresa_id)->first();
+
+        if ($config === null || $config->limitar_cliente_inadimplente == 0) {
+            $item->inadimplente = false;
+        } else {
+            $item->inadimplente = ContaReceber::where('cliente_id', $id)
+                ->where('status', 0)
+                ->whereDate('data_vencimento', '<', now()->toDateString())
+                ->exists();
+        }
+
         return response()->json($item, 200);
+    }
+
+    public function produtosHistorico(Request $request){
+        $cliente_id = $request->cliente_id;
+        $pesquisa = $request->pesquisa;
+
+        $itensNfe = ItemNfe::select('item_nves.*')
+        ->join('nves', 'nves.id', '=', 'item_nves.nfe_id')
+        ->where('cliente_id', $cliente_id)
+        ->join('produtos', 'produtos.id', '=', 'item_nves.produto_id')
+        ->where('nves.tpNF', 1)
+        ->where('produtos.nome', 'LIKE', "%$pesquisa%")
+        ->get();
+
+        $itensNfce = ItemNfce::select('item_nfces.*')
+        ->join('nfces', 'nfces.id', '=', 'item_nfces.nfce_id')
+        ->where('cliente_id', $cliente_id)
+        ->join('produtos', 'produtos.id', '=', 'item_nfces.produto_id')
+        ->where('produtos.nome', 'LIKE', "%$pesquisa%")
+        ->get();
+
+        $itens = $itensNfe
+        ->merge($itensNfce)
+        ->sortByDesc('created_at')
+        ->values();
+
+        return view('clientes.partials.tabela_historico', compact('itens'))->render();
+
     }
 
     public function cashback($id)
@@ -35,13 +85,37 @@ class ClienteController extends Controller
 
     public function pesquisa(Request $request)
     {
+        $pesquisa = $request->pesquisa;
+        $pesquisaOriginal = trim($pesquisa);
+        $pesquisaNumerica = preg_replace('/\D/', '', $pesquisaOriginal);
+
         $data = Cliente::orderBy('razao_social', 'desc')
         ->where('empresa_id', $request->empresa_id)
         ->where('status', 1)
         // ->where('razao_social', 'like', "%$request->pesquisa%")
-        ->where(function($q) use ($request){
-            $q->where('razao_social', 'like', "%$request->pesquisa%")->orWhere('nome_fantasia', 'like', "%$request->pesquisa%")
-            ->orWhere('numero_sequencial', 'LIKE', "%$request->pesquisa%");
+        // ->where(function($q) use ($pesquisa){
+        //     $q->where('razao_social', 'like', "%$pesquisa%")->orWhere('nome_fantasia', 'like', "%$pesquisa%")
+        //     ->orWhere('numero_sequencial', 'LIKE', "%$pesquisa%");
+        // })
+
+        ->when($pesquisaNumerica !== '', function ($query) use ($pesquisaNumerica) {
+            $clean = "%{$pesquisaNumerica}%";
+
+            $query->where(function ($q) use ($clean) {
+                $q->whereRaw("
+                    REPLACE(REPLACE(REPLACE(REPLACE(cpf_cnpj, '.', ''), '-', ''), '/', ''), ' ', '') LIKE ?
+                    ", [$clean])
+                ->orWhereRaw("
+                    REPLACE(REPLACE(REPLACE(REPLACE(numero_sequencial, '.', ''), '-', ''), '/', ''), ' ', '') LIKE ?
+                    ", [$clean]);
+            });
+        })
+        ->when($pesquisaNumerica === '', function ($query) use ($pesquisaOriginal) {
+            $like = "%{$pesquisaOriginal}%";
+            $query->where(function($q) use ($like){
+                $q->where('razao_social', 'like', $like)
+                ->orWhere('nome_fantasia', 'like', $like);
+            });
         })
         ->get();
 

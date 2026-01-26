@@ -8,6 +8,7 @@ use App\Models\ComissaoVenda;
 use App\Models\ContaReceber;
 use App\Models\Empresa;
 use App\Models\PdvLog;
+use App\Models\CreditoCliente;
 use App\Models\User;
 use App\Models\SuprimentoCaixa;
 use App\Models\SangriaCaixa;
@@ -61,23 +62,19 @@ use App\Models\RegistroTef;
 use Illuminate\Support\Str;
 use App\Utils\FilaEnvioUtil;
 use App\Models\Garantia;
-use App\Models\ProdutoUnico;
-use App\Models\TradeinCreditMovement;
-use App\Utils\TradeinCreditUtil;
+use App\Utils\Fiscal\FiscalValidator;
 
 class FrontBoxController extends Controller
 {
     protected $util;
     protected $utilWhatsApp;
     protected $filaEnvioUtil;
-    protected $tradeinCreditUtil;
 
-    public function __construct(EstoqueUtil $util, WhatsAppUtil $utilWhatsApp, FilaEnvioUtil $filaEnvioUtil, TradeinCreditUtil $tradeinCreditUtil)
+    public function __construct(EstoqueUtil $util, WhatsAppUtil $utilWhatsApp, FilaEnvioUtil $filaEnvioUtil)
     {
         $this->util = $util;
         $this->utilWhatsApp = $utilWhatsApp;
         $this->filaEnvioUtil = $filaEnvioUtil;
-        $this->tradeinCreditUtil = $tradeinCreditUtil;
     }
 
     public function faturaPadraoCliente(Request $request){
@@ -151,13 +148,11 @@ class FrontBoxController extends Controller
                         $somaLoop += $valorParcela;
                         $temp['valor'] = $valorParcela;
                     }
-
                     $data[] = $temp;
                 }
             }
 
             return view('front_box.partials.row_fatura_cliente_pdv', compact('data'))->render();
-
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 401);
         }
@@ -280,9 +275,9 @@ class FrontBoxController extends Controller
 
                 array_push($data, $p);
             }
-            // return response()->json($tipo_pagamento, 401);
+            return response()->json($data, 200);
 
-            return view('front_box.partials.row_fatura_pdv', compact('data', 'tipo_pagamento'))->render();
+            // return view('front_box.partials.row_fatura_pdv', compact('data', 'tipo_pagamento'))->render();
         } catch (\Exception $e) {
             return response()->json($e->getMessage(), 401);
         }
@@ -523,6 +518,29 @@ class FrontBoxController extends Controller
         }
     }
 
+    private function rateioCredito($valorCredito, $nfce){
+        $data = CreditoCliente::where('status', 1)
+        ->where('cliente_id', $nfce->cliente_id)
+        ->get();
+
+        $valorCredito = __convert_value_bd($valorCredito);
+
+        $soma = 0;
+        foreach($data as $i){
+            if($soma < $valorCredito){
+                if($i->valor <= $valorCredito){
+                    $i->status = 0;
+                    $i->save();
+                    $soma += $i->valor;
+                }else{
+                    $i->valor -= ($valorCredito - $soma);
+                    $i->save();
+                    $soma = $valorCredito;
+                }
+            }
+        }
+    }
+
     private function saveCashBack($venda){
         $config = CashBackConfig::where('empresa_id', $venda->empresa_id)
         ->first();
@@ -600,7 +618,6 @@ class FrontBoxController extends Controller
                     'user_id' => $request->usuario_id
                 ]);
 
-                $codigoInputs = $request->codigo_unico_ids ?? [];
                 if($request->produto_id){
                     for ($i = 0; $i < sizeof($request->produto_id); $i++) {
                         $variacao_id = isset($request->variacao_id[$i]) ? $request->variacao_id[$i] : null;
@@ -612,6 +629,50 @@ class FrontBoxController extends Controller
                             'sub_total' => __convert_value_bd($request->subtotal_item[$i]),
                             'variacao_id' => $variacao_id,
                         ]);
+                    }
+                }
+
+            });
+            return response()->json($venda, 200);
+
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage() . ", line: " . $e->getLine() . ", file: " . $e->getFile(), 401);
+        }
+    }
+
+    public function suspenderUpdate(Request $request)
+    {
+
+        try {
+
+            $venda = DB::transaction(function () use ($request) {
+                $config = Empresa::find($request->empresa_id);
+                
+                $data = [
+                    'cliente_id' => $request->cliente_id,
+                    'total' => __convert_value_bd($request->valor_total),
+                    'desconto' => $request->desconto ? __convert_value_bd($request->desconto) : 0,
+                    'acrescimo' => $request->acrescimo ? __convert_value_bd($request->acrescimo) : 0,
+                    'observacao' => $request->observacao,
+                    'tipo_pagamento' => $request->tipo_pagamento ?? '',
+                ];
+
+                $item = VendaSuspensa::findOrfail($request->venda_suspensa_id);
+                if($item){
+                    $item->fill($data)->save();
+                    $item->itens()->delete();
+                    if($request->produto_id){
+                        for ($i = 0; $i < sizeof($request->produto_id); $i++) {
+                            $variacao_id = isset($request->variacao_id[$i]) ? $request->variacao_id[$i] : null;
+                            ItemVendaSuspensa::create([
+                                'venda_id' => $item->id,
+                                'produto_id' => (int)$request->produto_id[$i],
+                                'quantidade' => __convert_value_bd($request->quantidade[$i]),
+                                'valor_unitario' => __convert_value_bd($request->valor_unitario[$i]),
+                                'sub_total' => __convert_value_bd($request->subtotal_item[$i]),
+                                'variacao_id' => $variacao_id,
+                            ]);
+                        }
                     }
                 }
 
@@ -711,113 +772,6 @@ class FrontBoxController extends Controller
         return 0;
     }
 
-    private function collectTradeinPagamentos(Request $request): array
-    {
-        $total = 0;
-        if ($request->tipo_pagamento == TradeinCreditMovement::PAYMENT_CODE) {
-            $total += __convert_value_bd($request->valor_total);
-        }
-
-        if ($request->tipo_pagamento_row) {
-            for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
-                if ($request->tipo_pagamento_row[$i] == TradeinCreditMovement::PAYMENT_CODE) {
-                    $total += __convert_value_bd($request->valor_integral_row[$i]);
-                }
-            }
-        }
-
-        return ['total' => $total];
-    }
-
-    private function processaCodigoUnicoSaida($produtoId, $quantidade, $jsonCodigos, $nfceId, ItemNfce $itemNfce)
-    {
-        if(!$jsonCodigos){
-            throw new \Exception('Selecione os códigos únicos para o produto informado.');
-        }
-
-        $codigoSelecionados = json_decode($jsonCodigos, true);
-        if(!is_array($codigoSelecionados) || sizeof($codigoSelecionados) == 0){
-            throw new \Exception('Selecione os códigos únicos para o produto informado.');
-        }
-
-        $quantidadeItem = (int)round(__convert_value_bd($quantidade));
-        if($quantidadeItem <= 0){
-            $quantidadeItem = 1;
-        }
-
-        if(sizeof($codigoSelecionados) != $quantidadeItem){
-            throw new \Exception('A quantidade de códigos únicos não corresponde à quantidade vendida.');
-        }
-
-        $codigosTexto = [];
-        foreach($codigoSelecionados as $code){
-            $entrada = null;
-            if(isset($code['id']) && $code['id']){
-                $entrada = ProdutoUnico::find($code['id']);
-            }
-
-            if(!$entrada){
-                $codigoTexto = $code['codigo'] ?? null;
-                $entrada = ProdutoUnico::where('produto_id', $produtoId)
-                ->where('codigo', $codigoTexto)
-                ->where('tipo', 'entrada')
-                ->first();
-            }
-
-            if(!$entrada || $entrada->produto_id != $produtoId){
-                throw new \Exception('Código único inválido selecionado para o produto.');
-            }
-
-            if($entrada->em_estoque == 0){
-                throw new \Exception("O código {$entrada->codigo} já foi utilizado em outra venda.");
-            }
-
-            $entrada->em_estoque = 0;
-            $entrada->save();
-
-            ProdutoUnico::create([
-                'nfe_id' => null,
-                'nfce_id' => $nfceId,
-                'produto_id' => $produtoId,
-                'codigo' => $entrada->codigo,
-                'observacao' => $code['observacao'] ?? '',
-                'tipo' => 'saida',
-                'em_estoque' => 0
-            ]);
-
-            $codigosTexto[] = $entrada->codigo;
-        }
-
-        if(sizeof($codigosTexto) > 0){
-            $itemNfce->infAdProd = implode(', ', $codigosTexto);
-            $itemNfce->save();
-        }
-    }
-
-    private function liberarCodigosUnicosNfce($nfceId)
-    {
-        $codigosSaida = ProdutoUnico::where('nfce_id', $nfceId)
-        ->where('tipo', 'saida')
-        ->get();
-
-        if($codigosSaida->count() == 0){
-            return;
-        }
-
-        foreach($codigosSaida as $saida){
-            $entrada = ProdutoUnico::where('produto_id', $saida->produto_id)
-            ->where('codigo', $saida->codigo)
-            ->where('tipo', 'entrada')
-            ->first();
-            if($entrada){
-                $entrada->em_estoque = 1;
-                $entrada->save();
-            }
-        }
-
-        ProdutoUnico::where('nfce_id', $nfceId)->delete();
-    }
-
     public function store(Request $request)
     {
         try {
@@ -857,6 +811,17 @@ class FrontBoxController extends Controller
                     $numeroSerieNfce = $configUsuarioEmissao->numero_serie_nfce;
                     $numero_nfce = $configUsuarioEmissao->numero_ultima_nfce;
                 }
+                if(isset($request->tipo_pagamento_row)){
+                    $tipoPagamentoPrincipal = $request->tipo_pagamento_row ? '99' : $request->tipo_pagamento;
+                }
+
+                $pagamentos = null;
+                if(isset($request->pagamentos)){
+                    //novo modelo de pdv
+                    $pagamentos = $request->pagamentos;
+                    $tipoPagamentoPrincipal = $pagamentos[0]['tipo'];
+                }
+
                 $request->merge([
                     'natureza_id' => $empresa->natureza_id_pdv,
                     'emissor_nome' => $config->nome,
@@ -881,7 +846,7 @@ class FrontBoxController extends Controller
                     'observacao' => $request->observacao ?? '',
                     'dinheiro_recebido' => $request->valor_recebido ? __convert_value_bd($request->valor_recebido) : 0,
                     'troco' => $request->troco ? __convert_value_bd($request->troco) : 0,
-                    'tipo_pagamento' => $request->tipo_pagamento_row ? '99' : $request->tipo_pagamento,
+                    'tipo_pagamento' => $tipoPagamentoPrincipal,
                     'cnpj_cartao' => $request->cnpj_cartao ?? '',
                     'bandeira_cartao' => $request->bandeira_cartao ?? '',
                     'cAut_cartao' => $request->cAut_cartao ?? '',
@@ -890,7 +855,6 @@ class FrontBoxController extends Controller
                     'numero_sequencial' => $this->getLastNumero($request->empresa_id)
                 ]);
                 $nfce = Nfce::create($request->all());
-                $codigoInputs = $request->codigo_unico_ids ?? [];
                 if($request->produto_id){
                     for ($i = 0; $i < sizeof($request->produto_id); $i++) {
                         $product = Produto::findOrFail($request->produto_id[$i]);
@@ -914,12 +878,6 @@ class FrontBoxController extends Controller
                             'ncm' => $product->ncm,
                             'variacao_id' => $variacao_id,
                         ]);
-                        $codigoUnicoValue = $codigoInputs[$i] ?? null;
-                        if($product->tipo_unico){
-                            $this->processaCodigoUnicoSaida($product->id, $request->quantidade[$i], $codigoUnicoValue, $nfce->id, $itemNfce);
-                        }else if($codigoUnicoValue){
-                            $this->processaCodigoUnicoSaida($product->id, $request->quantidade[$i], $codigoUnicoValue, $nfce->id, $itemNfce);
-                        }
 
                         if(isset($request->adicionais[$i])){
                             $adicionais = explode(",", $request->adicionais[$i]);
@@ -988,79 +946,114 @@ class FrontBoxController extends Controller
                     }
                 }
 
-            $tradeinResumo = $this->collectTradeinPagamentos($request);
 
-            if ($request->tipo_pagamento == '06') {
-                ContaReceber::create([
-                    'nfe_id' => null,
-                    'nfce_id' => $nfce->id,
-                        'data_vencimento' => date('Y-m-d', strtotime('+30 days')),
-                        'data_recebimento' => date('Y-m-d', strtotime('+30 days')),
-                        'descricao' => 'Venda PDV ' . $nfce->numero_sequencial,
-                        'valor_integral' => __convert_value_bd($request->valor_total),
-                        'valor_recebido' => 0,
-                        'descricao' => 'Venda PDV #' . $nfce->numero_sequencial,
-                        'status' => 0,
-                        'empresa_id' => $request->empresa_id,
-                        'cliente_id' => $request->cliente_id,
-                        'tipo_pagamento' => $request->tipo_pagamento,
-                        'observacao' => $request->observacao,
-                        'local_id' => $caixa->local_id,
-                        'caixa_id' => $caixa->id,
-                        'referencia' => "Pedido PDV " . $nfce->numero_sequencial
-                    ]);
-                }
+                if(isset($request->pagamentos)){
+                    //novo modelo de pdv
+                    $pagamentos = $request->pagamentos;
+                    if($pagamentos){
+                        foreach($pagamentos as $p){
+                            $vencimento = isset($p['dataVencimento']) ? $p['dataVencimento'] : date('Y-m-d');
+                            $dataAtual = date('Y-m-d');
+                            if(strtotime($vencimento) > strtotime($dataAtual)){
+                                ContaReceber::create([
+                                    'nfe_id' => null,
+                                    'nfce_id' => $nfce->id,
+                                    'cliente_id' => $request->cliente_id,
+                                    'data_vencimento' => $vencimento,
+                                    'data_recebimento' => $vencimento,
+                                    'valor_integral' => $p['valor'],
+                                    'valor_recebido' => 0,
+                                    'status' => 0,
+                                    'descricao' => 'Venda PDV #' . $nfce->numero_sequencial . " Parcela " . $i+1 . " de " . sizeof($pagamentos),
+                                    'empresa_id' => $request->empresa_id,
+                                    'juros' => 0,
+                                    'multa' => 0,
+                                    'observacao' => '',
+                                    'tipo_pagamento' => $p['tipo'],
+                                    'local_id' => $caixa->local_id,
+                                    'caixa_id' => $caixa->id,
+                                    'referencia' => "Pedido PDV " . $nfce->numero_sequencial
+                                ]);
+                            }
 
-                $tradeinResumo = $this->collectTradeinPagamentos($request);
-
-                if ($request->tipo_pagamento_row) {
-                    for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
-                        // if ($request->tipo_pagamento_row[$i] == '06') {
-                        $vencimento = $request->data_vencimento_row[$i];
-                        $dataAtual = date('Y-m-d');
-                        if($request->tipo_pagamento_row[$i] == TradeinCreditMovement::PAYMENT_CODE){
-                            continue;
-                        }
-                        if(strtotime($vencimento) > strtotime($dataAtual)){
-                            ContaReceber::create([
-                                'nfe_id' => null,
-                                'nfce_id' => $nfce->id,
-                                'cliente_id' => $request->cliente_id,
-                                'data_vencimento' => $request->data_vencimento_row[$i],
-                                'data_recebimento' => $request->data_vencimento_row[$i],
-                                'valor_integral' => __convert_value_bd($request->valor_integral_row[$i]),
-                                'valor_recebido' => 0,
-                                'status' => 0,
-                                'descricao' => 'Venda PDV #' . $nfce->numero_sequencial . " Parcela " . $i+1 . " de " . sizeof($request->tipo_pagamento_row),
-                                'empresa_id' => $request->empresa_id,
-                                'juros' => 0,
-                                'multa' => 0,
-                                'observacao' => $request->obs_row[$i] ?? '',
-                                'tipo_pagamento' => $request->tipo_pagamento_row[$i],
-                                'local_id' => $caixa->local_id,
-                                'caixa_id' => $caixa->id,
-                                'referencia' => "Pedido PDV " . $nfce->numero_sequencial
-                            ]);
-                        }
-                        // }
-                    }
-                    for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
-                        if ($request->tipo_pagamento_row[$i]) {
                             FaturaNfce::create([
                                 'nfce_id' => $nfce->id,
-                                'tipo_pagamento' => $request->tipo_pagamento_row[$i],
-                                'data_vencimento' => $request->data_vencimento_row[$i],
-                                'valor' => __convert_value_bd($request->valor_integral_row[$i])
+                                'tipo_pagamento' => $p['tipo'],
+                                'data_vencimento' => $vencimento,
+                                'valor' => $p['valor'],
+                                'codigo_autorizacao' => isset($p['codAutorizacao']) ? $p['codAutorizacao'] : null,
+                                'detalhes' => isset($p['detalhes']) ? $p['detalhes'] : null,
+                                'bandeira' => isset($p['bandeira']) ? Nfce::getBandeira($p['bandeira']) : null
                             ]);
                         }
                     }
-                } else {
-                    FaturaNfce::create([
-                        'nfce_id' => $nfce->id,
-                        'tipo_pagamento' => $request->tipo_pagamento,
-                        'data_vencimento' => date('Y-m-d'),
-                        'valor' => __convert_value_bd($request->valor_total)
-                    ]);
+
+                }else{
+                    if ($request->tipo_pagamento == '06') {
+                        ContaReceber::create([
+                            'nfe_id' => null,
+                            'nfce_id' => $nfce->id,
+                            'data_vencimento' => date('Y-m-d', strtotime('+30 days')),
+                            'data_recebimento' => date('Y-m-d', strtotime('+30 days')),
+                            'descricao' => 'Venda PDV ' . $nfce->numero_sequencial,
+                            'valor_integral' => __convert_value_bd($request->valor_total),
+                            'valor_recebido' => 0,
+                            'descricao' => 'Venda PDV #' . $nfce->numero_sequencial,
+                            'status' => 0,
+                            'empresa_id' => $request->empresa_id,
+                            'cliente_id' => $request->cliente_id,
+                            'tipo_pagamento' => $request->tipo_pagamento,
+                            'observacao' => $request->observacao,
+                            'local_id' => $caixa->local_id,
+                            'caixa_id' => $caixa->id,
+                            'referencia' => "Pedido PDV " . $nfce->numero_sequencial
+                        ]);
+                    }
+
+                    if ($request->tipo_pagamento_row) {
+                        for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
+                            $vencimento = $request->data_vencimento_row[$i];
+                            $dataAtual = date('Y-m-d');
+                            if(strtotime($vencimento) > strtotime($dataAtual)){
+                                ContaReceber::create([
+                                    'nfe_id' => null,
+                                    'nfce_id' => $nfce->id,
+                                    'cliente_id' => $request->cliente_id,
+                                    'data_vencimento' => $request->data_vencimento_row[$i],
+                                    'data_recebimento' => $request->data_vencimento_row[$i],
+                                    'valor_integral' => __convert_value_bd($request->valor_integral_row[$i]),
+                                    'valor_recebido' => 0,
+                                    'status' => 0,
+                                    'descricao' => 'Venda PDV #' . $nfce->numero_sequencial . " Parcela " . $i+1 . " de " . sizeof($request->tipo_pagamento_row),
+                                    'empresa_id' => $request->empresa_id,
+                                    'juros' => 0,
+                                    'multa' => 0,
+                                    'observacao' => $request->obs_row[$i] ?? '',
+                                    'tipo_pagamento' => $request->tipo_pagamento_row[$i],
+                                    'local_id' => $caixa->local_id,
+                                    'caixa_id' => $caixa->id,
+                                    'referencia' => "Pedido PDV " . $nfce->numero_sequencial
+                                ]);
+                            }
+                        }
+                        for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
+                            if ($request->tipo_pagamento_row[$i]) {
+                                FaturaNfce::create([
+                                    'nfce_id' => $nfce->id,
+                                    'tipo_pagamento' => $request->tipo_pagamento_row[$i],
+                                    'data_vencimento' => $request->data_vencimento_row[$i],
+                                    'valor' => __convert_value_bd($request->valor_integral_row[$i])
+                                ]);
+                            }
+                        }
+                    } else {
+                        FaturaNfce::create([
+                            'nfce_id' => $nfce->id,
+                            'tipo_pagamento' => $request->tipo_pagamento,
+                            'data_vencimento' => date('Y-m-d'),
+                            'valor' => __convert_value_bd($request->valor_total)
+                        ]);
+                    }
                 }
 
                 if ($request->funcionario_id != null) {
@@ -1095,19 +1088,10 @@ class FrontBoxController extends Controller
                     }
                 }
 
-                if ($tradeinResumo['total'] > 0) {
-                    $nfce->loadMissing('cliente');
-                    $this->tradeinCreditUtil->consumirCreditoVenda(
-                        $nfce,
-                        $nfce->cliente,
-                        $nfce->cliente_cpf_cnpj,
-                        $tradeinResumo['total'],
-                        TradeinCreditMovement::ORIGEM_VENDA_NFCE
-                    );
-                }
-
                 if($request->valor_credito){
                     $cliente = $nfce->cliente;
+                    $this->rateioCredito($request->valor_credito, $nfce);
+
                     $cliente->valor_credito -= __convert_value_bd($request->valor_credito);
                     $cliente->save();
                 }
@@ -1206,13 +1190,27 @@ class FrontBoxController extends Controller
                 }
 
                 $this->filaEnvioUtil->adicionaVendaFila($nfce);
-
                 return $nfce;
             });
-// return response()->json($nfce, 401);
+
+
+$result = app(FiscalValidator::class)
+->validate($nfce, $nfce->empresa);
+
+$nfce->update([
+    'fiscal_status' => $result['status'],
+    'fiscal_risco' => $result['risco'],
+    'fiscal_mensagens' => $result['mensagens']
+]);
 __createLog($request->empresa_id, 'PDV', 'cadastrar', "#$nfce->numero_sequencial - R$ " . __moeda($nfce->total));
 
-return response()->json($nfce, 200);
+return response()->json([
+    'id' => $nfce->id,
+    'numero_sequencial' => $nfce->numero_sequencial,
+    'total' => $nfce->total,
+    'fiscal_status' => $nfce->fiscal_status,
+    'fiscal_risco' => $nfce->fiscal_risco,
+], 200);
 } catch (\Exception $e) {
     __createLog($request->empresa_id, 'PDV', 'erro', $e->getMessage());
     return response()->json($e->getMessage() . ", line: " . $e->getLine() . ", file: " . $e->getFile(), 401);
@@ -1418,7 +1416,21 @@ public function storePdv3(Request $request){
             $this->filaEnvioUtil->adicionaVendaFila($nfce);
             return $nfce;
         });
-return response()->json($nfce, 200);
+$result = app(FiscalValidator::class)
+->validate($nfce, $nfce->empresa);
+
+$nfce->update([
+    'fiscal_status' => $result['status'],
+    'fiscal_risco' => $result['risco'],
+    'fiscal_mensagens' => $result['mensagens']
+]);
+return response()->json([
+    'id' => $nfce->id,
+    'numero_sequencial' => $nfce->numero_sequencial,
+    'total' => $nfce->total,
+    'fiscal_status' => $nfce->fiscal_status,
+    'fiscal_risco' => $nfce->fiscal_risco,
+], 200);
 } catch (\Exception $e) {
     __createLog($request->empresa_id, 'PDV', 'erro', $e->getMessage());
     return response()->json($e->getMessage() . ", line: " . $e->getLine() . ", file: " . $e->getFile(), 401);
@@ -1613,7 +1625,22 @@ public function updatePdv3(Request $request){
             }
             return $nfce;
         });
-return response()->json($nfce, 200);
+
+$result = app(FiscalValidator::class)
+->validate($nfce, $nfce->empresa);
+
+$nfce->update([
+    'fiscal_status' => $result['status'],
+    'fiscal_risco' => $result['risco'],
+    'fiscal_mensagens' => $result['mensagens']
+]);
+return response()->json([
+    'id' => $nfce->id,
+    'numero_sequencial' => $nfce->numero_sequencial,
+    'total' => $nfce->total,
+    'fiscal_status' => $nfce->fiscal_status,
+    'fiscal_risco' => $nfce->fiscal_risco,
+], 200);
 } catch (\Exception $e) {
     __createLog($request->empresa_id, 'PDV', 'erro', $e->getMessage());
     return response()->json($e->getMessage() . ", line: " . $e->getLine() . ", file: " . $e->getFile(), 401);
@@ -1838,9 +1865,6 @@ public function storeComanda(Request $request)
 
                     $vencimento = $request->data_vencimento_row[$i];
                     $dataAtual = date('Y-m-d');
-                    if($request->tipo_pagamento_row[$i] == TradeinCreditMovement::PAYMENT_CODE){
-                        continue;
-                    }
                     if(strtotime($vencimento) > strtotime($dataAtual)){
                         ContaReceber::create([
                             'nfe_id' => null,
@@ -1957,7 +1981,6 @@ public function storeNfe(Request $request)
                 'tpNF' => 1
             ]);
             $nfe = Nfe::create($request->all());
-            $codigoInputs = $request->codigo_unico_ids ?? [];
             if($request->produto_id){
                 for ($i = 0; $i < sizeof($request->produto_id); $i++) {
                     $product = Produto::findOrFail($request->produto_id[$i]);
@@ -2001,8 +2024,6 @@ public function storeNfe(Request $request)
                 }
             }
 
-            $tradeinResumo = $this->collectTradeinPagamentos($request);
-
             if ($request->tipo_pagamento == '06') {
                 ContaReceber::create([
                     'nfce_id' => null,
@@ -2027,9 +2048,6 @@ public function storeNfe(Request $request)
 
                     $vencimento = $request->data_vencimento_row[$i];
                     $dataAtual = date('Y-m-d');
-                    if($request->tipo_pagamento_row[$i] == TradeinCreditMovement::PAYMENT_CODE){
-                        continue;
-                    }
                     if(strtotime($vencimento) > strtotime($dataAtual)){
                         ContaReceber::create([
                             'nfce_id' => null,
@@ -2088,34 +2106,12 @@ public function storeNfe(Request $request)
                 }
             }
 
-            if ($tradeinResumo['total'] > 0) {
-                $nfe->loadMissing('cliente');
-                $this->tradeinCreditUtil->consumirCreditoVenda(
-                    $nfe,
-                    $nfe->cliente,
-                    $nfe->cliente_cpf_cnpj,
-                    $tradeinResumo['total'],
-                    TradeinCreditMovement::ORIGEM_VENDA_NFE
-                );
-            }
-
             if(isset($request->valor_cashback) && $request->valor_cashback == 0 && $request->permitir_credito){
                 $this->saveCashBack($nfe);
             }else{
                 if(isset($request->valor_cashback) && $request->valor_cashback > 0){
                     $this->rateioCashBack($request->valor_cashback, $nfe);
                 }
-            }
-
-            if ($tradeinResumo['total'] > 0) {
-                $nfce->loadMissing('cliente');
-                $this->tradeinCreditUtil->consumirCreditoVenda(
-                    $nfce,
-                    $nfce->cliente,
-                    $nfce->cliente_cpf_cnpj,
-                    $tradeinResumo['total'],
-                    TradeinCreditMovement::ORIGEM_VENDA_NFCE
-                );
             }
 
             if($request->valor_credito){
@@ -2163,6 +2159,14 @@ public function update(Request $request, $id){
             $caixa = Caixa::where('usuario_id', $request->usuario_id)
             ->where('status', 1)
             ->first();
+
+            $pagamentos = null;
+            if(isset($request->pagamentos)){
+                    //novo modelo de pdv
+                $pagamentos = $request->pagamentos;
+                $tipoPagamentoPrincipal = $pagamentos[0]['tipo'];
+            }
+
             $request->merge([
                 'natureza_id' => $config->natureza_id_pdv,
                 'emissor_nome' => $config->nome,
@@ -2184,14 +2188,13 @@ public function update(Request $request, $id){
                 'observacao' => $request->observacao,
                 'dinheiro_recebido' => $request->valor_recebido ? __convert_value_bd($request->valor_recebido) : 0,
                 'troco' => $request->troco ? __convert_value_bd($request->troco) : 0,
-                'tipo_pagamento' => isset($request->tipo_pagamento_row[0]) ? $request->tipo_pagamento_row[0] : $request->tipo_pagamento,
+                'tipo_pagamento' => $tipoPagamentoPrincipal,
                 'cnpj_cartao' => $request->cnpj_cartao ?? '',
                 'bandeira_cartao' => $request->bandeira_cartao ?? '',
                 'cAut_cartao' => $request->cAut_cartao ?? '',
             ]);
 
             $item->fill($request->all())->save();
-            $this->liberarCodigosUnicosNfce($item->id);
 
             if($request->produto_id){
                 foreach($item->itens as $i){
@@ -2226,12 +2229,6 @@ public function update(Request $request, $id){
                         'ncm' => $product->ncm,
                         'variacao_id' => $variacao_id,
                     ]);
-                    $codigoUnicoValue = $codigoInputs[$i] ?? null;
-                    if($product->tipo_unico){
-                        $this->processaCodigoUnicoSaida($product->id, $request->quantidade[$i], $codigoUnicoValue, $item->id, $itemNfce);
-                    }else if($codigoUnicoValue){
-                        $this->processaCodigoUnicoSaida($product->id, $request->quantidade[$i], $codigoUnicoValue, $item->id, $itemNfce);
-                    }
 
                     if(isset($request->adicionais[$i])){
                         $adicionais = explode(",", $request->adicionais[$i]);
@@ -2257,53 +2254,98 @@ public function update(Request $request, $id){
                 }
             }
 
-            if ($request->tipo_pagamento_row) {
+            if(isset($request->pagamentos)){
                 $item->fatura()->delete();
                 $item->contaReceber()->delete();
-                for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
+                $pagamentos = $request->pagamentos;
+                if($pagamentos){
+                    foreach($pagamentos as $p){
+                        $vencimento = isset($p['dataVencimento']) ? $p['dataVencimento'] : date('Y-m-d');
+                        $dataAtual = date('Y-m-d');
+                        if(strtotime($vencimento) > strtotime($dataAtual)){
+                            ContaReceber::create([
+                                'nfe_id' => null,
+                                'nfce_id' => $item->id,
+                                'cliente_id' => $request->cliente_id,
+                                'data_vencimento' => $vencimento,
+                                'data_recebimento' => $vencimento,
+                                'valor_integral' => $p['valor'],
+                                'valor_recebido' => 0,
+                                'status' => 0,
+                                'descricao' => 'Venda PDV #' . $item->numero_sequencial . " Parcela " . $i+1 . " de " . sizeof($pagamentos),
+                                'empresa_id' => $request->empresa_id,
+                                'juros' => 0,
+                                'multa' => 0,
+                                'observacao' => '',
+                                'tipo_pagamento' => $p['tipo'],
+                                'local_id' => $caixa->local_id,
+                                'caixa_id' => $caixa->id,
+                                'referencia' => "Pedido PDV " . $item->numero_sequencial
+                            ]);
+                        }
 
-                    $vencimento = $request->data_vencimento_row[$i];
-                    $dataAtual = date('Y-m-d');
-                    if(strtotime($vencimento) > strtotime($dataAtual)){
-                        ContaReceber::create([
-                            'nfe_id' => null,
-                            'nfce_id' => $item->id,
-                            'cliente_id' => $request->cliente_id,
-                            'data_vencimento' => $request->data_vencimento_row[$i],
-                            'data_recebimento' => $request->data_vencimento_row[$i],
-                            'valor_integral' => __convert_value_bd($request->valor_integral_row[$i]),
-                            'valor_recebido' => 0,
-                            'status' => 0,
-                            'descricao' => 'Venda #' . $item->numero_sequencial . " Parcela " . $i+1 . " de " . sizeof($request->tipo_pagamento_row),
-                            'empresa_id' => $request->empresa_id,
-                            'juros' => 0,
-                            'multa' => 0,
-                            'observacao' => $request->obs_row[$i] ?? '',
-                            'tipo_pagamento' => $request->tipo_pagamento_row[$i],
-                            'local_id' => $item->local_id,
-                            'referencia' => "Pedido PDV " . $item->numero_sequencial
-                        ]);
-                    }
-
-                }
-                for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
-                    if ($request->tipo_pagamento_row[$i]) {
                         FaturaNfce::create([
                             'nfce_id' => $item->id,
-                            'tipo_pagamento' => $request->tipo_pagamento_row[$i],
-                            'data_vencimento' => $request->data_vencimento_row[$i],
-                            'valor' => __convert_value_bd($request->valor_integral_row[$i])
+                            'tipo_pagamento' => $p['tipo'],
+                            'data_vencimento' => $vencimento,
+                            'valor' => $p['valor'],
+                            'codigo_autorizacao' => isset($p['codAutorizacao']) ? $p['codAutorizacao'] : null,
+                            'detalhes' => isset($p['detalhes']) ? $p['detalhes'] : null,
+                            'bandeira' => isset($p['bandeira']) ? Nfce::getBandeira($p['bandeira']) : null
                         ]);
                     }
                 }
-            } else {
-                $item->fatura()->delete();
-                FaturaNfce::create([
-                    'nfce_id' => $item->id,
-                    'tipo_pagamento' => $request->tipo_pagamento,
-                    'data_vencimento' => date('Y-m-d'),
-                    'valor' => __convert_value_bd($request->valor_total)
-                ]);
+
+
+            }else{
+                if ($request->tipo_pagamento_row) {
+                    $item->fatura()->delete();
+                    $item->contaReceber()->delete();
+                    for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
+
+                        $vencimento = $request->data_vencimento_row[$i];
+                        $dataAtual = date('Y-m-d');
+                        if(strtotime($vencimento) > strtotime($dataAtual)){
+                            ContaReceber::create([
+                                'nfe_id' => null,
+                                'nfce_id' => $item->id,
+                                'cliente_id' => $request->cliente_id,
+                                'data_vencimento' => $request->data_vencimento_row[$i],
+                                'data_recebimento' => $request->data_vencimento_row[$i],
+                                'valor_integral' => __convert_value_bd($request->valor_integral_row[$i]),
+                                'valor_recebido' => 0,
+                                'status' => 0,
+                                'descricao' => 'Venda #' . $item->numero_sequencial . " Parcela " . $i+1 . " de " . sizeof($request->tipo_pagamento_row),
+                                'empresa_id' => $request->empresa_id,
+                                'juros' => 0,
+                                'multa' => 0,
+                                'observacao' => $request->obs_row[$i] ?? '',
+                                'tipo_pagamento' => $request->tipo_pagamento_row[$i],
+                                'local_id' => $item->local_id,
+                                'referencia' => "Pedido PDV " . $item->numero_sequencial
+                            ]);
+                        }
+
+                    }
+                    for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
+                        if ($request->tipo_pagamento_row[$i]) {
+                            FaturaNfce::create([
+                                'nfce_id' => $item->id,
+                                'tipo_pagamento' => $request->tipo_pagamento_row[$i],
+                                'data_vencimento' => $request->data_vencimento_row[$i],
+                                'valor' => __convert_value_bd($request->valor_integral_row[$i])
+                            ]);
+                        }
+                    }
+                } else {
+                    $item->fatura()->delete();
+                    FaturaNfce::create([
+                        'nfce_id' => $item->id,
+                        'tipo_pagamento' => $request->tipo_pagamento,
+                        'data_vencimento' => date('Y-m-d'),
+                        'valor' => __convert_value_bd($request->valor_total)
+                    ]);
+                }
             }
 
             if ($request->funcionario_id != null) {
@@ -2332,9 +2374,24 @@ public function update(Request $request, $id){
             }
             return $item;
         });
+
+$result = app(FiscalValidator::class)
+->validate($nfce, $nfce->empresa);
+
+$nfce->update([
+    'fiscal_status' => $result['status'],
+    'fiscal_risco' => $result['risco'],
+    'fiscal_mensagens' => $result['mensagens']
+]);
 __createLog($request->empresa_id, 'PDV', 'editar', "#$nfce->numero_sequencial - R$ " . __moeda($nfce->total));
 
-return response()->json($nfce, 200);
+return response()->json([
+    'id' => $nfce->id,
+    'numero_sequencial' => $nfce->numero_sequencial,
+    'total' => $nfce->total,
+    'fiscal_status' => $nfce->fiscal_status,
+    'fiscal_risco' => $nfce->fiscal_risco,
+], 200);
 
 } catch (\Exception $e) {
     __createLog($request->empresa_id, 'PDV', 'erro', $e->getMessage());

@@ -88,72 +88,6 @@ class HomeController extends Controller
             return redirect()->route('suporte.index');
         }
 
-        $totalNfe = Nfe::where('empresa_id', request()->empresa_id)
-        ->where(function($q) {
-            $q->where('estado', 'aprovado')->orWhere('estado', 'cancelado');
-        })
-        ->where('tpNF', 1)
-        ->whereMonth('created_at', date('m'))
-        ->whereYear('created_at', date('Y'))
-        ->sum('total');
-
-        $totalNfce = Nfce::where('empresa_id', request()->empresa_id)
-        ->where(function($q) {
-            $q->where('estado', 'aprovado')->orWhere('estado', 'cancelado');
-        })
-        ->whereMonth('created_at', date('m'))
-        ->whereYear('created_at', date('Y'))
-        ->sum('total');
-
-        $totalEmitidoMes = $totalNfce + $totalNfe;
-
-        $totalNfeCount = Nfe::where('empresa_id', request()->empresa_id)
-        ->where(function($q) {
-            $q->where('estado', 'aprovado')->orWhere('estado', 'cancelado');
-        })
-        ->where('tpNF', 1)
-        ->whereMonth('created_at', date('m'))
-        ->whereYear('created_at', date('Y'))
-        ->count('id');
-
-        $totalNfceCount = Nfce::where('empresa_id', request()->empresa_id)
-        ->where(function($q) {
-            $q->where('estado', 'aprovado')->orWhere('estado', 'cancelado');
-        })
-        ->whereMonth('created_at', date('m'))
-        ->whereYear('created_at', date('Y'))
-        ->count('id');
-
-        $totalCteCount = Cte::where('empresa_id', request()->empresa_id)
-        ->where(function($q) {
-            $q->where('estado', 'aprovado')->orWhere('estado', 'cancelado');
-        })
-        ->whereMonth('created_at', date('m'))
-        ->whereYear('created_at', date('Y'))
-        ->count('id');
-
-        $totalMdfeCount = Mdfe::where('empresa_id', request()->empresa_id)
-        ->where(function($q) {
-            $q->where('estado_emissao', 'aprovado')->orWhere('estado_emissao', 'cancelado');
-        })
-        ->whereMonth('created_at', date('m'))
-        ->whereYear('created_at', date('Y'))
-        ->count('id');
-
-        if($empresa == null){
-            return redirect()->route('config.index');
-        }
-
-        $totalVendasMes = 0;
-        $mesAtual = date('m');
-        $mes = $this->meses()[$mesAtual-1];
-
-        $somaVendasMesesAnteriores = $this->somaVendasMesesAnteriores();
-        $totalVendasMes = $this->somaVendasMes();
-
-        $totalComprasMes = $this->somaComprasMes();
-        $somaComprasMesesAnteriores = $this->somaComprasMesesAnteriores();
-
         $homeComponentes = [];
         $configGeral = ConfigGeral::where('empresa_id', request()->empresa_id)->first();
         if($configGeral != null){
@@ -162,55 +96,143 @@ class HomeController extends Controller
             if($homeComponentes == null) $homeComponentes = [];
         }
 
-        $emPromocao = PromocaoProduto::where('promocao_produtos.status', 1)
-        ->where('produtos.empresa_id', request()->empresa_id)
-        ->select('promocao_produtos.*')
-        ->join('produtos', 'produtos.id', '=', 'promocao_produtos.produto_id')
-        ->whereDate('promocao_produtos.data_inicio', '<=', now())
-        ->whereDate('promocao_produtos.data_fim', '>=', now())->count();
+        $totalNfeCount = null;
+        $totalNfceCount = null;
+        $totalCteCount = null;
+        $totalMdfeCount = null;
+        $totalVendasMes = 0;
+        $somaVendasMesesAnteriores = 0;
+        $totalComprasMes = 0;
+        $somaComprasMesesAnteriores = 0;
+        $somaMensal = 0;
+        $somaSemanal = 0;
+        $custoMensal = 0;
+        $totalEmEstoque = 0;
+        $produtosMaisVendidosMensal = 0;
+        $totalDeVendaSemana = 0;
+        $mes = null;
+        $emPromocao = null;
+        $inicioSemana = null;
+        $caixas = null;
+        $melhoresClientes = null;
 
-        $inicioSemana = \Carbon\Carbon::now()->startOfWeek();
-        $fimSemana = \Carbon\Carbon::now()->endOfWeek();
+        if(in_array('Cards de receita', $homeComponentes) || $configGeral == null){
+            $totalNfe = Nfe::where('empresa_id', request()->empresa_id)
+            ->where(function($q) {
+                $q->where('estado', 'aprovado')->orWhere('estado', 'cancelado');
+            })
+            ->where('tpNF', 1)
+            ->whereMonth('created_at', date('m'))
+            ->whereYear('created_at', date('Y'))
+            ->sum('total');
 
-        $totalNfe = Nfe::where('empresa_id', request()->empresa_id)
-        ->whereBetween('created_at', [$inicioSemana, $fimSemana])
-        ->where('tpNF', 1)
-        ->sum('total');
+            $totalNfce = Nfce::where('empresa_id', request()->empresa_id)
+            ->where(function($q) {
+                $q->where('estado', 'aprovado')->orWhere('estado', 'cancelado');
+            })
+            ->whereMonth('created_at', date('m'))
+            ->whereYear('created_at', date('Y'))
+            ->sum('total');
 
-        $totalNfce = Nfce::where('empresa_id', request()->empresa_id)
-        ->whereBetween('created_at', [$inicioSemana, $fimSemana])
-        ->sum('total');
-        $somaSemanal = $totalNfe + $totalNfce;
+            $totalEmitidoMes = $totalNfce + $totalNfe;
 
-        $totalNfe = Nfe::where('empresa_id', request()->empresa_id)
-        ->whereMonth('created_at', date('m'))
-        ->where('tpNF', 1)
-        ->whereYear('created_at', date('Y'))
-        ->sum('total');
+            $totalNfeCount = Nfe::where('empresa_id', request()->empresa_id)
+            ->where(function($q) {
+                $q->where('estado', 'aprovado')->orWhere('estado', 'cancelado');
+            })
+            ->where('tpNF', 1)
+            ->whereMonth('created_at', date('m'))
+            ->whereYear('created_at', date('Y'))
+            ->count('id');
 
-        $totalNfce = Nfce::where('empresa_id', request()->empresa_id)
-        ->whereYear('created_at', date('Y'))
-        ->whereMonth('created_at', date('m'))
-        ->sum('total');
+            $totalNfceCount = Nfce::where('empresa_id', request()->empresa_id)
+            ->where(function($q) {
+                $q->where('estado', 'aprovado')->orWhere('estado', 'cancelado');
+            })
+            ->whereMonth('created_at', date('m'))
+            ->whereYear('created_at', date('Y'))
+            ->count('id');
 
-        $somaMensal = $totalNfe + $totalNfce;
-        $custoMensal = $this->custoProdutoMensal();
-        $totalEmEstoque = $this->somaTotalEmEstoque();
+            $totalCteCount = Cte::where('empresa_id', request()->empresa_id)
+            ->where(function($q) {
+                $q->where('estado', 'aprovado')->orWhere('estado', 'cancelado');
+            })
+            ->whereMonth('created_at', date('m'))
+            ->whereYear('created_at', date('Y'))
+            ->count('id');
 
-        $totalDeVendaSemana = Nfce::where('empresa_id', request()->empresa_id)
-        ->whereBetween('created_at', [$inicioSemana, $fimSemana])
-        ->count() + 
-        Nfe::where('empresa_id', request()->empresa_id)
-        ->whereBetween('created_at', [$inicioSemana, $fimSemana])
-        ->where('tpNF', 1)
-        ->count();
+            $totalMdfeCount = Mdfe::where('empresa_id', request()->empresa_id)
+            ->where(function($q) {
+                $q->where('estado_emissao', 'aprovado')->orWhere('estado_emissao', 'cancelado');
+            })
+            ->whereMonth('created_at', date('m'))
+            ->whereYear('created_at', date('Y'))
+            ->count('id');
 
-        $produtosMaisVendidosMensal = $this->maisVendidosMensal();
+            if($empresa == null){
+                return redirect()->route('config.index');
+            }
 
-        $caixas = Caixa::where('status', 1)->where('empresa_id', request()->empresa_id)
-        ->get();
+            $totalVendasMes = 0;
+            $mesAtual = date('m');
+            $mes = $this->meses()[$mesAtual-1];
 
-        $melhoresClientes = $this->melhoresClientes();
+            $somaVendasMesesAnteriores = $this->somaVendasMesesAnteriores();
+            $totalVendasMes = $this->somaVendasMes();
+
+            $totalComprasMes = $this->somaComprasMes();
+            $somaComprasMesesAnteriores = $this->somaComprasMesesAnteriores();
+
+            $emPromocao = PromocaoProduto::where('promocao_produtos.status', 1)
+            ->where('produtos.empresa_id', request()->empresa_id)
+            ->select('promocao_produtos.*')
+            ->join('produtos', 'produtos.id', '=', 'promocao_produtos.produto_id')
+            ->whereDate('promocao_produtos.data_inicio', '<=', now())
+            ->whereDate('promocao_produtos.data_fim', '>=', now())->count();
+
+            $inicioSemana = \Carbon\Carbon::now()->startOfWeek();
+            $fimSemana = \Carbon\Carbon::now()->endOfWeek();
+
+            $totalNfe = Nfe::where('empresa_id', request()->empresa_id)
+            ->whereBetween('created_at', [$inicioSemana, $fimSemana])
+            ->where('tpNF', 1)
+            ->sum('total');
+
+            $totalNfce = Nfce::where('empresa_id', request()->empresa_id)
+            ->whereBetween('created_at', [$inicioSemana, $fimSemana])
+            ->sum('total');
+            $somaSemanal = $totalNfe + $totalNfce;
+
+            $totalNfe = Nfe::where('empresa_id', request()->empresa_id)
+            ->whereMonth('created_at', date('m'))
+            ->where('tpNF', 1)
+            ->whereYear('created_at', date('Y'))
+            ->sum('total');
+
+            $totalNfce = Nfce::where('empresa_id', request()->empresa_id)
+            ->whereYear('created_at', date('Y'))
+            ->whereMonth('created_at', date('m'))
+            ->sum('total');
+
+            $somaMensal = $totalNfe + $totalNfce;
+            $custoMensal = $this->custoProdutoMensal();
+            $totalEmEstoque = $this->somaTotalEmEstoque();
+
+            $totalDeVendaSemana = Nfce::where('empresa_id', request()->empresa_id)
+            ->whereBetween('created_at', [$inicioSemana, $fimSemana])
+            ->count() + 
+            Nfe::where('empresa_id', request()->empresa_id)
+            ->whereBetween('created_at', [$inicioSemana, $fimSemana])
+            ->where('tpNF', 1)
+            ->count();
+
+            $produtosMaisVendidosMensal = $this->maisVendidosMensal();
+
+            $caixas = Caixa::where('status', 1)->where('empresa_id', request()->empresa_id)
+            ->get();
+
+            $melhoresClientes = $this->melhoresClientes();
+        }
 
         return view('home', 
             compact('empresa', 'totalEmitidoMes', 'totalNfeCount', 'totalNfceCount', 'msgPlano', 'totalCteCount', 

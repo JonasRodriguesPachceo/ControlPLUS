@@ -56,9 +56,20 @@ $("body").on('click', '.salvar_troca', function () {
 		
 	}
 })
+
 $(".table-itens").on('click', '.btn-delete-row', function () {
+
+	var linha = $(this).closest('tr')
+	let produto_id = linha.find('.produto_row').val()
+	let quantidade = linha.find('.qtd_row').val()
+
+	itensRemovidos.push({
+		produto_id: produto_id,
+		quantidade: quantidade,
+	})
 	comparaValor()		
 })
+
 
 $("body").on('change', '#inp-tipo_pagamento', function () {
 	let tipo_pagamento = $(this).val()
@@ -76,6 +87,8 @@ $("body").on('click', '#btn-comprovante-troca', function () {
 	$("#form-troca").submit()
 })
 
+itensRemovidos = []
+
 $("#form-troca").on("submit", function (e) {
 
 	e.preventDefault();
@@ -86,14 +99,35 @@ $("#form-troca").on("submit", function (e) {
 	json.usuario_id = $('#usuario_id').val()
 	json.venda_id = $('#venda_id').val()
 	json.tipo = $('#tipo').val()
+	json.itensRemovidos = JSON.stringify(itensRemovidos)
 
-	// console.log(json)
+	console.log(json)
 	// return;
 
 	$.post(path_url + 'api/trocas/store', json)
 	.done((success) => {
-		// console.log(success)
-		
+
+		if (success.status === 'conta_receber') {
+
+			swal({
+				title: "Atenção",
+				text: "Esta venda possui contas a receber. Ajuste as parcelas antes de finalizar.",
+				icon: "warning",
+				button: "Ajustar contas",
+			}).then(() => {
+				// window.open(path_url + 'trocas/imprimir/' + success.troca_id, "_blank")
+				
+				location.href =
+				path_url +
+				'conta-receber-ajustar' +
+				'?tipo=' + success.tipo +
+				'&venda_id=' + success.venda_id +
+				'&troca_id=' + success.troca_id;
+
+			});
+
+			return;
+		}
 		swal({
 			title: "Sucesso",
 			text: "Troca finalizada com sucesso, deseja imprimir o comprovante?",

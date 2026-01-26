@@ -57,7 +57,7 @@
     @endif
     @endif
 
-    <div class="col-md-3">
+    <div class="col-md-3 mt-3">
         <a href="{{ route('ifood-config.user-code') }}" class="btn btn-warning">
             Gerar Novo Código de Usuário
         </a>

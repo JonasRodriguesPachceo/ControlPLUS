@@ -572,7 +572,7 @@ $(function () {
 })
 
 var PRODUTOID = null
-function addProdutos(id, tipo_unico = 0) {
+function addProdutos(id) {
 
     $.get(path_url + "api/frenteCaixa/linhaProdutoVendaAdd", {
         id: id, 

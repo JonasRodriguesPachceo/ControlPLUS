@@ -62,6 +62,7 @@ class ClienteController extends Controller
         $start_date = $request->get('start_date');
         $end_date = $request->get('end_date');
         $ordem = $request->get('ordem');
+        $valor_credito = $request->get('valor_credito');
 
         $data = Cliente::where('empresa_id', request()->empresa_id)
         ->when(!empty($request->razao_social), function ($q) use ($request) {
@@ -85,6 +86,12 @@ class ClienteController extends Controller
         })
         ->when($ordem, function ($query) use ($ordem) {
             return $query->orderBy($ordem, $ordem == 'created_at' ? 'desc' : 'asc');
+        })
+        ->when($valor_credito == 1 && trim($valor_credito) !== '', function ($query) use ($valor_credito) {
+            return $query->where('valor_credito', '>', '0');
+        })
+        ->when($valor_credito == 0 && trim($valor_credito) !== '', function ($query) use ($valor_credito) {
+            return $query->where('valor_credito', '<=', '0');
         })
         ->paginate(__itensPagina());
 
@@ -583,6 +590,67 @@ class ClienteController extends Controller
 
         session()->flash("flash_success", "Total de itens removidos: $removidos!");
         return redirect()->back();
+    }
+
+    public function incompleto(Request $request){
+        $empresaId = $request->empresa_id;
+        $filtro = $request->get('missing');
+
+        $isBlank = fn($col) => "( {$col} IS NULL OR TRIM({$col}) = '' )";
+
+        $totais = Cliente::query()
+        ->where('empresa_id', $empresaId)
+        ->selectRaw("SUM(CASE WHEN {$isBlank('razao_social')} THEN 1 ELSE 0 END) as razao_social")
+        ->selectRaw("SUM(CASE WHEN {$isBlank('nome_fantasia')} THEN 1 ELSE 0 END) as nome_fantasia")
+        ->selectRaw("SUM(CASE WHEN {$isBlank('cpf_cnpj')} THEN 1 ELSE 0 END) as cpf_cnpj")
+        ->selectRaw("SUM(CASE WHEN {$isBlank('email')} THEN 1 ELSE 0 END) as email")
+        ->selectRaw("SUM(CASE WHEN {$isBlank('telefone')} THEN 1 ELSE 0 END) as telefone")
+        ->selectRaw("SUM(CASE WHEN cidade_id IS NULL THEN 1 ELSE 0 END) as cidade_id")
+        ->selectRaw("SUM(CASE WHEN {$isBlank('rua')} THEN 1 ELSE 0 END) as rua")
+        ->selectRaw("SUM(CASE WHEN {$isBlank('cep')} THEN 1 ELSE 0 END) as cep")
+        ->selectRaw("SUM(CASE WHEN {$isBlank('numero')} THEN 1 ELSE 0 END) as numero")
+        ->selectRaw("SUM(CASE WHEN {$isBlank('bairro')} THEN 1 ELSE 0 END) as bairro")
+        ->first();
+
+        $base = Cliente::where('empresa_id', $empresaId)
+        ->where(function ($q) use ($isBlank) {
+            $q->whereRaw($isBlank('razao_social'))
+            ->orWhereRaw($isBlank('nome_fantasia'))
+            ->orWhereRaw($isBlank('cpf_cnpj'))
+            ->orWhereRaw($isBlank('email'))
+            ->orWhereRaw($isBlank('telefone'))
+            ->orWhereNull('cidade_id')
+            ->orWhereRaw($isBlank('rua'))
+            ->orWhereRaw($isBlank('cep'))
+            ->orWhereRaw($isBlank('numero'))
+            ->orWhereRaw($isBlank('bairro'));
+        });
+
+        if ($filtro) {
+            $base->where(function ($q) use ($filtro, $isBlank) {
+                switch ($filtro) {
+                    case 'cidade_id': $q->whereNull('cidade_id'); break;
+                    case 'razao_social':
+                    case 'nome_fantasia':
+                    case 'cpf_cnpj':
+                    case 'email':
+                    case 'telefone':
+                    case 'rua':
+                    case 'cep':
+                    case 'numero':
+                    case 'bairro':
+                    $q->whereRaw($isBlank($filtro));
+                    break;
+                }
+            });
+        }
+
+        $clientes = $base->orderByDesc('created_at')->paginate(25)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('clientes.partials.tabela_incompletos', compact('clientes'))->render();
+        }
+        return view('clientes.incompletos', compact('clientes', 'totais', 'filtro'));
     }
 
 }

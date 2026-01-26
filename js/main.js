@@ -144,6 +144,10 @@ $(document).on("focus", ".timer", function () {
     $(this).mask("00:00", { reverse: true })
 });
 
+$(document).on("focus", ".integer", function () {
+    $(this).mask("0000", { reverse: true })
+});
+
 $(document).on("focus", ".qtd", function () {
     let casas = ""
     for(let i=0; i<casas_decimais_qtd;i++){
@@ -191,9 +195,13 @@ $(function () {
         }
     });
 
-    $("input[required], select[required], textarea[required]")
-    .siblings("label")
-    .addClass("required");
+    $("input[required], select[required], textarea[required]").each(function () {
+        $(this)
+        .closest(".form-group, .mb-3, .col, .col-12, .col-md-6")
+        .find("label")
+        .first()
+        .addClass("required");
+    });
 
     $("input.tooltipp, select.tooltipp, textarea.tooltipp")
     .siblings("label")
@@ -1529,7 +1537,7 @@ if (wrapper && btn) {
     let direcao = 1;
 
     function verificarVisibilidade2() {
-        console.log(wrapper.scrollWidth)
+        // console.log(wrapper.scrollWidth)
         if (wrapper.scrollWidth > wrapper.clientWidth + 20) {
             btn.classList.remove("hidden");
         } else {
@@ -1537,7 +1545,7 @@ if (wrapper && btn) {
         }
     }
 
-     btn.addEventListener("click", () => {
+    btn.addEventListener("click", () => {
         const passo = 300 * direcao;
 
         wrapper.scrollBy({
@@ -1598,16 +1606,128 @@ $('input.percentual').each(function () {
     }
 });
 
+$(document).ready(function () {
 
-$('.btn-toggle-filtros').on('click', function () {
-    let box = $('.filtros-container');
+    function temFiltroAtivo() {
+        const params = new URLSearchParams(window.location.search);
 
-    if (box.is(':visible')) {
-        box.hide();
-        $(this).html('<i class="ri-filter-3-line"></i> Filtros');
-    } else {
-        box.show();
-        $(this).html('<i class="ri-close-line"></i> Ocultar');
+        for (const [key, value] of params.entries()) {
+
+            if (key === 'status' && value === '1') {
+                continue;
+            }
+
+            if (value && value.trim() !== '') {
+                return true;
+            }
+        }
+        return false;
     }
+
+    const box = $('.filtros-container');
+    const btn = $('.btn-toggle-filtros');
+
+    if (temFiltroAtivo()) {
+        box.show();
+        btn.html('<i class="ri-close-line"></i> Ocultar');
+    }
+
+    $('.btn-toggle-filtros').on('click', function () {
+
+        if (box.is(':visible')) {
+            box.hide();
+            $(this).html('<i class="ri-filter-3-line"></i> Filtros');
+        } else {
+            box.show();
+            $(this).html('<i class="ri-close-line"></i> Ocultar');
+        }
+    });
 });
+
+(function(){
+    let portalMenu = null;
+    let portalOwner = null;
+
+    function closePortal(){
+        if (!portalMenu) return;
+        portalMenu.remove();
+        portalMenu = null;
+        portalOwner = null;
+    }
+
+    function openPortal(owner){
+        closePortal();
+
+        const btn = owner.querySelector('.btn-acoes');
+        const menu = owner.querySelector('.dropdown-menu');
+        if (!btn || !menu) return;
+
+        portalOwner = owner;
+        portalMenu = menu.cloneNode(true);
+
+        portalMenu.classList.add('show');
+        portalMenu.style.position = 'fixed';
+        portalMenu.style.zIndex = 3000;
+
+        document.body.appendChild(portalMenu);
+
+        const r = btn.getBoundingClientRect();
+
+        const mw = portalMenu.offsetWidth;
+        portalMenu.style.top = (r.bottom + 6) + 'px';
+        const OFFSET_X = 90;
+        portalMenu.style.left = Math.max(8, (r.right - mw + OFFSET_X)) + 'px';
+
+        setTimeout(() => {
+          document.addEventListener('mousedown', onOutside, { once:false });
+          window.addEventListener('scroll', closePortal, { once:true, passive:true });
+          window.addEventListener('resize', closePortal, { once:true });
+      }, 0);
+    }
+
+    function onOutside(e){
+        if (!portalMenu) return;
+        if (portalMenu.contains(e.target)) return;
+        closePortal();
+        document.removeEventListener('mousedown', onOutside);
+    }
+
+
+    document.addEventListener('click', function(e){
+        const btn = e.target.closest('.dropdown-portal .btn-acoes');
+        if (!btn) return;
+
+        e.preventDefault();
+        const owner = btn.closest('.dropdown-portal');
+        if (portalMenu && portalOwner === owner) {
+          closePortal();
+          return;
+      }
+      openPortal(owner);
+  });
+
+    document.addEventListener('click', function(e){
+        const item = e.target.closest('.btn-lote-validade');
+        if (!item || !portalMenu) return;
+
+        e.preventDefault();
+
+        const id = item.dataset.id;
+        closePortal();
+
+        if (typeof infoVencimento === 'function') infoVencimento(id);
+        const modalEl = document.getElementById('info_vencimento');
+        if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    });
+
+    document.addEventListener('click', function(e){
+        const del = e.target.closest('.btn-delete');
+        if (!del || !portalMenu) return;
+        e.preventDefault();
+        const id = del.dataset.id;
+        closePortal();
+        document.getElementById('form-'+id)?.submit();
+    });
+
+})();
 

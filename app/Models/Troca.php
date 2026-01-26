@@ -33,4 +33,9 @@ class Troca extends Model
     {
         return $this->hasMany(ItemTroca::class, 'troca_id')->with('produto');
     }
+
+    public function itensRemovidos()
+    {
+        return $this->hasMany(ItemTrocaRemovido::class, 'troca_id')->with('produto');
+    }
 }

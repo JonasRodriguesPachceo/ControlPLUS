@@ -1,29 +1,33 @@
-@foreach($produtos as $prod)
-<div class="card-group col-xl-4 col-md-6 col-sm-6" onclick="addProdutos('{{ $prod->id }}', '{{ $prod->tipo_unico }}')">
-    <div class="row card-new" style="margin-left: 0.1px; margin-top: 1px;">
+<div class="row g-2">
+    @foreach($produtos as $prod)
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="card-produto" onclick="addProdutos('{{ $prod->id }}')">
 
-        <img src="{{$prod->img}}" class="card-img-top mt-1" alt="..." style="opacity: 0.8; height: 140px; border-radius: 10px; width: 100vw;">
-        
-        <div class="row mt-2">
-            <p class="text-center text-black">{{$prod->nome}}</p>
-        </div>
-        <div class="row">
             @if($prod->precoComPromocao())
-            <p class="text-center text-success fw-bold">R$ {{ __moeda($prod->precoComPromocao()->valor) }}</p>
-            @else
-            @if($prod->valor_unitario > 0)
-            <p class="text-center text-success fw-bold">R$ {{ __moeda($prod->valor_unitario) }}</p>
-            @else
-            <p class="text-center text-success fw-bold">--</p>
+            <div class="badge-promocao">Promoção</div>
             @endif
-            @endif
+
+
+            <button type="button" class="btn-info-produto" onclick="event.stopPropagation(); abrirModalProdutoAjax('{{ $prod->id }}')">
+                <i class="ri-information-line"></i>
+            </button>
+
+            <div class="card-produto-img">
+                <img src="{{ $prod->img }}" alt="{{ $prod->nome }}">
+            </div>
+
+            <p class="nome-produto">{{ $prod->nome }}</p>
+
+            <p class="preco-produto">
+                @if($prod->precoComPromocao())
+                R$ {{ __moeda($prod->precoComPromocao()->valor) }}
+                @else
+                {{ $prod->valor_unitario > 0 ? 'R$ '.__moeda($prod->valor_unitario) : '--' }}
+                @endif
+            </p>
+
         </div>
 
-        @if($prod->precoComPromocao())
-        <div class="card-footer-promocao">
-            Promoção
-        </div>
-        @endif
     </div>
+    @endforeach
 </div>
-@endforeach

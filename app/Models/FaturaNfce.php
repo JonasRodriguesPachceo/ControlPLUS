@@ -10,9 +10,8 @@ class FaturaNfce extends Model
     use HasFactory;
 
     protected $fillable = [ 
-        'nfce_id', 'tipo_pagamento', 'data_vencimento', 'valor', 'observacao'
+        'nfce_id', 'tipo_pagamento', 'data_vencimento', 'valor', 'observacao', 'codigo_autorizacao', 'detalhes', 'bandeira'
     ];
-
 
     public function nfce()
 	{
@@ -36,7 +35,6 @@ class FaturaNfce extends Model
             '15' => 'Boleto Bancário',
             '16' => 'Depósito Bancário',
             '17' => 'Pagamento Instantâneo (PIX)',
-            TradeinCreditMovement::PAYMENT_CODE => TradeinCreditMovement::PAYMENT_LABEL,
             '90' => 'Sem Pagamento',
             // '99' => 'Outros',
         ];

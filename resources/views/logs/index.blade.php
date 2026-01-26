@@ -4,7 +4,7 @@
     <div class="row">
         <div class="card">
             <div class="card-body">
-                
+
                 <hr class="mt-3">
                 <div class="col-lg-12">
                     {!!Form::open()->fill(request()->all())
@@ -43,36 +43,54 @@
                     {!!Form::close()!!}
                 </div>
                 <div class="col-md-12 mt-3">
-                    <div class="table-responsive-sm">
-                        <table class="table table-centered">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Empresa</th>
-                                    <th>Local</th>
-                                    <th>Ação</th>
-                                    <th>Descrição</th>
-                                    <th>Data</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($data as $item)
-                                <tr>
-                                    <td>{{ $item->empresa->info }}</td>
-                                    <td>{{ $item->local }}</td>
-                                    <td>{{ $item->acao }}</td>
-                                    <td>{{ $item->descricao }}</td>
-                                    <td>{{ __data_pt($item->created_at) }}</td>
-                                    
+                    <div class="table-responsive">
+                        <div class="tabela-scroll" style="overflow-x:auto;">
+                            <table class="table">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Empresa</th>
+                                        <th>Local</th>
+                                        <th>Ação</th>
+                                        <th>Descrição</th>
+                                        <th>Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($data as $item)
+                                    <tr>
+                                        <td><label style="width: 200px;">{{ $item->empresa->info }}</label></td>
+                                        <td><label style="width: 100px;">{{ $item->local }}</label></td>
+                                        <td><label style="width: 100px;">{{ $item->acao }}</label></td>
+                                        <td>
+                                            <div style="
+                                            max-width: 600px;
+                                            white-space: pre-wrap;
+                                            font-family: monospace;
+                                            font-size: 13px;
+                                            background: #f8f9fa;
+                                            padding: 8px;
+                                            border-radius: 6px;
+                                            ">
+                                            {{ $item->descricao }}
+                                        </div>
+                                    </td>
+                                    <td><label style="width: 200px;">{{ __data_pt($item->created_at) }}</label></td>
+
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
                 </div>
-                {!! $data->appends(request()->all())->links() !!}
-
+                <button type="button" id="scrollToggle2" class="scroll-btn-jidox hidden">
+                    <i class="ri-arrow-right-circle-line"></i>
+                </button>
             </div>
+            <br>
+            {!! $data->appends(request()->all())->links() !!}
+
         </div>
     </div>
+</div>
 </div>
 @endsection

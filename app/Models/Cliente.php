@@ -14,7 +14,7 @@ class Cliente extends Model
         'email', 'telefone', 'cidade_id', 'rua', 'cep', 'numero', 'bairro', 'complemento', 'status', 'uid',
         'senha', 'token', 'valor_cashback', 'nuvem_shop_id', 'valor_credito', 'limite_credito',
         'lista_preco_id', '_id_import', 'id_estrangeiro', 'codigo_pais', 'numero_sequencial', 'data_nascimento',
-        'imagem'
+        'imagem', 'score_categoria', 'score_limite_credito'
     ];
 
     protected $appends = [ 'endereco', 'info' ];
@@ -37,6 +37,22 @@ class Cliente extends Model
         return "$this->rua, $this->numero - $this->bairro";
     }
 
+    public function score()
+    {
+        return $this->hasOne(ClienteScore::class, 'cliente_id');
+    }
+
+    public function scoreHistorico()
+    {
+        return $this->hasMany(ClienteScoreHistorico::class, 'cliente_id');
+    }
+
+    public function colorScore(){
+        $score = $this->score;
+        return $score->categoria == 'ouro' ? '#efb810' : 
+        ($score->categoria == 'prata' ? '#c4c4c4' : '#6c3c14');
+    }
+
     public function cidade(){
         return $this->belongsTo(Cidade::class, 'cidade_id');
     }
@@ -47,6 +63,19 @@ class Cliente extends Model
 
     public function vendas(){
         return $this->hasMany(Nfe::class, 'cliente_id');
+    }
+
+    public function vendasPdv(){
+        return $this->hasMany(Nfce::class, 'cliente_id');
+    }
+
+    public function devolucoes(){
+        return $this->hasMany(Nfe::class, 'cliente_id')->where('orcamento', 0)
+        ->where('finNFe', 4);
+    }
+
+    public function contasReceber(){
+        return $this->hasMany(ContaReceber::class, 'cliente_id');
     }
 
     public function enderecos(){

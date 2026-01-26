@@ -8,6 +8,10 @@ use App\Models\CategoriaProduto;
 use App\Models\Produto;
 use App\Models\Cliente;
 use App\Models\Nfce;
+
+use App\Models\NaturezaOperacao;
+use App\Models\Transportadora;
+
 use App\Models\VendaSuspensa;
 use App\Models\ConfigGeral;
 use App\Models\Pedido;
@@ -94,7 +98,7 @@ class PdvMoboController extends Controller
         ->get();
 
         $config = ConfigGeral::where('empresa_id', request()->empresa_id)->first();
-        $tiposPagamento = Nfce::tiposPagamentoMobo();
+        $tiposPagamento = Nfce::tiposPagamento();
 
         if($config != null){
             $config->tipos_pagamento_pdv = $config != null && $config->tipos_pagamento_pdv ? json_decode($config->tipos_pagamento_pdv) : [];
@@ -102,6 +106,9 @@ class PdvMoboController extends Controller
             if(sizeof($config->tipos_pagamento_pdv) > 0){
                 foreach($tiposPagamento as $key => $t){
                     if(in_array($t, $config->tipos_pagamento_pdv)){
+                        if($t == 'Pagamento Instantâneo (PIX)'){
+                            $t = 'PIX';
+                        }
                         $temp[$key] = $t;
                     }
                 }
@@ -195,13 +202,27 @@ class PdvMoboController extends Controller
         }
 
         $modelo = '';
+        $transportadoras = Transportadora::where('empresa_id', request()->empresa_id)
+        ->orderBy('razao_social')
+        ->get();
+        $naturezas = [];
+        $naturezaPadrao = null;
         if(isset($request->modelo)){
+            $title = 'Nova Venda';
             $modelo = $request->modelo;
+            $naturezas = NaturezaOperacao::where('empresa_id', request()->empresa_id)->get();
+            if (sizeof($naturezas) == 0) {
+                session()->flash("flash_warning", "Primeiro cadastre um natureza de operação!");
+                return redirect()->route('natureza-operacao.create');
+            }
+
+            $naturezaPadrao = NaturezaOperacao::where('empresa_id', request()->empresa_id)
+            ->where('padrao', 1)->first();
         }
 
         $configCardapio = ConfiguracaoCardapio::where('empresa_id', $request->empresa_id)->first();
 
         return view('pdv_mobo.create', compact('config', 'categorias', 'caixa', 'produtos', 'clientes', 'tiposPagamento', 'isVendaSuspensa', 
-            'item', 'itens', 'title', 'isComanda', 'configCardapio', 'modelo'));
+            'item', 'itens', 'title', 'isComanda', 'configCardapio', 'modelo', 'transportadoras', 'naturezas', 'naturezaPadrao'));
     }
 }

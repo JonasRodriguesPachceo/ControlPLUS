@@ -279,6 +279,11 @@
     </div>
 </div>
 
+<button type="button" id="btnVendasOffline" class="btn-vendas-offline">
+    <i class="ri-error-warning-fill"></i>
+    <span class="badge"></span>
+</button>
+
 </div>
 
 <input type="hidden" value="{{ json_encode($produtos) }}" id="produtos-hidden">

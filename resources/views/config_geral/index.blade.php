@@ -62,6 +62,12 @@
                                         !!}
                                     </div>
 
+                                    <!-- <div class="col-md-3">
+                                        {!!Form::select('tipo_pagamento_padrao', 'Tipo de pagamento padrão', ['' => 'Selecione'] + $tiposPagamento)
+                                        ->attrs(['class' => 'form-select'])
+                                        !!}
+                                    </div> -->
+
                                     <div class="col-md-2">
                                         {!!Form::select('alerta_sonoro', 'Alerta sonoro', ['1' => 'Sim', '0' => 'Não'])->attrs(['class' => 'form-select'])
                                         !!}
@@ -69,6 +75,15 @@
 
                                     <div class="col-md-2">
                                         {!!Form::select('cabecalho_pdv', 'Cabeçalho no PDV', ['1' => 'Sim', '0' => 'Não'])->attrs(['class' => 'form-select'])
+                                        !!}
+                                    </div>
+                                    <div class="col-md-2">
+                                        {!!Form::select('ticket_troca', 'Ticket de troca', ['0' => 'Não', '1' => 'Sim'])->attrs(['class' => 'form-select'])
+                                        !!}
+                                    </div>
+
+                                    <div class="col-md-12 d-none box-mensagem-ticket">
+                                        {!!Form::text('mensagem_ticket_troca', 'Mensagem ticket de troca')
                                         !!}
                                     </div>
 
@@ -90,11 +105,16 @@
                                     </div>
 
                                     <div class="col-md-2">
-                                        {!!Form::text('numero_inicial_comanda', 'Númeração inicial para comanda')                                        
+                                        {!!Form::tel('numero_inicial_comanda', 'Númeração inicial para comanda')                                        
                                         !!}
                                     </div>
                                     <div class="col-md-2">
-                                        {!!Form::text('numero_final_comanda', 'Númeração final para comanda')                                        
+                                        {!!Form::tel('numero_final_comanda', 'Númeração final para comanda')                                        
+                                        !!}
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        {!!Form::tel('margem_lateral_impressao', 'Margem lateral para impresão')                                        
                                         !!}
                                     </div>
 
@@ -137,6 +157,11 @@
                                         !!}
                                     </div>
 
+                                    <div class="col-md-2">
+                                        {!!Form::select('limitar_cliente_inadimplente', 'Limitar cliente inadimplente', [ '0' => 'Não', '1' => 'Sim'])->attrs(['class' => 'form-select'])
+                                        !!}
+                                    </div>
+
                                     <div class="col-md-12">
                                         {!!Form::textarea('mensagem_padrao_impressao_venda', 'Mensagem padrão impressão')->attrs(['class' => 'tiny', 'rows' => '5'])
                                         !!}
@@ -149,6 +174,11 @@
                                 <div class="row g-2">
                                     <div class="col-md-2">
                                         {!!Form::select('gerar_conta_pagar_padrao', 'Gerar conta pagar padrão', ['1' => 'Sim', '0' => 'Não'])->attrs(['class' => 'form-select'])
+                                        !!}
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        {!!Form::select('atualizar_valor_venda_importacao', 'Atualizar valor de venda importação', ['1' => 'Sim', '0' => 'Não'])->attrs(['class' => 'form-select'])
                                         !!}
                                     </div>
                                 </div>
@@ -346,6 +376,12 @@
 
                                         </select>
                                     </div>
+
+                                    <div class="col-md-2">
+                                        {!!Form::select('usar_dropdown_acoes', 'Dropdown para ações', ['0' => 'Não', '1' => 'Sim'])->attrs(['class' => 'form-select'])
+                                        !!}
+                                    </div>
+                                    
                                     <div class="col-12"></div>
 
                                     <div class="col-md-2">
@@ -697,5 +733,18 @@
         return b.join("");
     }
 
+    $(document).ready(function () {
+        if ($('#inp-ticket_troca').val() === '1') {
+            $('.box-mensagem-ticket').removeClass('d-none');
+        }
+    });
+
+    $(document).on('change', '#inp-ticket_troca', function () {
+        if ($(this).val() === '1') {
+            $('.box-mensagem-ticket').removeClass('d-none');
+        } else {
+            $('.box-mensagem-ticket').addClass('d-none');
+        }
+    });
 </script>
 @endsection

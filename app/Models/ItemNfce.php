@@ -12,12 +12,15 @@ class ItemNfce extends Model
     protected $fillable = [
         'nfce_id', 'produto_id', 'quantidade', 'valor_unitario', 'sub_total', 'perc_icms', 'perc_pis',
         'perc_cofins', 'perc_ipi', 'cst_csosn', 'cst_pis', 'cst_cofins', 'cst_ipi', 'perc_red_bc', 'cfop',
-        'ncm', 'origem', 'cEnq', 'pST', 'vBCSTRet', 'cest', 'codigo_beneficio_fiscal', 'variacao_id', 'tamanho_id', 'observacao',
-        'infAdProd'
+        'ncm', 'origem', 'cEnq', 'pST', 'vBCSTRet', 'cest', 'codigo_beneficio_fiscal', 'variacao_id', 'tamanho_id', 'observacao'
     ];
 
     public function produto(){
         return $this->belongsTo(Produto::class, 'produto_id');
+    }
+
+    public function nfce(){
+        return $this->belongsTo(Nfce::class, 'nfce_id');
     }
 
     public function produtoVariacao(){

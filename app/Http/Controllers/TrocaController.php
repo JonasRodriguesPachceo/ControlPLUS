@@ -9,6 +9,8 @@ use App\Models\Nfce;
 use App\Models\Nfe;
 use App\Models\Funcionario;
 use App\Models\CategoriaProduto;
+use App\Models\ComissaoVenda;
+use App\Models\MargemComissao;
 use App\Models\Caixa;
 use App\Models\Empresa;
 use App\Models\ConfigGeral;
@@ -108,6 +110,9 @@ class TrocaController extends Controller
         $msgTroca = "";
         if(sizeof($item->troca) > 0){
             $msgTroca = "Essa venda já possui troca!";
+            session()->flash("flash_warning", $msgTroca);
+            return redirect()->back();
+
         }
 
         return view('trocas.create', compact('item', 'funcionarios', 'cliente', 'funcionario', 'caixa', 'abertura', 
@@ -126,6 +131,10 @@ class TrocaController extends Controller
         try {
             $descricaoLog = "#$item->numero_sequencial - R$ " . __moeda($item->valor_troca);
 
+            //retornar o valor original da venda
+            $venda = $item->nfe ? $item->nfe : $item->nfce;
+            $this->retomarValores($venda);
+
             foreach($item->itens as $i){
                 if ($i->produto->gerenciar_estoque) {
                     $local_id = $item->nfce ? $item->nfce->local_id : $item->nfe->local_id;
@@ -133,6 +142,7 @@ class TrocaController extends Controller
                 }
             }
             $item->itens()->delete();
+            $item->itensRemovidos()->delete();
             $item->delete();
 
             __createLog(request()->empresa_id, 'PDV Troca', 'excluir', $descricaoLog);
@@ -145,6 +155,79 @@ class TrocaController extends Controller
         return redirect()->back();
     }
 
+    private function retomarValores($venda){
+        $total = $venda->itens->sum('sub_total');
+        $venda->total = $total - $venda->desconto + $venda->valor_frete + $venda->acrescimo;
+        $venda->save();
+        // dd($venda);
+        // comissao
+        if($venda->funcionario_id){
+            $comissao = null;
+            if(get_class($venda) == 'App\Models\Nfce'){
+                $comissao = ComissaoVenda::where('nfce_id', $venda->id)->first();
+            }else{
+                $comissao = ComissaoVenda::where('nfe_id', $venda->id)->first();
+            }
+
+            if($comissao != null && $comissao->status == 0){
+                $comissao->delete();
+                $funcionario = Funcionario::findOrFail($venda->funcionario_id);
+                $comissao = $funcionario->comissao;
+                $valorRetorno = $this->calcularComissaoVenda($venda, $comissao, $venda->empresa_id);
+
+                if($valorRetorno > 0){
+                    ComissaoVenda::create([
+                        'funcionario_id' => $venda->funcionario_id,
+                        'nfce_id' => get_class($venda) == 'App\Models\Nfce' ? $venda->id : null,
+                        'nfe_id' => get_class($venda) == 'App\Models\Nfe' ? $venda->id : null,
+                        'tabela' => get_class($venda) == 'App\Models\Nfce' ? 'nfce' : 'nfe',
+                        'valor' => $valorRetorno,
+                        'valor_venda' => $total,
+                        'status' => 0,
+                        'empresa_id' => $venda->empresa_id
+                    ]);
+                }
+            }
+        }
+    }
+
+    private function calcularComissaoVenda($venda, $comissao, $empresa_id)
+    {
+        $valorRetorno = 0;
+        $config = ConfigGeral::where('empresa_id', $empresa_id)->first();
+
+        $tipoComissao = 'percentual_vendedor';
+        if($config != null && $config->tipo_comissao == 'percentual_margem'){
+            $tipoComissao = 'percentual_margem';
+        }
+        if($tipoComissao == 'percentual_vendedor'){
+            $valorRetorno = ((float)$venda->total * (float)$comissao) / 100;
+        }else{
+            foreach ($venda->itens as $i) {
+
+                $percentualLucro = ((($i->produto->valor_compra-$i->valor_unitario)/$i->produto->valor_compra)*100)*-1;
+                $margens = MargemComissao::where('empresa_id', $empresa_id)->get();
+                $margemComissao = null;
+                $dif = 0;
+                $difAnterior = 100;
+                foreach($margens as $m){
+                    $margem = $m->margem;
+                    if($percentualLucro >= $margem){
+                        $dif = $percentualLucro - $margem;
+                        if($dif < $difAnterior){
+                            $margemComissao = $m;
+                            $difAnterior = $dif;
+                        }
+                    }
+                }
+                if($margemComissao){
+                    $valorRetorno += ($i->sub_total * $margemComissao->percentual) / 100;
+                }
+            }
+        }
+        return $valorRetorno;
+    }
+
     public function imprimir($id)
     {
 
@@ -155,7 +238,7 @@ class TrocaController extends Controller
         ->first();
 
         $config = __objetoParaEmissao($config, $item->local_id);
-        
+
         $usuario = UsuarioEmpresa::find(get_id_user());
 
         $logo = null;
@@ -170,13 +253,24 @@ class TrocaController extends Controller
         $domPdf = new Dompdf(["enable_remote" => true]);
         $domPdf->loadHtml($p);
         $pdf = ob_get_clean();
-        $height = 400;
+        $height = 450;
 
         $height += sizeof($item->itens)*11;
         foreach($item->itens as $it){
             if(strlen($it->descricao()) > 10){
                 $height += 10;
             }
+        }
+
+        $height += sizeof($item->itensRemovidos)*11;
+        foreach($item->itensRemovidos as $it){
+            if(strlen($it->descricao()) > 10){
+                $height += 10;
+            }
+        }
+
+        foreach($item->itensRemovidos as $it){
+            $height += 10;
         }
 
         foreach(($item->nfe ? $item->nfe->itens : $item->nfce->itens) as $it){

@@ -143,7 +143,12 @@ class NFeService{
 		if($item->crt != null){
 			$stdEmit->CRT = $item->crt;
 		}
-		$stdEmit->IE = preg_replace('/[^0-9]/', '', $emitente->ie);
+
+		if($emitente->ie != 0){
+			$stdEmit->IE = preg_replace('/[^0-9]/', '', $emitente->ie);
+		}else{
+			$stdEmit->IE = 'ISENTO';
+		}
 
 		$cpf_cnpj = preg_replace('/[^0-9]/', '', $emitente->cpf_cnpj);
 		if (strlen($cpf_cnpj) == 14) {
@@ -516,7 +521,6 @@ class NFeService{
 			}
 
 			if ($stdEmit->CRT == 1 || $stdEmit->CRT == 4) {
-
 				$stdICMS = new \stdClass();
 				$stdICMS->item = $itemCont; 
 				$stdICMS->orig = $i->produto->origem;
@@ -534,14 +538,21 @@ class NFeService{
 
 						$tempB = 100 - $i->perc_red_bc;
 						$v = $stdProd->vProd * ($tempB/100);
-						$v += ($stdProd->vFrete ?? 0);
+
+						if($stdIde->finNFe != 4){
+							$v += ($stdProd->vFrete ?? 0);
+						}
 						$VBC += $stdICMS->vBC = number_format($v,2,'.','');
 						$stdICMS->pICMS = $this->format($i->perc_icms, 4);
 						$somaICMS += $stdICMS->vICMS = (($stdProd->vProd - ($stdProd->vDesc ?? 0)) * ($tempB/100)) * ($stdICMS->pICMS/100);
 						$stdICMS->pRedBC = $i->produto->pRedBC ? $this->format($i->produto->pRedBC) : 0;
 					}else{
 						if($i->cst_csosn > 103){
-							$VBC += $stdICMS->vBC = $stdProd->vProd + ($stdProd->vFrete ?? 0) + ($stdProd->vOutro ?? 0) - ($stdProd->vDesc ?? 0);
+							$stdICMS->vBC = $stdProd->vProd - ($stdProd->vDesc ?? 0);
+							if($stdIde->finNFe != 4){
+								$stdICMS->vBC += ($stdProd->vFrete ?? 0) + ($stdProd->vOutro ?? 0);
+							}
+							$VBC += $stdICMS->vBC;
 							$stdICMS->pICMS = $this->format($i->perc_icms, 4);
 							$somaICMS += $stdICMS->vICMS = $stdICMS->vBC * ($stdICMS->pICMS/100);
 						}
@@ -577,7 +588,6 @@ class NFeService{
 				}
 
 				$usaICMSST = __usaICMSST($emitente, $i->cst_csosn, $stdProd->CFOP);
-
 				if($stdIde->finNFe == 4 && $usaICMSST){
 					if($i->modBCST){
 						$stdICMS->modBCST = $i->modBCST;
@@ -658,7 +668,9 @@ class NFeService{
 					$stdICMS->pRedBC = $this->format($i->perc_red_bc);
 					$tempB = 100 - $i->perc_red_bc;
 					$v = $stdProd->vProd * ($tempB/100);
-					$v += ($stdProd->vFrete ?? 0);
+					if($stdIde->finNFe != 4){
+						$v += ($stdProd->vFrete ?? 0);
+					}
 					$stdICMS->vBC = number_format($v,2,'.','');
 					$stdICMS->pICMS = $this->format($i->perc_icms, 4);
 					$stdICMS->vICMS = $this->format($stdProd->vProd * ($tempB/100)) * ($stdICMS->pICMS/100);
@@ -682,19 +694,25 @@ class NFeService{
 					$stdICMS->pICMSST = $this->format($i->produto->pICMSST);
 					$stdICMS->vICMSST = $stdICMS->vBCST * ($stdICMS->pICMSST/100);
 				}
-				
-				if($i->cst_csosn == 60){
-					// $stdICMS->vBCSTRet = 0.00;
-					// $stdICMS->vICMSSTRet = 0.00;
-					// $stdICMS->vBCSTDest = 0.00;
-					// $stdICMS->vICMSSTDest = 0.00;
-					$stdICMS->pRedBCEfet = $i->produto->pRedBCEfet ?? 0;
 
+				if($i->produto->pRedBCEfet > 0){
+					$stdICMS->pRedBCEfet = $i->produto->pRedBCEfet ?? 0;
+				}
+
+				if($i->produto->pICMSEfet > 0){
 					$stdICMS->vBCEfet = $stdProd->vProd - ($stdProd->vDesc ?? 0);
 					$stdICMS->pICMSEfet = $i->produto->pICMSEfet;
 					$stdICMS->vICMSEfet = $stdICMS->vBCEfet * ($stdICMS->pICMSEfet / 100);
+				}
+				
+				if($i->cst_csosn == 60){
 
-					$stdICMS->pICMSEfet = $i->produto->pICMSEfet;
+					// $stdICMS->pRedBCEfet = $i->produto->pRedBCEfet ?? 0;
+
+					// $stdICMS->vBCEfet = $stdProd->vProd - ($stdProd->vDesc ?? 0);
+					// $stdICMS->pICMSEfet = $i->produto->pICMSEfet;
+					// $stdICMS->vICMSEfet = $stdICMS->vBCEfet * ($stdICMS->pICMSEfet / 100);
+
 					$stdICMS->vICMSSubstituto = $i->vICMSSubstituto;
 
 					if($i->pST > 0){
@@ -713,8 +731,9 @@ class NFeService{
 					];
 				}
 
-				if($stdIde->finNFe == 4){
+				$usaICMSST = __usaICMSST($emitente, $i->cst_csosn, $stdProd->CFOP);
 
+				if($usaICMSST){
 					if($i->modBCST){
 						$stdICMS->modBCST = $i->modBCST;
 					}
@@ -724,11 +743,30 @@ class NFeService{
 					if($i->vBCST){
 						$stdICMS->vBCST = $i->vBCST;
 					}
+
 					if($i->pICMSST){
 						$stdICMS->pICMSST = $i->pICMSST;
 					}
+
 					if($i->vICMSST){
 						$stdICMS->vICMSST = $i->vICMSST;
+					}
+
+					if(!$i->pICMSST && $i->produto->pICMSST){
+						$stdICMS->pICMSST = $i->produto->pICMSST;
+						$stdICMS->vBCST = $stdProd->vProd;
+						$stdICMS->modBCST = $i->produto->modBCST ?? 0;
+						if($i->produto->redBCST > 0){
+							$stdICMS->pRedBCST = $this->format($i->produto->redBCST);
+							$tempB = 100 - $i->produto->redBCST;
+							$v = $stdProd->vProd * ($tempB/100);
+							if($stdIde->finNFe != 4){
+								$v += ($stdProd->vFrete ?? 0);
+							}
+							$stdICMS->vBCST = $v;
+							$stdICMS->vICMSST = $this->format($stdICMS->vBCST * ($stdICMS->pICMSST/100));
+						}
+
 					}
 
 					if($i->vBCFCPST > 0){
@@ -740,6 +778,12 @@ class NFeService{
 					if($i->vFCPST > 0){
 						$somavFCPST += $stdICMS->vFCPST = $i->vFCPST;
 					}
+
+					$stdICMS->vBCSTRet = 0.00;
+					$stdICMS->vICMSSTRet = 0.00;
+					$stdICMS->vBCSTDest = 0.00;
+					$stdICMS->vICMSSTDest = 0.00;
+
 				}
 				if(isset($stdICMS->vICMSST)){
 					$somaVICMSST += $stdICMS->vICMSST;
@@ -751,8 +795,8 @@ class NFeService{
 					$stdICMS->vICMSMonoRet = $this->format($i->produto->adRemICMSRet*$stdProd->qTrib, 4);
 				}
 
-				$usaICMSST = __usaICMSST($emitente, $i->cst_csosn, $stdProd->CFOP);
 				if($usaICMSST){
+					// dd($stdICMS);
 					$ICMS = $nfe->tagICMSST($stdICMS);
 				}else{
 					$ICMS = $nfe->tagICMS($stdICMS);
@@ -817,30 +861,26 @@ class NFeService{
 				$stdIBSCBS->cClassTrib = $i->produto->cclass_trib;
 				$stdIBSCBS->vBC = $stdProd->vProd;
 
-				// if($i->produto->perc_ibs_uf > 0){
 				$stdIBSCBS->gIBSUF_pIBSUF = $i->produto->perc_ibs_uf;
-				$stdIBSCBS->gIBSUF_vIBSUF = $stdIBSCBS->vBC * ($stdIBSCBS->gIBSUF_pIBSUF/100);
-				// }
+				$stdIBSCBS->gIBSUF_vIBSUF = $this->format($stdIBSCBS->vBC * ($stdIBSCBS->gIBSUF_pIBSUF/100));
 
-				// if($i->produto->perc_ibs_mun > 0){
 				$stdIBSCBS->gIBSMun_pIBSMun = $i->produto->perc_ibs_mun;
-				$stdIBSCBS->gIBSMun_vIBSMun = $stdIBSCBS->vBC * ($stdIBSCBS->gIBSMun_pIBSMun/100);
-				// }
+				$stdIBSCBS->gIBSMun_vIBSMun = $this->format($stdIBSCBS->vBC * ($stdIBSCBS->gIBSMun_pIBSMun/100));
 
-				// if($i->produto->perc_cbs > 0){
 				$stdIBSCBS->gCBS_pCBS = $i->produto->perc_cbs;
-				$stdIBSCBS->gCBS_vCBS = $stdIBSCBS->vBC * ($stdIBSCBS->gCBS_pCBS/100);
-				// }
+				$stdIBSCBS->gCBS_vCBS = $this->format($stdIBSCBS->vBC * ($stdIBSCBS->gCBS_pCBS/100));
 
 				if($i->produto->perc_dif > 0){
 					$stdIBSCBS->gIBSUF_pDif = $i->produto->perc_dif;
-					$stdIBSCBS->gIBSUF_vDif = $stdIBSCBS->vBC * ($stdIBSCBS->gIBSUF_pDif/100);
+					$stdIBSCBS->gIBSUF_vDif = $this->format($stdIBSCBS->vBC * ($stdIBSCBS->gIBSUF_pDif/100));
 				}
+
+				// gIBSUF_pRedAliq incluir
 				$IBSCBS = $nfe->tagIBSCBS($stdIBSCBS);
-				// dd($stdIBSCBS);
 			}
 
 			// $vbcIpi = $stdProd->vProd;
+
 			$vbcIpi = $stdProd->vProd + ($stdProd->vOutro ?? 0) + ($stdProd->vFrete ?? 0) - ($stdProd->vDesc ?? 0);
 			if($i->vbc_ipi > 0){
 				$vbcIpi = $i->vbc_ipi;
@@ -891,12 +931,17 @@ class NFeService{
 					$stdComb->pGNi = $this->format($i->produto->perc_gni);
 				}
 
-				$stdComb->vPart = $this->format($i->produto->valor_partida);
-				$stdComb->UFCons = $item->cliente->cidade->uf;
+				// $stdComb->vPart = $this->format($i->produto->valor_partida);
+				$stdComb->UFCons = $contact->cidade->uf;
 
 				if($i->produto->pBio > 0){
 					$stdComb->pBio = $i->produto->pBio;
+					$stdComb->vPart = $this->format((($stdComb->pBio * $stdProd->vProd)/100), 2);
+
+				}else{
+					$stdComb->vPart = $this->format($stdProd->vProd, 2);
 				}
+				// dd($stdComb);
 				$nfe->tagcomb($stdComb);
 			}
 
@@ -906,7 +951,11 @@ class NFeService{
 				$stdOrigComb->item = $itemCont; 
 				$stdOrigComb->indImport = $i->produto->indImport;
 				$stdOrigComb->cUFOrig = $i->produto->cUFOrig;
-				$stdOrigComb->pOrig = $i->produto->pOrig;
+				if(!$i->produto->cUFOrig){
+					$stdOrigComb->cUFOrig = $stdIde->cUF;
+				}
+				$stdOrigComb->pOrig = $this->format($i->produto->pOrig, 2);
+				
 				$nfe->tagorigComb($stdOrigComb);
 			}
 
