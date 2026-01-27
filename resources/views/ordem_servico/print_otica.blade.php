@@ -723,7 +723,7 @@
                                 alt="Logo" class="mb-2">
                         @else
                             <img style="height: 50px;"
-                                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}">
+                                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}">
                         @endif
                     </td>
                     <td style="text-align: left; width: 500px;">
@@ -784,7 +784,7 @@
                                 alt="Logo" class="mb-2">
                         @else
                             <img style="height: 50px;"
-                                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}">
+                                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}">
                         @endif
                     </td>
                     <td style="text-align: left; width: 500px;">
@@ -920,7 +920,7 @@
                                 alt="Logo" class="mb-2">
                         @else
                             <img style="height: 50px;"
-                                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}">
+                                src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}">
                         @endif
                     </td>
                     <td style="text-align: left; width: 500px;">

@@ -48,7 +48,7 @@
 <header>
     <div class="headReport" style="display:flex; justify-content:  padding-top:1rem">
         <img style="margin-top: -75px;"
-            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}"
+            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}"
             alt="Logo" class="mb-2" height="160px">
 
         <div class="row text-right">
@@ -69,7 +69,7 @@
     {{-- <div class="content">
         <table>
             <tr>
-                <img style="margin-top: -75px;" src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png')))}}" alt="Logo" class="mb-2" height="290">
+                <img style="margin-top: -75px;" src="{{'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg')))}}" alt="Logo" class="mb-2" height="290">
                 <br>
                 <td class="" style="width: 100px;">
                     <label class="titulo">Relátorio de Caixa</label>

@@ -694,7 +694,7 @@
 
 
         <img style="margin-top: -75px;"
-            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}"
+            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}"
             alt="Logo" class="mb-2">
 
         <div class="row text-right">
@@ -723,7 +723,7 @@
                 </td>
                 <td class="text-right">
 
-                    <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}"
+                    <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}"
                         alt="Logo" class="mr-3">
                 </td>
             </tr>

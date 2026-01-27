@@ -51,7 +51,7 @@
 
             <!-- Logo -->
             <div class="auth-brand text-center text-lg-start logo-mob">
-                <span><img style="width: 400px" src="/superstore_logo.png" alt="dark logo"></span>
+                <span><img style="width: 400px" src="/logo.jpg" alt="dark logo"></span>
                 <h4 class="text-center text-muted" style="margin-top: -70px">{{ env('APP_DESCRIPTION') }}</h4>
             </div>
 

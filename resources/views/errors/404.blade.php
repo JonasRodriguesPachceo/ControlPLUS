@@ -61,10 +61,10 @@
                         <div class="card-header pt-4 text-center">
                             <div class="auth-brand mb-0">
                                 <a href="index.html" class="logo-dark">
-                                    <span><img src="/superstore_logo.png" alt="dark logo" height="108"></span>
+                                    <span><img src="/logo.jpg" alt="dark logo" height="108"></span>
                                 </a>
                                 <a href="index.html" class="logo-light">
-                                    <span><img src="/superstore_logo.png" alt="logo" height="28"></span>
+                                    <span><img src="/logo.jpg" alt="logo" height="28"></span>
                                 </a>
                             </div>
                         </div>

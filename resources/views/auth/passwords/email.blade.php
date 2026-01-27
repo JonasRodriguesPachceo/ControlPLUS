@@ -22,7 +22,7 @@
 
                 <!-- Logo -->
                 <div class="auth-brand text-center text-lg-start logo-mob">
-                    <span><img style="width: 300px" src="/superstore_logo.png" alt="dark logo"></span>
+                    <span><img style="width: 300px" src="/logo.jpg" alt="dark logo"></span>
                 </div>
 
                 <div class="">

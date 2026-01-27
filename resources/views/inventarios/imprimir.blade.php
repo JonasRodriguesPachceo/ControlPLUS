@@ -99,7 +99,7 @@
 
     <!-- CABEÇALHO -->
     <div class="header">
-        <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('superstore_logo.png'))) }}"
+        <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(@public_path('logo.jpg'))) }}"
             alt="Logo">
 
         <div class="title">

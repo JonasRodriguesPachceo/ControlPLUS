@@ -135,7 +135,7 @@
                             <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('uploads/logos/' . $config->logo))) }}"
                                 alt="Logo">
                         @else
-                            <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('superstore_logo.png'))) }}"
+                            <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('logo.jpg'))) }}"
                                 alt="Logo">
                         @endif
                     </td>
@@ -157,7 +157,7 @@
     </main>
 
     <footer>
-        <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('superstore_logo.png'))) }}"
+        <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path('logo.jpg'))) }}"
             alt="Logo rodapé">
         <div class="site">
             {{ env('SITE_SUPORTE') ?? 'https://slym.com.br' }}
