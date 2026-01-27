@@ -18,7 +18,6 @@ use App\Models\Contigencia;
 use App\Models\ConfigGeral;
 use NFePHP\Common\Soap\SoapCurl;
 use NFePHP\NFe\Factories\Contingency;
-use NFePHP\NFe\MakeDev;
 
 class NFCeService
 {
@@ -68,9 +67,9 @@ class NFCeService
 	public function gerarXml($item)
 	{
 
-		// $nfe = new MakeDev();
+		// $nfe = new Make();
 		$schema = 'PL_010_V1';
-		$nfe = new MakeDev($schema);
+		$nfe = new Make($schema);
 		$stdInNFe = new \stdClass();
 		$stdInNFe->versao = '4.00';
 		$stdInNFe->Id = null;
@@ -80,7 +79,7 @@ class NFCeService
 		$emitente = $item->empresa;
 		$emitente = __objetoParaEmissao($emitente, $item->local_id);
 		$configGeral = ConfigGeral::where('empresa_id', $item->empresa_id)->first();
-		
+
 		$cliente = $item->cliente;
 
 		if($item->pedido){
@@ -99,9 +98,9 @@ class NFCeService
 		// $stdIde->nNF = $item->lastNumero(); // numero sequencial da nfce
 		$stdIde->nNF = $item->numero; // numero sequencial da nfe
 
-		// $stdIde->dhEmi = \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') . date('\T') . 
+		// $stdIde->dhEmi = \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') . date('\T') .
 		// 	\Carbon\Carbon::parse($item->created_at)->format('H:i') .":" . date('sP');
-		// $stdIde->dhSaiEnt = \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') . date('\T') . 
+		// $stdIde->dhSaiEnt = \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') . date('\T') .
 		// 	\Carbon\Carbon::parse($item->created_at)->format('H:i') .":" . date('sP');
 
 		$stdIde->dhEmi = date("Y-m-d\TH:i:sP");
@@ -134,7 +133,7 @@ class NFCeService
 		$stdEmit->xFant = $emitente->nome_fantasia;
 		$stdEmit->CRT = $emitente->tributacao == 'Regime Normal' ? 3 : 1;
 		if($emitente->tributacao == 'Simples Nacional, excesso sublimite de receita bruta'){
-			$stdEmit->CRT = 2;	
+			$stdEmit->CRT = 2;
 		}
 		$stdEmit->IE = preg_replace('/[^0-9]/', '', $emitente->ie);
 
@@ -159,7 +158,7 @@ class NFCeService
 		$stdEnderEmit->CEP = preg_replace('/[^0-9]/', '', $emitente->cep);
 		$stdEnderEmit->cPais = '1058';
 		$stdEnderEmit->fone = preg_replace('/[^0-9]/', '', $emitente->celular);
-		
+
 		$stdEnderEmit->xPais = 'BRASIL';
 		$enderEmit = $nfe->tagenderEmit($stdEnderEmit); // fim tag do emitente
 		// inicia tag do destinatario
@@ -180,7 +179,7 @@ class NFCeService
 					$stdDest->indIEDest = "9";
 				}
 
-				
+
 				if (strlen($cpf_cnpj) == 14) {
 					$stdDest->CNPJ = $cpf_cnpj;
 					$ie = preg_replace('/[^0-9]/', '', $cliente->ie);
@@ -218,7 +217,7 @@ class NFCeService
 			if($cpf_cnpj != '00000000000'){
 				if (strlen($doc) == 14){
 					$stdDest->CNPJ = $doc;
-				}else{ 
+				}else{
 					$stdDest->CPF = $doc;
 				}
 				$dest = $nfe->tagdest($stdDest);
@@ -265,7 +264,7 @@ class NFCeService
 			if($i->produto->referencia){
 				$stdProd->cProd = $i->produto->referencia;
 			}
-			
+
 			$stdProd->xProd = $i->descricao();
 			$stdProd->NCM = preg_replace('/[^0-9]/', '', $i->ncm);
 			$ibpt = Ibpt::getItemIbpt($emitente->cidade->uf, preg_replace('/[^0-9]/', '', $i->ncm));
@@ -274,7 +273,7 @@ class NFCeService
 			if($configGeral && $configGeral->usar_ibpt == 0){
 				$usarIbpt = 0;
 			}
-			
+
 			$stdProd->CFOP = $i->cfop;
 			$stdProd->uCom = $i->produto->unidade;
 			$stdProd->qCom = $i->quantidade;
@@ -322,7 +321,7 @@ class NFCeService
 			if($item->valor_frete > 0){
 
 				if($itemCont < $totalItens){
-					$somaFrete += $vFt = 
+					$somaFrete += $vFt =
 					$this->format($item->valor_frete/$totalItens, 2);
 					$stdProd->vFrete = $this->format($vFt);
 				}else{
@@ -590,7 +589,7 @@ class NFCeService
 
 			if(strlen($i->produto->codigo_anp) > 2){
 				$stdComb = new \stdClass();
-				$stdComb->item = $itemCont; 
+				$stdComb->item = $itemCont;
 				$stdComb->cProdANP = $i->produto->codigo_anp;
 				$stdComb->descANP = $i->produto->getDescricaoAnp();
 				if($i->produto->perc_glp > 0){
@@ -617,7 +616,7 @@ class NFCeService
 			if($stdIde->indFinal == 0 && strlen($i->produto->codigo_anp) > 2){
 				$stdOrigComb = new \stdClass();
 
-				$stdOrigComb->item = $itemCont; 
+				$stdOrigComb->item = $itemCont;
 				$stdOrigComb->indImport = $i->produto->indImport;
 				$stdOrigComb->cUFOrig = $i->produto->cUFOrig;
 				$stdOrigComb->pOrig = $i->produto->pOrig;
@@ -630,7 +629,7 @@ class NFCeService
 			// $stdProd->CEST = $cest;
 			// if(strlen($cest) > 0){
 			// 	$std = new \stdClass();
-			// 	$std->item = $itemCont; 
+			// 	$std->item = $itemCont;
 			// 	$std->CEST = $cest;
 			// 	$nfe->tagCEST($std);
 			// }
@@ -709,7 +708,7 @@ class NFCeService
 		$stdFat->vDesc = $this->format($item->desconto);
 		$stdFat->vLiq = $this->format($item->total);
 
-		// $fatura = $nfe->tagfat($stdFat);		
+		// $fatura = $nfe->tagfat($stdFat);
 		$contFatura = 1;
 
 		$stdPag = new \stdClass();
@@ -730,7 +729,7 @@ class NFCeService
 			$stdDetPag = new \stdClass();
 			$stdDetPag->tPag = $item->tipo_pagamento;
 			if($item->tipo_pagamento == '06'){
-				$stdDetPag->tPag = '05'; 
+				$stdDetPag->tPag = '05';
 			}
 			$stdDetPag->vPag = $this->format($item->dinheiro_recebido);
 			$stdDetPag->indPag = 1;
@@ -751,7 +750,7 @@ class NFCeService
 
 					$stdDetPag->tPag = $ft->tipo_pagamento;
 					if($ft->tipo_pagamento == '06'){
-						$stdDetPag->tPag = '05'; 
+						$stdDetPag->tPag = '05';
 					}
 
 					$stdDetPag->vPag = $this->format($ft->valor);
@@ -762,7 +761,7 @@ class NFCeService
 					$stdDetPag->indPag = 1;
 
 					if($ft->tipo_pagamento == '03' || $ft->tipo_pagamento == '04' || $ft->tipo_pagamento == '17'){
-						
+
 						$stdDetPag->tBand = $item->bandeira_cartao;
 						if(!$item->bandeira_cartao){
 							$stdDetPag->tBand = '01';
@@ -791,13 +790,13 @@ class NFCeService
 		if($somaEstadual > 0 || $somaFederal > 0 || $somaMunicipal > 0){
 			$obs .= " Trib. aprox. ";
 			if($somaFederal > 0){
-				$obs .= "R$ " . number_format($somaFederal, 2, ',', '.') ." Federal"; 
+				$obs .= "R$ " . number_format($somaFederal, 2, ',', '.') ." Federal";
 			}
 			if($somaEstadual > 0){
-				$obs .= ", R$ ".number_format($somaEstadual, 2, ',', '.')." Estadual"; 
+				$obs .= ", R$ ".number_format($somaEstadual, 2, ',', '.')." Estadual";
 			}
 			if($somaMunicipal > 0){
-				$obs .= ", R$ ".number_format($somaMunicipal, 2, ',', '.')." Municipal"; 
+				$obs .= ", R$ ".number_format($somaMunicipal, 2, ',', '.')." Municipal";
 			}
 			// $ibpt = IBPT::where('uf', $config->UF)->first();
 
@@ -999,7 +998,7 @@ class NFCeService
 						$xml = Complements::toAuthorize($nfe->signed_xml, $nRec);
 						file_put_contents(public_path('xml_nfce/').$chave.'.xml', $xml);
 					}catch(\Exception $e){
-						
+
 					}
 
 				}
