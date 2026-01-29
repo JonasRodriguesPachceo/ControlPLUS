@@ -4200,6 +4200,7 @@ fieldset:disabled .btn {
 }
 .dropdown-menu.show {
     display: block;
+    transform: translateX(100%);
 }
 .dropdown-header {
     display: block;
