@@ -299,10 +299,10 @@ $("#codBarras").keyup((v) => {
                         $("#inp-quantidade").val(qtd);
                         $("#inp-variacao_id").val(e.codigo_variacao);
                         $("#inp-valor_unitario").val(
-                            convertFloatToMoeda(e.valor_unitario)
+                            convertFloatToMoeda(e.valor_unitario),
                         );
                         $("#inp-subtotal").val(
-                            convertFloatToMoeda(qtd * e.valor_unitario)
+                            convertFloatToMoeda(qtd * e.valor_unitario),
                         );
                         setProdutoTipoUnico(e.tipo_unico || 0);
                         $(".leitor_ativado").text("Leitor Ativado");
@@ -406,11 +406,11 @@ $(document).on("change", "#inp-cliente_id", function () {
                 $(".info_cash_back").text(
                     "*percentual de cashback para uso " +
                         e.percentual_maximo_venda +
-                        "%"
+                        "%",
                 );
             }
             $(".valor-cashback-disponivel").text(
-                "R$ " + convertFloatToMoeda(e.valor_cashback)
+                "R$ " + convertFloatToMoeda(e.valor_cashback),
             );
         })
         .fail((e) => {
@@ -424,14 +424,14 @@ $(document).on("change", "#inp-cliente_id", function () {
             // console.log(cliente)
             $(".cliente_selecionado").text(cliente.razao_social);
             $(".p-cliente").html(
-                "<label>Cliente: <strong>" + cliente.info + "</strong></label>"
+                "<label>Cliente: <strong>" + cliente.info + "</strong></label>",
             );
             if (
                 cliente.cpf_cnpj.replace(/[^0-9]/g, "").length == 14 &&
                 $("#NFECNPJ").val() == "1"
             ) {
                 $(".p-cliente").append(
-                    "<br><strong class='text-danger'>Será emitida NFe cliente selecionado com CNPJ</strong>"
+                    "<br><strong class='text-danger'>Será emitida NFe cliente selecionado com CNPJ</strong>",
                 );
                 clienteCNPJ = true;
             }
@@ -455,11 +455,11 @@ $(document).on("change", "#inp-cliente_id", function () {
                     "",
                     "Esse cliente possui um crédito de R$ " +
                         convertFloatToMoeda(cliente.valor_credito),
-                    "info"
+                    "info",
                 ).then(() => {
                     $(".cliente-venda").trigger("click");
                     $("#inp-valor_credito").val(
-                        convertFloatToMoeda(cliente.valor_credito)
+                        convertFloatToMoeda(cliente.valor_credito),
                     );
 
                     $("#modal_credito").modal("show");
@@ -478,7 +478,7 @@ $("#btn-usar-credito").click(() => {
         swal(
             "Erro",
             "Valor limite de crédito R$ " + convertFloatToMoeda(VALORCREDITO),
-            "error"
+            "error",
         );
         return;
     }
@@ -510,14 +510,14 @@ function validaCashBack() {
                 "Erro",
                 "Valor máximo permitido R$ " +
                     convertFloatToMoeda(valor_maximo),
-                "warning"
+                "warning",
             );
             $("#inp-valor_cashback").val("");
         } else if (valor_setado > valorCashBack) {
             swal(
                 "Erro",
                 "Valor ultrapassou R$ " + convertFloatToMoeda(valorCashBack),
-                "warning"
+                "warning",
             );
             $("#inp-valor_cashback").val("");
         } else {
@@ -671,14 +671,14 @@ $(function () {
                                 })
                                     .done((e) => {
                                         $("#inp-variacao_id").val(
-                                            codigo_variacao
+                                            codigo_variacao,
                                         );
                                         $("#inp-quantidade").val("1");
                                         $("#inp-valor_unitario").val(
-                                            convertFloatToMoeda(e.valor)
+                                            convertFloatToMoeda(e.valor),
                                         );
                                         $("#inp-subtotal").val(
-                                            convertFloatToMoeda(e.valor)
+                                            convertFloatToMoeda(e.valor),
                                         );
                                     })
                                     .fail((e) => {
@@ -688,10 +688,10 @@ $(function () {
                         } else {
                             $("#inp-quantidade").val("1");
                             $("#inp-valor_unitario").val(
-                                convertFloatToMoeda(e.valor_unitario)
+                                convertFloatToMoeda(e.valor_unitario),
                             );
                             $("#inp-subtotal").val(
-                                convertFloatToMoeda(e.valor_unitario)
+                                convertFloatToMoeda(e.valor_unitario),
                             );
                         }
 
@@ -809,7 +809,7 @@ function openCodigoUnicoModal($row) {
         "produto:",
         produtoNome,
         "produto_id:",
-        modalCodigoUnicoProdutoId
+        modalCodigoUnicoProdutoId,
     );
     const $modal = $("#modal_codigo_unico");
     if (!$modal.parent().is("body")) {
@@ -818,7 +818,7 @@ function openCodigoUnicoModal($row) {
     $("#modal_codigo_unico_produto").text(produtoNome);
     const quantidade = Math.max(
         1,
-        Math.round(convertMoedaToFloat($row.find(".qtd_row").val()))
+        Math.round(convertMoedaToFloat($row.find(".qtd_row").val())),
     );
     let saved = [];
     const raw = $row.find(".codigo_unico_ids").val();
@@ -841,7 +841,7 @@ function openCodigoUnicoModal($row) {
         const select = $(
             '<select class="form-control codigo-unico-select" data-index="' +
                 i +
-                '"></select>'
+                '"></select>',
         );
         if (savedItem) {
             const optionValue = savedItem.id || savedItem.codigo;
@@ -849,7 +849,7 @@ function openCodigoUnicoModal($row) {
                 savedItem.codigo,
                 optionValue,
                 true,
-                true
+                true,
             );
             select.append(option).trigger("change");
             select.data("codigo-text", savedItem.codigo);
@@ -859,7 +859,7 @@ function openCodigoUnicoModal($row) {
         const obsInput = $(
             '<input type="text" class="form-control codigo-unico-observacao" data-index="' +
                 i +
-                '" maxlength="250">'
+                '" maxlength="250">',
         );
         if (savedItem && savedItem.observacao) {
             obsInput.val(savedItem.observacao);
@@ -876,40 +876,71 @@ function openCodigoUnicoModal($row) {
 function initCodigoUnicoSelect($select) {
     $select.select2({
         dropdownParent: $("#modal_codigo_unico"),
-        minimumInputLength: 2,
+        minimumInputLength: 0, // ✅ permite abrir sem digitar
         language: "pt-BR",
-        placeholder: "Digite para buscar o código",
+        placeholder: "Selecione um código (ou digite para filtrar)",
         width: "100%",
         ajax: {
             cache: true,
+            delay: 200,
             url: path_url + "api/produtos/codigo-unico",
             dataType: "json",
             data: function (params) {
                 return {
-                    pesquisa: params.term,
+                    pesquisa: params.term || "", // ✅ vazio = lista tudo
+                    page: params.page || 1, // ✅ paginação
                     empresa_id: $("#empresa_id").val(),
                     produto_id: modalCodigoUnicoProdutoId,
                 };
             },
-            processResults: function (response) {
-                var results = [];
-                $.each(response, function (i, v) {
-                    var o = {};
-                    o.id = v.id;
-                    o.text = v.codigo;
-                    results.push(o);
+            processResults: function (response, params) {
+                params.page = params.page || 1;
+
+                // ✅ suporta 2 formatos: array puro OU objeto com {data, more/total}
+                var data = Array.isArray(response)
+                    ? response
+                    : response.data || [];
+                var more = false;
+
+                if (!Array.isArray(response)) {
+                    // se sua API já mandar "more" ou "next_page_url" etc
+                    if (typeof response.more !== "undefined")
+                        more = !!response.more;
+                    else if (typeof response.next_page_url !== "undefined")
+                        more = !!response.next_page_url;
+                    else if (
+                        typeof response.total !== "undefined" &&
+                        typeof response.per_page !== "undefined"
+                    ) {
+                        more = params.page * response.per_page < response.total;
+                    }
+                }
+
+                var results = data.map(function (v) {
+                    return { id: v.id, text: v.codigo };
                 });
+
                 return {
                     results: results,
+                    pagination: { more: more },
                 };
             },
         },
     });
+
+    // ✅ ao abrir, já carrega a lista (pesquisa vazia)
+    $select.on("select2:open", function () {
+        // força a primeira busca se ainda não carregou nada
+        const $search = $(".select2-container--open .select2-search__field");
+        if ($search.length) {
+            $search.trigger("input"); // dispara request com term vazio
+        }
+    });
+
     $select.on("select2:select", function (e) {
         $(this).data("codigo-text", e.params.data.text);
     });
 }
-
 function showCodigoUnicoAlert(message) {
     $("#modal_codigo_unico_alert").removeClass("d-none").text(message);
 }
@@ -938,7 +969,7 @@ function addProdutos(id) {
                     swal(
                         "Atenção",
                         "Produto com estoque insuficiente!",
-                        "warning"
+                        "warning",
                     );
                 } else {
                     let idDup = 0;
@@ -960,7 +991,7 @@ function addProdutos(id) {
                             $(".table-itens tbody tr").each(function () {
                                 if ($(this).find(".produto_row").val() == id) {
                                     let qtdAnt = convertMoedaToFloat(
-                                        $(this).find(".qtd_row").val()
+                                        $(this).find(".qtd_row").val(),
                                     );
                                     $(this)
                                         .find(".qtd_row")
@@ -1047,14 +1078,14 @@ $(".btn-add-item").click(() => {
                     if (idDup == 0) {
                         $.get(
                             path_url + "api/frenteCaixa/linhaProdutoVenda",
-                            dataRequest
+                            dataRequest,
                         )
                             .done((e) => {
                                 if (e == false) {
                                     swal(
                                         "Atenção",
                                         "Produto com estoque insuficiente!",
-                                        "warning"
+                                        "warning",
                                     );
                                 } else {
                                     const $row = $(e);
@@ -1077,7 +1108,7 @@ $(".btn-add-item").click(() => {
                         };
                         $.get(
                             path_url + "api/produtos/valida-estoque",
-                            dataRequest
+                            dataRequest,
                         )
                             .done((success) => {
                                 beepSucesso();
@@ -1107,7 +1138,7 @@ $(".btn-add-item").click(() => {
                 swal(
                     "Atenção",
                     "Informe corretamente os campos para continuar!",
-                    "warning"
+                    "warning",
                 );
             }
         } else {
@@ -1115,7 +1146,7 @@ $(".btn-add-item").click(() => {
             swal("Atenção", "Abra o caixa para continuar!", "warning").then(
                 () => {
                     validaCaixa();
-                }
+                },
             );
         }
     }, 100);
@@ -1155,7 +1186,7 @@ function calcTotal() {
     $(".subtotal-item").each(function () {
         total += convertMoedaToFloat($(this).val());
         qtdTotal = convertMoedaToFloat(
-            $(this).closest("tr").find(".qtd_row").val()
+            $(this).closest("tr").find(".qtd_row").val(),
         );
     });
 
@@ -1170,16 +1201,16 @@ function calcTotal() {
                     total +
                         parseFloat(VALORACRESCIMO) +
                         parseFloat(VALORFRETE) -
-                        parseFloat(DESCONTO)
-                )
+                        parseFloat(DESCONTO),
+                ),
         );
         $("#inp-valor_total").val(
             convertFloatToMoeda(
                 total +
                     parseFloat(VALORACRESCIMO) +
                     parseFloat(VALORFRETE) -
-                    parseFloat(DESCONTO)
-            )
+                    parseFloat(DESCONTO),
+            ),
         );
         $(".total-venda-modal").html(
             "R$ " +
@@ -1187,8 +1218,8 @@ function calcTotal() {
                     total +
                         parseFloat(VALORACRESCIMO) +
                         parseFloat(VALORFRETE) -
-                        parseFloat(DESCONTO)
-                )
+                        parseFloat(DESCONTO),
+                ),
         );
         $("#inp-valor_integral").val(convertFloatToMoeda(total_venda));
 
@@ -1273,7 +1304,7 @@ $("#salvar_venda").click(() => {
                     swal("Sucesso", "Chave PIX gerada", "success").then(() => {
                         $(".qrcode").attr(
                             "src",
-                            "data:image/jpeg;base64," + success["qrcode"]
+                            "data:image/jpeg;base64," + success["qrcode"],
                         );
                         $("#modal-pix").modal("show");
                         let payment_id = success["payment_id"];
@@ -1289,7 +1320,7 @@ $("#salvar_venda").click(() => {
 
                                 $.get(
                                     path_url + "api/frenteCaixa/consulta-pix",
-                                    data
+                                    data,
                                 )
                                     .done((res) => {
                                         if (res == "approved") {
@@ -1298,7 +1329,7 @@ $("#salvar_venda").click(() => {
                                                 swal(
                                                     "Sucesso",
                                                     "Pagamento aprovado",
-                                                    "success"
+                                                    "success",
                                                 ).then(() => {
                                                     // $('#finalizar_venda').modal('show')
                                                     finalizarVendaModal();
@@ -1497,7 +1528,7 @@ function validateCodigoUnicoRows() {
         if (parseInt(row.data("tipo-unico")) === 1) {
             const qtd = Math.max(
                 1,
-                Math.round(convertMoedaToFloat(row.find(".qtd_row").val()))
+                Math.round(convertMoedaToFloat(row.find(".qtd_row").val())),
             );
             let value = row.find(".codigo_unico_ids").val();
             let parsed = [];
@@ -1521,7 +1552,7 @@ function validateCodigoUnicoRows() {
         swal(
             "Atenção",
             "Defina os códigos únicos para o produto " + produtoNome,
-            "warning"
+            "warning",
         );
     }
     return valid;
@@ -1587,7 +1618,7 @@ function modalDesconto() {
                                 "Máximo de desconto permitido é de " +
                                     PERCENTUALMAXDESCONTO +
                                     "%",
-                                "error"
+                                "error",
                             );
                             $("#valor_desconto").html("0,00");
                         }, 500);
@@ -1613,7 +1644,7 @@ function modalDesconto() {
                                 "Erro",
                                 "Máximo de desconto permitido é de R$ " +
                                     parseFloat(tempDesc),
-                                "error"
+                                "error",
                             );
                             $("#valor_desconto").html("0,00");
                         }, 500);
@@ -1751,7 +1782,7 @@ function modalAcrescimo() {
             calcTotal();
             VALORACRESCIMO = parseFloat(VALORACRESCIMO);
             $("#valor_acrescimo").text(
-                "R$ " + convertFloatToMoeda(VALORACRESCIMO)
+                "R$ " + convertFloatToMoeda(VALORACRESCIMO),
             );
 
             let data = {
@@ -1874,7 +1905,7 @@ $("body").on("keyup", "#inp-valor_unitario", function () {
             swal(
                 "Erro",
                 "Valor minímo para este item " + convertFloatToMoeda(v),
-                "error"
+                "error",
             );
         });
 });
@@ -1956,7 +1987,7 @@ function consultaStatusTef(hash) {
                             $("#modal_tef_consulta").modal("hide");
                             // $('#finalizar_venda').modal('show')
                             finalizarVendaModal();
-                        }
+                        },
                     );
                     clearInterval(intervalo);
                 }
@@ -2037,10 +2068,10 @@ $("#lista_precos select").each(function () {
                         empresa_id: $("#empresa_id").val(),
                         usuario_id: $("#usuario_id").val(),
                         tipo_pagamento_lista: $(
-                            "#inp-tipo_pagamento_lista"
+                            "#inp-tipo_pagamento_lista",
                         ).val(),
                         funcionario_lista_id: $(
-                            "#inp-funcionario_lista_id"
+                            "#inp-funcionario_lista_id",
                         ).val(),
                     };
                     return query;
@@ -2173,7 +2204,7 @@ $(".btn-add-payment").click(() => {
         swal(
             "Atenção",
             "Informe corretamente os campos para continuar!",
-            "warning"
+            "warning",
         );
     }
 });
@@ -2407,7 +2438,7 @@ $("#form-pdv").on("submit", function (e) {
                                             path_url +
                                                 "frontbox/imprimir-carne/" +
                                                 success.id,
-                                            "_blank"
+                                            "_blank",
                                         );
 
                                         location.href = "/frontbox/create";
@@ -2453,7 +2484,7 @@ function imprimirNaoFiscal(id, tipo_pagamento) {
         var docprint = window.open(
             path_url + "frontbox/imprimir-nao-fiscal/" + id,
             "",
-            disp_setting
+            disp_setting,
         );
         docprint.focus();
     } else {
@@ -2522,7 +2553,7 @@ $("#form-pdv-update").on("submit", function (e) {
                 swal(
                     "Sucesso",
                     "Venda atualizada com sucesso, deseja imprimir o comprovante?",
-                    "success"
+                    "success",
                 );
 
                 swal({
@@ -2538,7 +2569,7 @@ $("#form-pdv-update").on("submit", function (e) {
                             path_url +
                                 "frontbox/imprimir-nao-fiscal/" +
                                 success.id,
-                            "_blank"
+                            "_blank",
                         );
                     } else {
                         // location.reload()
@@ -2576,7 +2607,7 @@ function gerarNfe(venda) {
                     " - chave: [" +
                     success.chave +
                     "]",
-                "success"
+                "success",
             ).then(() => {
                 window.open(path_url + "nfe/imprimir/" + venda.id, "_blank");
                 setTimeout(() => {
@@ -2592,7 +2623,7 @@ function gerarNfe(venda) {
                     swal(
                         "Algo deu errado",
                         o.cStat + " - " + o.xMotivo,
-                        "error"
+                        "error",
                     ).then(() => {
                         location.reload();
                     });
@@ -2604,7 +2635,7 @@ function gerarNfe(venda) {
                     swal(
                         "Algo deu errado",
                         err.responseJSON.message,
-                        "error"
+                        "error",
                     ).then(() => {
                         location.reload();
                     });
@@ -2614,7 +2645,7 @@ function gerarNfe(venda) {
                             swal(
                                 "Algo deu errado",
                                 err.responseJSON.xMotivo,
-                                "error"
+                                "error",
                             ).then(() => {
                                 location.reload();
                             });
@@ -2623,7 +2654,7 @@ function gerarNfe(venda) {
                                 swal(
                                     "Algo deu errado",
                                     err.responseJSON.error,
-                                    "error"
+                                    "error",
                                 ).then(() => {
                                     location.reload();
                                 });
@@ -2631,7 +2662,7 @@ function gerarNfe(venda) {
                                 swal(
                                     "Algo deu errado",
                                     err.responseJSON,
-                                    "error"
+                                    "error",
                                 ).then(() => {
                                     location.reload();
                                 });
@@ -2641,7 +2672,7 @@ function gerarNfe(venda) {
                         swal(
                             "Algo deu errado",
                             err.responseJSON[0],
-                            "error"
+                            "error",
                         ).then(() => {
                             location.reload();
                         });
@@ -2665,7 +2696,7 @@ function gerarNfce(venda) {
                     " - chave: [" +
                     success.chave +
                     "]",
-                "success"
+                "success",
             ).then(() => {
                 window.open(path_url + "nfce/imprimir/" + venda.id, "_blank");
                 setTimeout(() => {
@@ -2685,7 +2716,7 @@ function gerarNfce(venda) {
                 swal("Algo deu errado", err.responseJSON.message, "error").then(
                     () => {
                         location.reload();
-                    }
+                    },
                 );
             } else {
                 swal("Algo deu errado", err.responseJSON, "error").then(() => {
@@ -2757,7 +2788,7 @@ $("#modal_codigo_unico_salvar").click(() => {
             }
             if (used[value]) {
                 showCodigoUnicoAlert(
-                    "Existe código único repetido na seleção."
+                    "Existe código único repetido na seleção.",
                 );
                 hasError = true;
                 return;
