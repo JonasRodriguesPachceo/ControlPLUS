@@ -1,5 +1,40 @@
 @section('css')
+
     {{-- <link rel="stylesheet" type="text/css" href="/css/pdv.css"> --}}
+
+<style>
+/* --- PDV responsive tweaks --- */
+:root{
+  --pdv-card-h: 140px;
+}
+
+/* Cards in the bottom action area keep consistent height but remain responsive */
+.pdv-card-h{
+  height: var(--pdv-card-h);
+}
+
+/* Table container: no fixed height; scroll only when needed */
+.table-scroll{
+  max-height: 45vh;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Improve touch/portable usability */
+.table-itens td, .table-itens th{
+  vertical-align: middle;
+}
+@media (max-width: 991.98px){
+  :root{ --pdv-card-h: 155px; }
+  .table-scroll{ max-height: 40vh; }
+}
+@media (max-width: 575.98px){
+  :root{ --pdv-card-h: 170px; }
+  .table-scroll{ max-height: 34vh; }
+  .card-body{ padding: .75rem; }
+}
+</style>
+
 @endsection
 
 <input type="hidden" id="abertura" value="{{ $abertura }}" name="">
@@ -168,7 +203,7 @@
                 </div>
             </div>
             <div class="card m-1">
-                <div data-bs-target="#navbar-example2" class="scrollspy-example" style="height: 440px">
+                <div data-bs-target="#navbar-example2" class="scrollspy-example" table-scroll">
                     <table class="table table-striped dt-responsive nowrap table-itens">
                         <thead class="table-dark">
                             <tr>
@@ -475,98 +510,136 @@
                     </div> <!-- end card-->
                 </div> <!-- end col-->
 
-                <div class="col-lg-3 col-md-8">
-                    <div class="card widget-icon-box ">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <h5 class="text-muted text-uppercase fs-13 mt-0" title="Number of Orders">Tipo de Pagamento</h5>
+                <div class="col-12">
+                    <div class="row m-1 align-items-stretch g-2">
+
+                        <div class="col-lg-3 col-md-8">
+                            <div class="card widget-icon-box pdv-card-h">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="text-muted text-uppercase fs-13 mt-0" title="Number of Orders">Tipo de Pagamento</h5>
+                                        </div>
+                                        <div class="avatar-sm flex-shrink-0">
+                                            <span class="avatar-title text-bg-success rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
+                                                <i class="ri-money-dollar-circle-line"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {!! Form::select('tipo_pagamento', '', ['' => 'Selecione'] + $tiposPagamento)->attrs(['class' => 'form-select tp-pag'])->value(isset($item) ? $item->tipo_pagamento : '') !!}
                                 </div>
-                                <div class="avatar-sm flex-shrink-0">
-                                    <span class="avatar-title text-bg-success rounded rounded-3 fs-3 widget-icon-box-avatar shadow">
-                                        <i class=" ri-money-dollar-circle-line"></i>
-                                    </span>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-9">
+                            <div class="d-flex flex-wrap gap-2 h-100">
+
+                                <div class="div-troco d-none" style="flex: 1 1 320px; min-width: 320px;">
+                                    <div class="card h-100 pdv-card-h">
+                                        <div class="row m-2">
+                                            <div class="col-lg-5 mt-4">
+                                                <h5>Valor Recebido</h5>
+                                            </div>
+                                            <div class="col-lg-7">
+                                                {!! Form::tel('valor_recebido', '')->attrs(['class' => 'moeda']) !!}
+                                            </div>
+                                        </div>
+                                        <div class="row m-1">
+                                            <div class="card text-bg-danger">
+                                                <h3 class="m-1">TROCO = <strong class="" id="valor-troco"></strong></h3>
+                                                <input type="hidden" name="troco" id="inp-troco">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            {!! Form::select('tipo_pagamento', '', ['' => 'Selecione'] + $tiposPagamento)->attrs(['class' => 'form-select tp-pag'])->value(isset($item) ? $item->tipo_pagamento : '') !!}
+                                <div class="div-btns" style="flex: 1 1 320px; min-width: 320px;">
+                                    <div class="card widget-icon-box h-100 pdv-card-h">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-12 col-xl-6 col-12">
+                                                    <button type="button" class="btn btn-sm btn-warning w-100 btn-pagamento-multi mt-1" data-bs-toggle="modal" data-bs-target="#pagamento_multiplo"><i class="ri-list-check-3"></i> Pagamento múltiplo</button>
+                                                </div>
 
-                        </div> <!-- end card-body-->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-                <div class="col-lg-5 col-md-6 div-troco d-none">
-                    <div class="card " style="height: 140px">
-                        <div class="row m-2">
-                            <div class="col-lg-5 mt-4">
-                                <h5>Valor Recebido</h5>
-                            </div>
-                            <div class="col-lg-7">
-                                {!! Form::tel('valor_recebido', '')->attrs(['class' => 'moeda']) !!}
+                                                <div class="col-md-12 col-xl-6 col-12">
+                                                    <button type="button" class="btn btn-sm btn-dark w-100 mt-1" data-bs-toggle="modal" data-bs-target="#lista_precos"><i class="ri-cash-line"></i> Lista de preços</button>
+                                                </div>
+
+                                                <div class="col-md-12 col-xl-6 col-12">
+                                                    <button type="button" class="btn btn-sm btn-primary w-100 mt-1" data-bs-toggle="modal" data-bs-target="#observacao_pdv"><i class="ri-file-edit-fill"></i> Observação</button>
+                                                </div>
+
+                                                @if (!isset($item))
+                                                <div class="col-md-12 col-xl-6 col-12">
+                                                    <button type="button" class="btn btn-sm btn-light w-100 btn-vendas-suspensas mt-1" data-bs-toggle="modal" data-bs-target="#vendas_suspensas"><i class="ri-time-fill"></i> Vendas suspensas</button>
+                                                </div>
+                                                @endif
+
+                                                <div class="col-md-12 col-xl-6 col-12">
+                                                    <button type="button" class="btn btn-sm btn-light w-100 mt-1" onclick="modalFrete()"><i class="ri-truck-line"></i> Frete <strong class="valor-frete">R$ {{ isset($item) ? __moeda($item->valor_frete) : '0,00' }}</strong></button>
+                                                </div>
+
+                                                @if (!isset($item))
+                                                <div class="col-md-12 col-xl-6 col-12">
+                                                    <button type="button" class="btn btn-sm btn-secondary w-100 btn-orcamentos mt-1" data-bs-toggle="modal" data-bs-target="#orcamentos"><i class="ri-list-settings-fill"></i> Orçamentos</button>
+                                                </div>
+                                                @endif
+
+                                                <div class="col-md-12 col-xl-6 col-12">
+                                                    <button type="button" class="btn btn-sm btn-dark w-100 mt-1 btn-fatura-padrao d-none">
+                                                        <i class="ri-booklet-line"></i>
+                                                        Fatura Padrão do Cliente
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="flex: 0 0 320px; min-width: 320px;">
+                                    <div class="card widget-icon-box h-100 pdv-card-h">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <a class="btn btn-danger btn-sm w-50 mt-2" href="{{ route('frontbox.index') }}" style="margin-top: -20px">
+                                                    <i class="ri-arrow-left-s-line"></i>
+                                                    Sair do PDV
+                                                </a>
+
+                                                @if ($isVendaSuspensa == 0 && $isOrcamento == 0)
+                                                <button type="button" id="btn-suspender" class="btn btn-light btn-sm w-50 mt-2" style="margin-top: -20px">
+                                                    <i class="ri-timer-line"></i>
+                                                    Suspender Venda
+                                                </button>
+                                                @else
+                                                <a href="{{ route('frontbox.create') }}" class="btn btn-light btn-sm w-50 mt-2" style="margin-top: -20px">
+                                                    <i class="ri-refresh-line"></i>
+                                                    Nova Venda
+                                                </a>
+                                                @endif
+
+                                                @if (isset($item) && $isVendaSuspensa == 0 && $isOrcamento == 0)
+                                                <button type="button" class="btn btn-success w-100 mt-4" disabled id="editar_venda">
+                                                    <i class="ri-checkbox-circle-line"></i>
+                                                    Editar venda
+                                                </button>
+                                                @else
+                                                <button type="button" class="btn btn-success w-100 mt-4" disabled id="salvar_venda">
+                                                    <i class="ri-checkbox-circle-line"></i>
+                                                    Finalizar venda
+                                                </button>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
-                        <div class="row m-1">
-                            <div class="card text-bg-danger">
-                                <h3 class="m-1">TROCO = <strong class="" id="valor-troco"></strong></h3>
-                                <input type="hidden" name="troco" id="inp-troco">
-                            </div>
-                        </div>
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
 
-                <!-- <div class="col-lg-2 col-6 div-vencimento d-none">
-                    <div class="card ">
-                        <div class="row m-2">
-                            <div class="text-center">
-                                <h5>Data de vencimento</h5>
-                            </div>
-                            <div>
-                                {!! Form::date('data_vencimento', '')->attrs(['class' => 'data_atual']) !!}
-                            </div>
-                        </div>
                     </div>
-                </div> -->
-
-                <div class="col-xl-5 col-md-6 div-btns">
-                    <div class="card widget-icon-box" style="height: 140px">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12 col-xl-6 col-12">
-                                    <button type="button" class="btn btn-sm btn-warning w-100 btn-pagamento-multi mt-1" data-bs-toggle="modal" data-bs-target="#pagamento_multiplo"><i class="ri-list-check-3"></i> Pagamento múltiplo</button>
-                                </div>
-
-                                <div class="col-md-12 col-xl-6 col-12">
-                                    <button type="button" class="btn btn-sm btn-dark w-100 mt-1" data-bs-toggle="modal" data-bs-target="#lista_precos"><i class="ri-cash-line"></i> Lista de preços</button>
-                                </div>
-                                <div class="col-md-12 col-xl-6 col-12">
-                                    <button type="button" class="btn btn-sm btn-primary w-100 mt-1" data-bs-toggle="modal" data-bs-target="#observacao_pdv"><i class="ri-file-edit-fill"></i> Observação</button>
-                                </div>
-                                @if (!isset($item))
-                                <div class="col-md-12 col-xl-6 col-12">
-                                    <button type="button" class="btn btn-sm btn-light w-100 btn-vendas-suspensas mt-1" data-bs-toggle="modal" data-bs-target="#vendas_suspensas"><i class="ri-time-fill"></i> Vendas suspensas</button>
-                                </div>
-                                @endif
-
-                                <div class="col-md-12 col-xl-6 col-12">
-                                    <button type="button" class="btn btn-sm btn-light w-100 mt-1" onclick="modalFrete()"><i class="ri-truck-line"></i> Frete <strong class="valor-frete">R$ {{ isset($item) ? __moeda($item->valor_frete) : '0,00' }}</strong></button>
-                                </div>
-
-                                @if (!isset($item))
-                                <div class="col-md-12 col-xl-6 col-12">
-                                    <button type="button" class="btn btn-sm btn-secondary w-100 btn-orcamentos mt-1" data-bs-toggle="modal" data-bs-target="#orcamentos"><i class="ri-list-settings-fill"></i> Orçamentos</button>
-                                </div>
-                                @endif
-
-                                <div class="col-md-12 col-xl-6 col-12">
-                                    <button type="button" class="btn btn-sm btn-dark w-100 mt-1 btn-fatura-padrao d-none">
-                                        <i class="ri-booklet-line"></i>
-                                        Fatura Padrão do Cliente
-                                    </button>
-                                </div>
-                            </div>
-                        </div> <!-- end card-body-->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-                <div class="col-12 mt-2">
+                </div>
+<div class="col-12 mt-2">
                     <div class="alert alert-info d-none d-flex flex-column flex-md-row align-items-md-center justify-content-between" id="tradein-credit-card">
                         <div class="mb-2 mb-md-0">
                             <span>Crédito (trade-in) disponível:
@@ -584,46 +657,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-xl-4">
-                    <div class="card widget-icon-box " style="height: 140px">
-                        <div class="card-body">
-                            <div class="row">
-
-                                <a class="btn btn-danger btn-sm w-50 mt-2" href="{{ route('frontbox.index') }}" style="margin-top: -20px">
-                                    <i class="ri-arrow-left-s-line"></i>
-                                    Sair do PDV
-                                </a>
-
-                                @if ($isVendaSuspensa == 0 && $isOrcamento == 0)
-                                <button type="button" id="btn-suspender" class="btn btn-light btn-sm w-50 mt-2" style="margin-top: -20px">
-                                    <i class="ri-timer-line"></i>
-                                    Suspender Venda
-                                </button>
-                                @else
-                                <a href="{{ route('frontbox.create') }}" class="btn btn-light btn-sm w-50 mt-2" style="margin-top: -20px">
-                                    <i class="ri-refresh-line"></i>
-                                    Nova Venda
-                                </a>
-                                @endif
-
-                                @if (isset($item) && $isVendaSuspensa == 0 && $isOrcamento == 0)
-                                <button type="button" class="btn btn-success w-100 mt-4" disabled id="editar_venda">
-                                    <i class="ri-checkbox-circle-line"></i>
-                                    Editar venda
-                                </button>
-                                @else
-                                <button type="button" class="btn btn-success w-100 mt-4" disabled id="salvar_venda">
-                                    <i class="ri-checkbox-circle-line"></i>
-                                    Finalizar venda
-                                </button>
-                                @endif
-                            </div>
-                        </div> <!-- end card-body-->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-
-
-
             </div>
         </div>
     </div>
@@ -681,4 +714,29 @@
                                             })
                                         </script>
 
-                                @endsection
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Impede o browser de restaurar scroll ao dar F5/back
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+
+  // Força topo da página
+  window.scrollTo(0, 0);
+
+  // Zera scroll de containers internos (tabela/listas)
+  const containers = [
+    document.querySelector('.scrollspy-example'),
+    document.querySelector('.table-scroll'),
+    document.querySelector('.lista_produtos'),
+  ].filter(Boolean);
+
+  containers.forEach(el => (el.scrollTop = 0));
+
+  // Garante foco no leitor/código de barras, sem pular a tela
+  const cod = document.getElementById('codBarras');
+  if (cod) cod.focus({ preventScroll: true });
+});
+</script>
+
+@endsection
