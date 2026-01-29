@@ -96,13 +96,23 @@
                     @if (__infoTopoMenu())
                         @if (Auth::user()->empresa && !__isContador())
                             <div class="app-search dropdown d-none d-lg-block">
-                                <span class="badge border border-light shadow box-custom rounded">
-                                    <i class="ri-building-line text-primary"></i>
-                                    <span class="text-dark">EMPRESA:</span>
-                                    <span class="text-primary">{{ Auth::user()->empresa->empresa->nome }}</span>
-                                </span>
-                            </div>
+                                <div class="app-search dropdown d-none d-lg-block">
+                                    <span
+                                        class="badge border border-light shadow box-custom rounded d-flex align-items-center gap-1">
+                                        <i class="ri-building-line text-primary"></i>
 
+                                        <span class="text-dark">EMPRESA:</span>
+
+                                        <span class="text-primary text-truncate d-inline-block text-center"
+                                            style="max-width: 120px;" data-bs-toggle="tooltip"
+                                            data-bs-placement="bottom"
+                                            data-bs-title="{{ Auth::user()->empresa->empresa->nome }}">
+                                            {{ Auth::user()->empresa->empresa->nome }}
+                                        </span>
+                                    </span>
+                                </div>
+
+                            </div>
                             <div class="app-search dropdown d-none d-lg-block">
                                 <span class="badge border border-light shadow box-custom rounded">
                                     <i class="ri-server-line text-primary"></i>
@@ -151,7 +161,8 @@
                                             <span class="text-dark">PLANO:</span>
 
                                             <span class="text-primary">
-                                                {{ Auth::user()->empresa->empresa->plano->plano->nome }}</strong> - até:
+                                                {{ Auth::user()->empresa->empresa->plano->plano->nome }}</strong> -
+                                                até:
                                                 <strong>{{ __data_pt(Auth::user()->empresa->empresa->plano->data_expiracao, 0) }}</strong>
                                             </span>
                                         </span>
@@ -432,7 +443,9 @@
                     </div>
                     <div class="modal-body">
                         <h4>Marcos Mello - Slym Software</h4>
-                        <a href="https://api.whatsapp.com/send/?phone=5541985117177&text&type=phone_number&app_absent=0">WhatsApp <strong>43920004769</strong></a>
+                        <a
+                            href="https://api.whatsapp.com/send/?phone=5541985117177&text&type=phone_number&app_absent=0">WhatsApp
+                            <strong>43920004769</strong></a>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Fechar</button>
