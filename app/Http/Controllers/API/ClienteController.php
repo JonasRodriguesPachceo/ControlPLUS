@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use App\Models\ContaReceber;
 use App\Models\CashBackConfig;
 use App\Models\TradeinCreditMovement;
+use App\Models\Fornecedor;
 use Illuminate\Http\Request;
 
 class ClienteController extends Controller
@@ -72,6 +73,24 @@ class ClienteController extends Controller
             return response()->json("Cliente já cadastrado", 401);
         }
         $cliente = Cliente::create($request->all());
+
+        if($request->insere_fornecedor){
+            $fornecedor = Fornecedor::where('empresa_id', $request->empresa_id)
+            ->where('cpf_cnpj', $request->cpf_cnpj)
+            ->first();
+
+            if($fornecedor == null){
+                $numero = __getUltimoNumeroSequencial($request->empresa_id, 'fornecedors');
+                $dataFornecedor = $request->all();
+                if(!isset($dataFornecedor['nome_fantasia']) || trim($dataFornecedor['nome_fantasia']) == ''){
+                    $dataFornecedor['nome_fantasia'] = $dataFornecedor['razao_social'] ?? '';
+                }
+                $dataFornecedor['numero_sequencial'] = $numero+1;
+                Fornecedor::create($dataFornecedor);
+                __setUltimoNumeroSequencial($request->empresa_id, 'fornecedors', $numero+1);
+            }
+        }
+
         return response()->json($cliente, 200);
     }
 

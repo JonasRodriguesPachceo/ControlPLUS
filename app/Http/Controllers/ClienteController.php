@@ -119,7 +119,8 @@ class ClienteController extends Controller
             }
         }
 
-        return view('clientes.create', compact('listasPreco', 'tiposPagamento'));
+        $isFornecedor = false;
+        return view('clientes.create', compact('listasPreco', 'tiposPagamento', 'isFornecedor'));
     }
 
     public function edit($id)
@@ -147,7 +148,11 @@ class ClienteController extends Controller
             }
         }
 
-        return view('clientes.edit', compact('item', 'listasPreco', 'tiposPagamento'));
+        $isFornecedor = Fornecedor::where('empresa_id', $item->empresa_id)
+        ->where('cpf_cnpj', $item->cpf_cnpj)
+        ->exists();
+
+        return view('clientes.edit', compact('item', 'listasPreco', 'tiposPagamento', 'isFornecedor'));
     }
 
     public function store(Request $request)
@@ -181,6 +186,11 @@ class ClienteController extends Controller
             $this->cadastraTributacao($cliente, $request);
 
             if($request->insere_fornecedor){
+                if(!$request->nome_fantasia || trim($request->nome_fantasia) == ''){
+                    $request->merge([
+                        'nome_fantasia' => $request->razao_social ?? ''
+                    ]);
+                }
                 $numero = __getUltimoNumeroSequencial(request()->empresa_id, 'fornecedors');
                 $request->merge([
                     'numero_sequencial' => $numero+1
@@ -256,6 +266,24 @@ class ClienteController extends Controller
             $item->fill($request->all())->save();
 
             $this->cadastraTributacao($item, $request);
+
+            if($request->insere_fornecedor){
+                $fornecedor = Fornecedor::where('empresa_id', $item->empresa_id)
+                ->where('cpf_cnpj', $item->cpf_cnpj)
+                ->first();
+
+                if($fornecedor == null){
+                    $numero = __getUltimoNumeroSequencial($item->empresa_id, 'fornecedors');
+                    $dataFornecedor = $request->all();
+                    if(!isset($dataFornecedor['nome_fantasia']) || trim($dataFornecedor['nome_fantasia']) == ''){
+                        $dataFornecedor['nome_fantasia'] = $dataFornecedor['razao_social'] ?? '';
+                    }
+                    $dataFornecedor['empresa_id'] = $item->empresa_id;
+                    $dataFornecedor['numero_sequencial'] = $numero+1;
+                    Fornecedor::create($dataFornecedor);
+                    __setUltimoNumeroSequencial($item->empresa_id, 'fornecedors', $numero+1);
+                }
+            }
 
 
             if($request->dias_vencimento[0] != ''){

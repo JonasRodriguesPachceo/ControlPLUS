@@ -167,12 +167,15 @@
                             !!}
                         </div>
 
-                        @if(!isset($item))
+                        @php
+                            $isFornecedor = $isFornecedor ?? false;
+                        @endphp
                         <div class="col-md-3 mt-4">
                             {!!Form::checkbox('insere_fornecedor', 'Cadastrar também como fornecedor')
+                            ->value(1)
+                            ->checked($isFornecedor)
                             !!}
                         </div>
-                        @endif
 
                         <div class="col-12"></div>
 
@@ -281,9 +284,27 @@
                             ->attrs(['class' => 'cfop'])
                             ->value(isset($item) && isset($item->tributacao) ? $item->tributacao->cfop_outro_estado : null)
                             !!}
-                        </div>
-                    </div>
-                </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkbox = document.querySelector('input[name="insere_fornecedor"]')
+        const nome = document.querySelector('input[name="razao_social"]')
+        const fantasia = document.querySelector('input[name="nome_fantasia"]')
+        if (!checkbox || !nome || !fantasia) {
+            return
+        }
+        const syncFantasia = () => {
+            if (checkbox.checked && fantasia.value.trim() === '') {
+                fantasia.value = nome.value.trim()
+            }
+        }
+        checkbox.addEventListener('change', syncFantasia)
+        nome.addEventListener('blur', syncFantasia)
+    })
+</script>
             </div>
 
             <div class="tab-pane fade show" id="fatura" role="tabpanel">
@@ -425,5 +446,4 @@
 
     </script>
     @endsection
-
 

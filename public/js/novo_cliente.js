@@ -38,6 +38,15 @@ $(document).on("click", ".btn-store-cliente", function () {
     var a = $("#modal_novo_cliente").serializeArray();
     let msg = ""
     $("#modal_novo_cliente").find('input, select').each(function () {
+        const type = $(this).attr("type")
+        if (type === "checkbox") {
+            if($(this)[0].name){
+                let name = $(this)[0].name
+                name = name.replace("novo_", "")
+                json[name] = $(this).is(":checked") ? 1 : 0
+            }
+            return
+        }
         if (($(this).val() == "" || $(this).val() == null) && $(this).attr("type") != "hidden" && $(this).attr("type") != "file" && !$(this).hasClass("ignore")) {
             if($(this).prev()[0].textContent){
                 msg += "Informe o campo " + $(this).prev()[0].textContent + "\n"
@@ -88,6 +97,24 @@ $(document).on("click", ".btn-store-cliente", function () {
             swal("Alerta", msg, "warning")
         }
     }, 300)
+})
+
+$(document).on("change", 'input[name="novo_insere_fornecedor"]', function () {
+    if (!$(this).is(":checked")) return
+    const nome = $('input[name="novo_razao_social"]').val() || ""
+    const fantasia = $('input[name="novo_nome_fantasia"]').val() || ""
+    if (fantasia.trim() === "") {
+        $('input[name="novo_nome_fantasia"]').val(nome.trim())
+    }
+})
+
+$(document).on("blur", 'input[name="novo_razao_social"]', function () {
+    const checked = $('input[name="novo_insere_fornecedor"]').is(":checked")
+    if (!checked) return
+    const fantasia = $('input[name="novo_nome_fantasia"]').val() || ""
+    if (fantasia.trim() === "") {
+        $('input[name="novo_nome_fantasia"]').val(($(this).val() || "").trim())
+    }
 })
 
 $(document).on("blur", "#inp-novo_cpf_cnpj", function () {

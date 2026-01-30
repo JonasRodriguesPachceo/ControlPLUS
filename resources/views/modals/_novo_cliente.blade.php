@@ -39,6 +39,11 @@
                         {!!Form::select('novo_status', 'Ativo', [ 1 => 'Sim', 0 => 'Não'])->attrs(['class' => 'form-select'])->required()
                         !!}
                     </div>
+                    <div class="col-md-3 mt-4">
+                        {!!Form::checkbox('novo_insere_fornecedor', 'Cadastrar também como fornecedor')
+                        ->value(1)
+                        !!}
+                    </div>
                     <div class="col-md-4">
                         {!! Form::text('novo_email', 'Email')->attrs(['class' => 'ignore'])->type('email') !!}
                     </div>

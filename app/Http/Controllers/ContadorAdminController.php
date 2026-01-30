@@ -575,7 +575,11 @@ class ContadorAdminController extends Controller
             }
         }
 
-        return view('contador.clientes_edit', compact('item', 'listasPreco', 'tiposPagamento'));
+        $isFornecedor = Fornecedor::where('empresa_id', $item->empresa_id)
+        ->where('cpf_cnpj', $item->cpf_cnpj)
+        ->exists();
+
+        return view('contador.clientes_edit', compact('item', 'listasPreco', 'tiposPagamento', 'isFornecedor'));
     }
 
     public function fornecedorEdit($id){
@@ -597,6 +601,24 @@ class ContadorAdminController extends Controller
             $item->fill($request->all())->save();
 
             $this->cadastraTributacao($item, $request);
+
+            if($request->insere_fornecedor){
+                $fornecedor = Fornecedor::where('empresa_id', $item->empresa_id)
+                ->where('cpf_cnpj', $item->cpf_cnpj)
+                ->first();
+
+                if($fornecedor == null){
+                    $numero = __getUltimoNumeroSequencial($item->empresa_id, 'fornecedors');
+                    $dataFornecedor = $request->all();
+                    if(!isset($dataFornecedor['nome_fantasia']) || trim($dataFornecedor['nome_fantasia']) == ''){
+                        $dataFornecedor['nome_fantasia'] = $dataFornecedor['razao_social'] ?? '';
+                    }
+                    $dataFornecedor['empresa_id'] = $item->empresa_id;
+                    $dataFornecedor['numero_sequencial'] = $numero+1;
+                    Fornecedor::create($dataFornecedor);
+                    __setUltimoNumeroSequencial($item->empresa_id, 'fornecedors', $numero+1);
+                }
+            }
 
             if($request->dias_vencimento[0] != ''){
                 $item->fatura()->delete();
