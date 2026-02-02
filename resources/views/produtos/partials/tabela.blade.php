@@ -172,9 +172,18 @@
                         <td data-label="Código" style="font-weight: bold;">{{ $item->numero_sequencial }}</td>
                         <td class="sticky-col first-col" data-label="Nome">
                             <label style="width: 300px">{{ $item->nome }}</label>
-                            @if($item->local_armazenamento)
+                            @php
+                                $locaisEstoque = $item->estoqueLocais
+                                    ->map(function ($e) {
+                                        return $e->local ? $e->local->descricao : null;
+                                    })
+                                    ->filter()
+                                    ->unique()
+                                    ->values();
+                            @endphp
+                            @if($locaisEstoque->count())
                             <br>
-                            <label style="font-size: 11px; width: 300px">Local de armazenamento: <strong class="text-primary">{{ $item->local_armazenamento }}</strong></label>
+                            <label style="font-size: 11px; width: 300px">Local de armazenamento: <strong class="text-primary">{{ $locaisEstoque->join(' | ') }}</strong></label>
                             @endif
                         </td>
                         @if($item->variacoes && sizeof($item->variacoes) > 0)

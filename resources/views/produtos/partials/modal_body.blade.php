@@ -27,7 +27,16 @@
 			<h5>NCM: <strong class="text-muted">{{ $item->ncm }}</strong></h5>
 			<h5>CEST: <strong class="text-muted">{{ $item->cest ?? '--' }}</strong></h5>
 			<h5>Referência: <strong class="text-muted">{{ $item->referencia ?? '--' }}</strong></h5>
-			<h5>Local de armazenamento: <strong class="text-muted">{{ $item->local_armazenamento ?? '--' }}</strong></h5>
+			@php
+				$locaisEstoque = $item->estoqueLocais
+					->map(function ($e) {
+						return $e->local ? $e->local->descricao : null;
+					})
+					->filter()
+					->unique()
+					->values();
+			@endphp
+			<h5>Local de armazenamento: <strong class="text-muted">{{ $locaisEstoque->count() ? $locaisEstoque->join(' | ') : '--' }}</strong></h5>
 			<h5>Marca: <strong class="text-muted">{{ $item->marca ? $item->marca->nome : '--' }}</strong></h5>
 			<h5>Estoque: <strong class="text-muted">
 				@if($item->estoque)

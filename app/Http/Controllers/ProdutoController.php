@@ -193,6 +193,7 @@ class ProdutoController extends Controller
             return $query->orderBy($ordem, $ordem == 'created_at' ? 'desc' : 'asc');
         })
         ->distinct('produtos.id')
+        ->with(['estoqueLocais.local'])
         ->paginate(__itensPagina());
 
         $categorias = CategoriaProduto::where('empresa_id', request()->empresa_id)
