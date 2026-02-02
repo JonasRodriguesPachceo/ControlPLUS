@@ -423,7 +423,11 @@
                                             <a href="{{ route('produtos.index', ['status=1']) }}">Listar</a>
                                         </li>
                                         <li>
-                                            <a href="{{ route('produtos.avaliacao.index') }}">Produtos para Avaliação</a>
+                                            <a href="{{ route('produtos.avaliacao.index') }}">Produtos para Avaliação
+                                                @if(!empty($produtosAvaliacaoPendentes))
+                                                    <span class="badge bg-danger ms-1">{{ $produtosAvaliacaoPendentes }}</span>
+                                                @endif
+                                            </a>
                                         </li>
                                     @endcan
                                     @can('produtos_create')
