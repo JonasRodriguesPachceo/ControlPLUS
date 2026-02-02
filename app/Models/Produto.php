@@ -35,7 +35,7 @@ class Produto extends Model
 		'balanca_pdv', 'mercado_livre_modelo', 'valor_minimo_venda', 'exportar_balanca', 'referencia_xml', 'tipo_dimensao', 
 		'espessura', '_id_import', 'observacao', 'observacao2', 'observacao3', 'observacao4', 'tipo_producao',
 		'numero_sequencial', 'valor_prazo', 'ifood_id', 'vendizap_id', 'vendizap_valor', 'destaque_cardapio', 'oferta_cardapio',
-		'sub_variacao_modelo_id', 'peso_bruto', 'pICMSEfet', 'pRedBCEfet',
+		'sub_variacao_modelo_id', 'peso_bruto', 'local_armazenamento', 'pICMSEfet', 'pRedBCEfet',
 		'cst_ibscbs', 'cclass_trib', 'perc_ibs_uf', 'perc_ibs_mun', 'perc_cbs', 'perc_dif', 'tipo_item_sped', 'prazo_garantia',
 		'tipo_produto', 'avaliacao_observacao'
 	];

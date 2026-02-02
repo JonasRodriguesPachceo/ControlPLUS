@@ -173,7 +173,7 @@ class ProdutoController extends Controller
     }
 
     public function modal($id){
-        $item = Produto::with(['estoqueLocais.local'])->findOrFail($id);
+        $item = Produto::findOrFail($id);
         return view('produtos.partials.modal_body', compact('item'));
     }
 

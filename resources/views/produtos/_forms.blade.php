@@ -351,6 +351,11 @@
                     </div>
                 </div>
 
+                <div class="col-md-3">
+                    {!!Form::text('local_armazenamento', 'Local de armazenamento')
+                    !!}
+                </div>
+
                 <div class="col-md-2">
                     {!!Form::tel('prazo_garantia', 'Prazo de garantia (dias)')
                     ->attrs(['data-mask' => '000000'])

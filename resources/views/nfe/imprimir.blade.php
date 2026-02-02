@@ -919,19 +919,10 @@
                         {{ $i->produto->referencia != '' ? '/ ' . $i->produto->referencia : '' }}</th>
                     <th class="b-top" style="text-align: left;">
                         {{ $i->descricao() }}
-                        @php
-                            $locaisEstoque = $i->produto->estoqueLocais
-                                ->map(function ($e) {
-                                    return $e->local ? $e->local->descricao : null;
-                                })
-                                ->filter()
-                                ->unique()
-                                ->values();
-                        @endphp
-                        @if ($locaisEstoque->count())
+                        @if ($i->produto->local_armazenamento)
                             <br>
                             <label>Local de armazenamento:
-                                <strong>{{ $locaisEstoque->join(' | ') }}</strong></label>
+                                <strong>{{ $i->produto->local_armazenamento }}</strong></label>
                         @endif
                     </th>
                     <th class="b-top" style="text-align: left;">
