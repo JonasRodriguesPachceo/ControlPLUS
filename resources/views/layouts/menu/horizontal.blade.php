@@ -224,7 +224,7 @@
                                         @can('produtos_view')
                                             <a href="{{ route('produtos.index') }}" class="dropdown-item">Listar</a>
                                             <a href="{{ route('produtos.avaliacao.index') }}" class="dropdown-item">Produtos
-                                                para Avaliação
+                                                Trade-in
                                                 @if(!empty($produtosAvaliacaoPendentes))
                                                     <span class="badge bg-danger ms-1">{{ $produtosAvaliacaoPendentes }}</span>
                                                 @endif

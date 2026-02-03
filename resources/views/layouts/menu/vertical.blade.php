@@ -423,7 +423,7 @@
                                             <a href="{{ route('produtos.index', ['status=1']) }}">Listar</a>
                                         </li>
                                         <li>
-                                            <a href="{{ route('produtos.avaliacao.index') }}">Produtos para Avaliação
+                                            <a href="{{ route('produtos.avaliacao.index') }}">Produtos Trade-in
                                                 @if(!empty($produtosAvaliacaoPendentes))
                                                     <span class="badge bg-danger ms-1">{{ $produtosAvaliacaoPendentes }}</span>
                                                 @endif

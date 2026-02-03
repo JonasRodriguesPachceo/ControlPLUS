@@ -43,12 +43,18 @@
                     !!}
                 </div>
                 <div class="col-md-2">
+                    @php
+                        $tipoProdutoValue = old('tipo_produto', isset($item) ? $item->tipo_produto : \App\Models\Produto::TIPO_NOVO);
+                        if ($tipoProdutoValue === \App\Models\Produto::TIPO_AVALIACAO_LEGACY) {
+                            $tipoProdutoValue = \App\Models\Produto::TIPO_TRADE_IN;
+                        }
+                    @endphp
                     {!!Form::select('tipo_produto', 'Tipo de produto', [
                         \App\Models\Produto::TIPO_NOVO => 'Novo',
-                        \App\Models\Produto::TIPO_AVALIACAO => 'Avaliação'
+                        \App\Models\Produto::TIPO_TRADE_IN => 'Trade-in'
                     ])
                     ->attrs(['class' => 'form-select'])
-                    ->value(old('tipo_produto', isset($item) ? $item->tipo_produto : \App\Models\Produto::TIPO_NOVO))
+                    ->value($tipoProdutoValue)
                     !!}
                 </div>
                 <div class="col-md-2 col-produto">

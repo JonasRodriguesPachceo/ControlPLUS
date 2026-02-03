@@ -10,8 +10,15 @@ class Produto extends Model
 	use HasFactory;
 
 	public const TIPO_NOVO = 'novo';
-	public const TIPO_AVALIACAO = 'avaliacao';
-	public const SCOPE_AVALIACAO = 'produto_avaliacao';
+	public const TIPO_TRADE_IN = 'trade_in';
+	/** @deprecated legacy db value; use self::TIPO_TRADE_IN */
+	public const TIPO_AVALIACAO_LEGACY = 'avaliacao';
+	/** @deprecated use self::TIPO_TRADE_IN */
+	public const TIPO_AVALIACAO = self::TIPO_TRADE_IN;
+
+	public const SCOPE_TRADE_IN = 'produto_trade_in';
+	/** @deprecated use self::SCOPE_TRADE_IN */
+	public const SCOPE_AVALIACAO = self::SCOPE_TRADE_IN;
 
 	protected $fillable = [
 		'empresa_id', 'nome', 'codigo_barras', 'ncm', 'cest', 'unidade', 'perc_icms', 'perc_pis',
@@ -44,15 +51,20 @@ class Produto extends Model
 
 	protected static function booted()
 	{
-		static::addGlobalScope(self::SCOPE_AVALIACAO, function ($query) {
-			return $query->where('tipo_produto', '!=', self::TIPO_AVALIACAO);
+		static::addGlobalScope(self::SCOPE_TRADE_IN, function ($query) {
+			return $query->whereNotIn('tipo_produto', [self::TIPO_TRADE_IN, self::TIPO_AVALIACAO_LEGACY]);
 		});
+	}
+
+	public function scopeSomenteTradeIn($query)
+	{
+		return $query->withoutGlobalScope(self::SCOPE_TRADE_IN)
+			->whereIn('tipo_produto', [self::TIPO_TRADE_IN, self::TIPO_AVALIACAO_LEGACY]);
 	}
 
 	public function scopeSomenteAvaliacao($query)
 	{
-		return $query->withoutGlobalScope(self::SCOPE_AVALIACAO)
-			->where('tipo_produto', self::TIPO_AVALIACAO);
+		return $query->somenteTradeIn();
 	}
 
 	public function _ncm(){

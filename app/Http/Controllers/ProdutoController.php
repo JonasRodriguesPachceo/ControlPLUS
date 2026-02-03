@@ -375,7 +375,10 @@ class ProdutoController extends Controller
             $numeroSequencial = __getUltimoNumeroSequencial($request->empresa_id, 'produtos');
             $numeroSequencial++;
             $tipoProduto = $request->tipo_produto ?? Produto::TIPO_NOVO;
-            $emAvaliacao = $tipoProduto == Produto::TIPO_AVALIACAO;
+            if ($tipoProduto === Produto::TIPO_AVALIACAO_LEGACY) {
+                $tipoProduto = Produto::TIPO_TRADE_IN;
+            }
+            $emAvaliacao = $tipoProduto === Produto::TIPO_TRADE_IN;
             $request->merge([
                 'woocommerce_valor' => $request->woocommerce_valor > 0 ? __convert_value_bd($request->woocommerce_valor) : __convert_value_bd($request->valor_unitario),
                 'valor_unitario' => __convert_value_bd($request->valor_unitario),
@@ -798,7 +801,10 @@ public function update(Request $request, $id)
         }
 
         $tipoProduto = $request->get('tipo_produto', $item->tipo_produto);
-        $emAvaliacao = $tipoProduto == Produto::TIPO_AVALIACAO;
+        if ($tipoProduto === Produto::TIPO_AVALIACAO_LEGACY) {
+            $tipoProduto = Produto::TIPO_TRADE_IN;
+        }
+        $emAvaliacao = $tipoProduto === Produto::TIPO_TRADE_IN;
 
         $item->fill($request->all())->save();
 
@@ -1008,8 +1014,8 @@ public function update(Request $request, $id)
     public function avaliacaoEdit($id)
     {
         $item = $this->produtoComAvaliacao($id);
-        if ($item->tipo_produto !== Produto::TIPO_AVALIACAO) {
-            session()->flash('flash_warning', 'Produto não está pendente de avaliação.');
+        if (!in_array($item->tipo_produto, [Produto::TIPO_TRADE_IN, Produto::TIPO_AVALIACAO_LEGACY], true)) {
+            session()->flash('flash_warning', 'Produto não está pendente de trade-in.');
             return redirect()->route('produtos.avaliacao.index');
         }
 
@@ -1019,8 +1025,8 @@ public function update(Request $request, $id)
     public function avaliacaoUpdate(Request $request, $id)
     {
         $item = $this->produtoComAvaliacao($id);
-        if ($item->tipo_produto !== Produto::TIPO_AVALIACAO) {
-            session()->flash('flash_warning', 'Produto não está pendente de avaliação.');
+        if (!in_array($item->tipo_produto, [Produto::TIPO_TRADE_IN, Produto::TIPO_AVALIACAO_LEGACY], true)) {
+            session()->flash('flash_warning', 'Produto não está pendente de trade-in.');
             return redirect()->route('produtos.avaliacao.index');
         }
 
@@ -1037,8 +1043,8 @@ public function update(Request $request, $id)
 
         $item->save();
 
-        __createLog($request->empresa_id, 'Produto', 'avaliacao', $item->nome);
-        session()->flash('flash_success', 'Avaliação atualizada!');
+        __createLog($request->empresa_id, 'Produto', 'trade_in', $item->nome);
+        session()->flash('flash_success', 'Trade-in atualizado!');
 
         return redirect()->route('produtos.avaliacao.index');
     }
@@ -1184,7 +1190,7 @@ private function __validate(Request $request)
         'valor_unitario' => 'required',
         'codigo_barras' => [new ValidaCodigoBarrasUnico($request->empresa_id)],
         'referencia_balanca' => [new ValidaReferenciaBalanca($request->empresa_id)],
-        'tipo_produto' => 'required|in:novo,avaliacao',
+        'tipo_produto' => 'required|in:novo,trade_in,avaliacao',
 
     ];
 

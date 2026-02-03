@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Avaliar Produto'])
+@extends('layouts.app', ['title' => 'Trade-in do Produto'])
 
 @section('content')
 <div class="row">
@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                 <div>
-                    <h4 class="card-title mb-1">Avaliação do produto</h4>
+                    <h4 class="card-title mb-1">Trade-in do produto</h4>
                     <small class="text-muted">{{ $item->nome }}</small>
                 </div>
                 <div class="d-flex gap-2 mt-2 mt-md-0">
@@ -40,11 +40,11 @@
                     <input type="hidden" name="empresa_id" value="{{ request()->empresa_id ?? $item->empresa_id }}">
                     <div class="form-check form-switch mb-3">
                         <input type="checkbox" class="form-check-input" id="avaliacao_concluida" name="avaliacao_concluida" value="1">
-                        <label class="form-check-label" for="avaliacao_concluida">Avaliação concluída</label>
+                        <label class="form-check-label" for="avaliacao_concluida">Trade-in concluído</label>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="avaliacao_observacao">Observações da avaliação</label>
+                        <label class="form-label" for="avaliacao_observacao">Observações do trade-in</label>
                         <textarea name="avaliacao_observacao" id="avaliacao_observacao" rows="4" class="form-control">{{ old('avaliacao_observacao', $item->avaliacao_observacao) }}</textarea>
                         @error('avaliacao_observacao')
                         <p class="text-danger mb-0">{{ $message }}</p>
@@ -53,7 +53,7 @@
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary">
-                            <i class="ri-check-line"></i> Salvar avaliação
+                            <i class="ri-check-line"></i> Salvar trade-in
                         </button>
                         <a href="{{ route('produtos.avaliacao.index') }}" class="btn btn-light">
                             Cancelar

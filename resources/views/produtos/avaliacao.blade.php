@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Produtos para Avaliação'])
+@extends('layouts.app', ['title' => 'Produtos Trade-in'])
 @php
     use Illuminate\Support\Facades\Auth;
 @endphp
@@ -8,7 +8,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                    <h4 class="card-title mb-0">Produtos aguardando avaliação</h4>
+                    <h4 class="card-title mb-0">Produtos Trade-in pendentes</h4>
                     <a href="{{ route('produtos.create') }}" class="btn btn-success btn-sm mt-2 mt-md-0">
                         <i class="ri-add-circle-line"></i> Novo Produto
                     </a>
@@ -78,7 +78,7 @@
                                     <td class="text-end">
                                         <a href="{{ route('produtos.avaliacao.edit', $item->id) }}"
                                             class="btn btn-primary btn-sm">
-                                            Avaliar
+                                            Trade-in
                                         </a>
                                         <a href="{{ route('produtos.edit', $item->id) }}"
                                             class="btn btn-outline-secondary btn-sm">
@@ -88,7 +88,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4">Nenhum produto aguardando avaliação.</td>
+                                    <td colspan="6" class="text-center py-4">Nenhum produto trade-in pendente.</td>
                                 </tr>
                             @endforelse
                         </tbody>
