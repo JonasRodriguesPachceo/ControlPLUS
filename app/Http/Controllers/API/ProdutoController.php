@@ -98,7 +98,7 @@ class ProdutoController extends Controller
             $pesquisa = substr($request->pesquisa, 1, strlen($request->pesquisa));
             return $q->where('referencia', 'LIKE', "%$pesquisa%");
         })
-        ->when($local_id != null, function ($query) use ($local_id) {
+        ->when($local_id != null && !$request->boolean('is_compra'), function ($query) use ($local_id) {
             return $query->whereExists(function ($sub) use ($local_id) {
                 $sub->selectRaw('1')
                 ->from('estoques')

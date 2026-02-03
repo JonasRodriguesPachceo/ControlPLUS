@@ -174,7 +174,8 @@ $("#inp-produto_id").select2({
                 empresa_id: empresa_id,
                 usuario_id: $('#usuario_id').val(),
                 lista_id: $('#lista_id').val(),
-                local_id: $('#inp-local_id').length ? $('#inp-local_id').val() : null
+                local_id: $('#inp-local_id').length ? $('#inp-local_id').val() : null,
+                is_compra: $('#is_compra').length ? $('#is_compra').val() : null,
             };
             return query;
         },
