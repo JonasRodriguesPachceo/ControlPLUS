@@ -27,7 +27,24 @@
 			<h5>NCM: <strong class="text-muted">{{ $item->ncm }}</strong></h5>
 			<h5>CEST: <strong class="text-muted">{{ $item->cest ?? '--' }}</strong></h5>
 			<h5>Referência: <strong class="text-muted">{{ $item->referencia ?? '--' }}</strong></h5>
-			<h5>Local de armazenamento: <strong class="text-muted">{{ $item->local_armazenamento ?? '--' }}</strong></h5>
+			@php
+				$estoqueLocais = $item->estoqueLocais
+					->filter(function ($estoque) {
+						return $estoque->local;
+					})
+					->unique('local_id');
+			@endphp
+			<h5>Local de armazenamento:
+				<strong class="text-muted">
+					@if($estoqueLocais->isNotEmpty())
+						@foreach($estoqueLocais as $estoque)
+							{{ $estoque->local->descricao }}@if(!$loop->last) | @endif
+						@endforeach
+					@else
+						--
+					@endif
+				</strong>
+			</h5>
 			<h5>Marca: <strong class="text-muted">{{ $item->marca ? $item->marca->nome : '--' }}</strong></h5>
 			<h5>Estoque: <strong class="text-muted">
 				@if($item->estoque)

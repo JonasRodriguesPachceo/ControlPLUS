@@ -100,12 +100,20 @@ class RelatorioController extends Controller
             return $query->where('marca_id', $marca_id);
         })
         ->when(!empty($local_id), function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->when(!$local_id, function ($query) use ($locais) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->whereIn('produto_localizacaos.localizacao_id', $locais);
+            return $query->whereExists(function ($sub) use ($locais) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->whereIn('estoques.local_id', $locais);
+            });
         })
         ->get();
 
@@ -1113,8 +1121,12 @@ class RelatorioController extends Controller
                 ->where('produtos.marca_id', $marca_id);
             })
             ->when(!empty($local_id), function ($query) use ($local_id) {
-                return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-                ->where('produto_localizacaos.localizacao_id', $local_id);
+                return $query->whereExists(function ($sub) use ($local_id) {
+                    $sub->selectRaw('1')
+                    ->from('estoques')
+                    ->whereColumn('estoques.produto_id', 'produtos.id')
+                    ->where('estoques.local_id', $local_id);
+                });
             })
             ->get();
 
@@ -1147,8 +1159,12 @@ class RelatorioController extends Controller
                 ->where('produtos.marca_id', $marca_id);
             })
             ->when(!empty($local_id), function ($query) use ($local_id) {
-                return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-                ->where('produto_localizacaos.localizacao_id', $local_id);
+                return $query->whereExists(function ($sub) use ($local_id) {
+                    $sub->selectRaw('1')
+                    ->from('estoques')
+                    ->whereColumn('estoques.produto_id', 'produtos.id')
+                    ->where('estoques.local_id', $local_id);
+                });
             })
             ->get();
 
@@ -1256,12 +1272,20 @@ class RelatorioController extends Controller
                 });
             })
             ->when(!empty($local_id), function ($query) use ($local_id) {
-                return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-                ->where('produto_localizacaos.localizacao_id', $local_id);
+                return $query->whereExists(function ($sub) use ($local_id) {
+                    $sub->selectRaw('1')
+                    ->from('estoques')
+                    ->whereColumn('estoques.produto_id', 'produtos.id')
+                    ->where('estoques.local_id', $local_id);
+                });
             })
             ->when(!$local_id, function ($query) use ($locais) {
-                return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-                ->whereIn('produto_localizacaos.localizacao_id', $locais);
+                return $query->whereExists(function ($sub) use ($locais) {
+                    $sub->selectRaw('1')
+                    ->from('estoques')
+                    ->whereColumn('estoques.produto_id', 'produtos.id')
+                    ->whereIn('estoques.local_id', $locais);
+                });
             })
             ->when(!empty($start_date), function ($query) use ($start_date) {
                 return $query->whereDate('produtos.created_at', '>=', $start_date);
@@ -1327,12 +1351,20 @@ class RelatorioController extends Controller
                 });
             })
             ->when(!empty($local_id), function ($query) use ($local_id) {
-                return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-                ->where('produto_localizacaos.localizacao_id', $local_id);
+                return $query->whereExists(function ($sub) use ($local_id) {
+                    $sub->selectRaw('1')
+                    ->from('estoques')
+                    ->whereColumn('estoques.produto_id', 'produtos.id')
+                    ->where('estoques.local_id', $local_id);
+                });
             })
             ->when(!$local_id, function ($query) use ($locais) {
-                return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-                ->whereIn('produto_localizacaos.localizacao_id', $locais);
+                return $query->whereExists(function ($sub) use ($locais) {
+                    $sub->selectRaw('1')
+                    ->from('estoques')
+                    ->whereColumn('estoques.produto_id', 'produtos.id')
+                    ->whereIn('estoques.local_id', $locais);
+                });
             })
             ->where('produtos.empresa_id', $request->empresa_id)
             ->groupBy('produtos.id')
@@ -1376,8 +1408,7 @@ class RelatorioController extends Controller
             ->join('produtos', 'produtos.id', '=', 'estoques.produto_id')
             ->groupBy('produtos.id')
             ->when(!empty($local_id), function ($query) use ($local_id) {
-                return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-                ->where('estoques.local_id', $local_id);
+                return $query->where('estoques.local_id', $local_id);
             })
             ->when($categoria_id, function ($query) use ($categoria_id) {
                 return $query->where(function($t) use ($categoria_id) 
@@ -1456,12 +1487,20 @@ class RelatorioController extends Controller
             return $query->whereDate('produtos.created_at', '<=', $end_date);
         })
         ->when(!empty($local_id), function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->when(!$local_id, function ($query) use ($locais) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->whereIn('produto_localizacaos.localizacao_id', $locais);
+            return $query->whereExists(function ($sub) use ($locais) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->whereIn('estoques.local_id', $locais);
+            });
         })->get();
 
         $local = null;
@@ -1572,12 +1611,20 @@ class RelatorioController extends Controller
             });
         })
         ->when(!empty($local_id), function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->when(!$local_id, function ($query) use ($locais) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->whereIn('produto_localizacaos.localizacao_id', $locais);
+            return $query->whereExists(function ($sub) use ($locais) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->whereIn('estoques.local_id', $locais);
+            });
         })
         // ->limit(10)
         ->get();
@@ -1720,12 +1767,20 @@ class RelatorioController extends Controller
         })
 
         ->when(!empty($local_id), function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->when(!$local_id, function ($query) use ($locais) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->whereIn('produto_localizacaos.localizacao_id', $locais);
+            return $query->whereExists(function ($sub) use ($locais) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->whereIn('estoques.local_id', $locais);
+            });
         })
         // ->limit(10)
         ->get();
@@ -2003,12 +2058,20 @@ class RelatorioController extends Controller
             return $query->where('marca_id', $marca_id);
         })
         ->when(!empty($local_id), function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->when(!$local_id, function ($query) use ($locais) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->whereIn('produto_localizacaos.localizacao_id', $locais);
+            return $query->whereExists(function ($sub) use ($locais) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->whereIn('estoques.local_id', $locais);
+            });
         })
         // ->limit(200)
         ->get();

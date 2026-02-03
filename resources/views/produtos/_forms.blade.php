@@ -140,9 +140,9 @@
                 </div>
 
                 <div class="col-md-2">
-                    {!!Form::select('gerenciar_estoque', 'Gerenciar estoque', ['0' => 'Não', '1' => 'Sim'])
+                    {!!Form::select('gerenciar_estoque', 'Gerenciar estoque', [1 => 'Sim', 0 => 'Não'])
                     ->attrs(['class' => 'form-select'])
-                    ->value(isset($item) ? $item->gerenciar_estoque : ($configGeral ? $configGeral->gerenciar_estoque : ''))
+                    ->value(old('gerenciar_estoque', isset($item) ? $item->gerenciar_estoque : 1))
                     !!}
                 </div>
 
@@ -261,9 +261,14 @@
                 <div class="col-md-4">
                     <label for="">Disponibilidade</label>
 
+                    @php
+                        $locaisSelecionados = isset($item)
+                            ? $item->estoqueLocais->pluck('local_id')->unique()->toArray()
+                            : [];
+                    @endphp
                     <select required class="select2 form-control select2-multiple" data-toggle="select2" name="locais[]" multiple="multiple">
                         @foreach(__getLocaisAtivoUsuario() as $local)
-                        <option @if(sizeof(__getLocaisAtivoUsuario()) == 1) selected @endif @if(in_array($local->id, (isset($item) ? $item->locais->pluck('localizacao_id')->toArray() : []))) selected @endif value="{{ $local->id }}">{{ $local->descricao }}</option>
+                        <option @if(sizeof(__getLocaisAtivoUsuario()) == 1) selected @endif @if(in_array($local->id, $locaisSelecionados)) selected @endif value="{{ $local->id }}">{{ $local->descricao }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -349,11 +354,6 @@
                     <div class="text-tooltip3 d-none">
                         Marcar como sim se for usar este produto para produção após realizar vendas
                     </div>
-                </div>
-
-                <div class="col-md-3">
-                    {!!Form::text('local_armazenamento', 'Local de armazenamento')
-                    !!}
                 </div>
 
                 <div class="col-md-2">

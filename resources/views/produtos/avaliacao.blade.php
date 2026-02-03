@@ -57,9 +57,9 @@
                                     </td>
                                     <td>
                                         @php
-                                            $locais = $item->locais
-                                                ->map(function ($local) {
-                                                    return optional($local->localizacao)->nome;
+                                            $locais = $item->estoqueLocais
+                                                ->map(function ($estoque) {
+                                                    return optional($estoque->local)->nome;
                                                 })
                                                 ->filter()
                                                 ->unique()

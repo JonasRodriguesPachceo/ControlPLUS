@@ -310,8 +310,12 @@ class FrontBoxController extends Controller
             ->leftJoin('item_nfces', 'item_nfces.produto_id', '=', 'produtos.id')
             ->groupBy('produtos.id')
             ->orderBy('quantidade', 'desc')
-            ->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $caixa->localizacao->id)
+            ->whereExists(function ($sub) use ($caixa) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $caixa->localizacao->id);
+            })
             ->paginate(12);
         }
 
@@ -507,8 +511,12 @@ class FrontBoxController extends Controller
             ->leftJoin('item_nfces', 'item_nfces.produto_id', '=', 'produtos.id')
             ->groupBy('produtos.id')
             ->orderBy('quantidade', 'desc')
-            ->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $caixa->localizacao->id)
+            ->whereExists(function ($sub) use ($caixa) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $caixa->localizacao->id);
+            })
             ->paginate(12);
         }
 
@@ -859,8 +867,12 @@ class FrontBoxController extends Controller
         ->leftJoin('item_nfces', 'item_nfces.produto_id', '=', 'produtos.id')
         ->groupBy('produtos.id')
         ->orderBy('quantidade', 'desc')
-        ->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-        ->where('produto_localizacaos.localizacao_id', $caixa->localizacao->id)
+        ->whereExists(function ($sub) use ($caixa) {
+            $sub->selectRaw('1')
+            ->from('estoques')
+            ->whereColumn('estoques.produto_id', 'produtos.id')
+            ->where('estoques.local_id', $caixa->localizacao->id);
+        })
         ->paginate(12);
         $local_id = $caixa->local_id;
 

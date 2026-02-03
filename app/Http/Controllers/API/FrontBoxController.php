@@ -2435,8 +2435,12 @@ public function produtosPage(Request $request){
         ->when($lista_id, function ($query) use ($lista_id) {
             return $query->join('item_lista_precos', 'item_lista_precos.produto_id', '=', 'produtos.id');
         })
-        ->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-        ->where('produto_localizacaos.localizacao_id', $local_id)
+        ->whereExists(function ($sub) use ($local_id) {
+            $sub->selectRaw('1')
+            ->from('estoques')
+            ->whereColumn('estoques.produto_id', 'produtos.id')
+            ->where('estoques.local_id', $local_id);
+        })
         ->paginate(12);
 
         return view('front_box.partials_form2.produtos', compact('produtos', 'lista_id', 'local_id'))->render();
@@ -2470,8 +2474,12 @@ public function produtosPage2(Request $request){
         ->when($lista_id, function ($query) use ($lista_id) {
             return $query->join('item_lista_precos', 'item_lista_precos.produto_id', '=', 'produtos.id');
         })
-        ->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-        ->where('produto_localizacaos.localizacao_id', $local_id)
+        ->whereExists(function ($sub) use ($local_id) {
+            $sub->selectRaw('1')
+            ->from('estoques')
+            ->whereColumn('estoques.produto_id', 'produtos.id')
+            ->where('estoques.local_id', $local_id);
+        })
         ->paginate(12);
 
         return view('front_box.partials_form2.produtos2', compact('produtos', 'lista_id', 'local_id'))->render();

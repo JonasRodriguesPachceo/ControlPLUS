@@ -919,10 +919,22 @@
                         {{ $i->produto->referencia != '' ? '/ ' . $i->produto->referencia : '' }}</th>
                     <th class="b-top" style="text-align: left;">
                         {{ $i->descricao() }}
-                        @if ($i->produto->local_armazenamento)
+                        @php
+                            $estoqueLocais = $i->produto->estoqueLocais
+                                ->filter(function ($estoque) {
+                                    return $estoque->local;
+                                })
+                                ->unique('local_id');
+                        @endphp
+                        @if ($estoqueLocais->isNotEmpty())
                             <br>
                             <label>Local de armazenamento:
-                                <strong>{{ $i->produto->local_armazenamento }}</strong></label>
+                                <strong>
+                                    @foreach($estoqueLocais as $estoque)
+                                        {{ $estoque->local->descricao }}@if(!$loop->last) | @endif
+                                    @endforeach
+                                </strong>
+                            </label>
                         @endif
                     </th>
                     <th class="b-top" style="text-align: left;">

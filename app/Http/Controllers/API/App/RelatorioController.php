@@ -310,8 +310,7 @@ class RelatorioController extends Controller
             ->join('produtos', 'produtos.id', '=', 'estoques.produto_id')
             ->groupBy('produtos.id')
             ->when(!empty($local_id), function ($query) use ($local_id) {
-                return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-                ->where('estoques.local_id', $local_id);
+                return $query->where('estoques.local_id', $local_id);
             })
             ->when($categoria_id, function ($query) use ($categoria_id) {
                 return $query->where('produtos.categoria_id', $categoria_id);

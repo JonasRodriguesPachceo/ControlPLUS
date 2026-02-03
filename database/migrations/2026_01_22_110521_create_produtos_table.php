@@ -23,7 +23,6 @@ return new class extends Migration
             $table->integer('variacao_modelo_id')->nullable();
             $table->integer('sub_variacao_modelo_id')->nullable();
             $table->string('nome', 200)->nullable();
-            $table->string('local_armazenamento', 200)->nullable();
             $table->string('codigo_barras', 20)->nullable();
             $table->string('codigo_barras2', 20)->nullable();
             $table->string('codigo_barras3', 20)->nullable();

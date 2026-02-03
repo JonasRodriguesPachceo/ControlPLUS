@@ -26,8 +26,12 @@ class ProdutoController extends Controller
             'referencia_balanca')
         ->with(['categoria', 'estoque'])
         ->where('status', 1)
-        ->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-        ->whereIn('produto_localizacaos.localizacao_id', $locais)
+        ->whereExists(function ($sub) use ($locais) {
+            $sub->selectRaw('1')
+            ->from('estoques')
+            ->whereColumn('estoques.produto_id', 'produtos.id')
+            ->whereIn('estoques.local_id', $locais);
+        })
         ->groupBy('produtos.id')
         ->get();
         return response()->json($data, 200);

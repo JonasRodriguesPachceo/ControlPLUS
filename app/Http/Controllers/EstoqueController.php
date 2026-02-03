@@ -45,12 +45,10 @@ class EstoqueController extends Controller
             return $q->where('produtos.categoria_id', $categoria_id);
         })
         ->when($local_id, function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('estoques.local_id', $local_id);
+            return $query->where('estoques.local_id', $local_id);
         })
         ->when(!$local_id, function ($query) use ($locais) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->whereIn('produto_localizacaos.localizacao_id', $locais);
+            return $query->whereIn('estoques.local_id', $locais);
         })
         // ->groupBy('produtos.id', 'localizacaos.id')
         // ->orderBy('produtos.nome', 'asc')
@@ -276,12 +274,10 @@ class EstoqueController extends Controller
             return $q->where('produtos.nome', 'LIKE', "%$produto%");
         })
         ->when($local_id, function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('retirada_estoques.local_id', $local_id);
+            return $query->where('retirada_estoques.local_id', $local_id);
         })
         ->when(!$local_id, function ($query) use ($locais) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->whereIn('produto_localizacaos.localizacao_id', $locais);
+            return $query->whereIn('retirada_estoques.local_id', $locais);
         })
         ->paginate(__itensPagina());
 

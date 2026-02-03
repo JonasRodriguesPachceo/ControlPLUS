@@ -13,7 +13,7 @@
 
 		<select required class="select2 form-control select2-multiple" data-toggle="select2" name="locais[]" multiple="multiple">
 			@foreach(__getLocaisAtivoUsuario() as $local)
-			<option @if(in_array($local->id, (isset($item) ? $item->locais->pluck('localizacao_id')->toArray() : []))) selected @endif value="{{ $local->id }}">{{ $local->descricao }}</option>
+			<option @if(in_array($local->id, (isset($item) ? $item->estoqueLocais->pluck('local_id')->unique()->toArray() : []))) selected @endif value="{{ $local->id }}">{{ $local->descricao }}</option>
 			@endforeach
 		</select>
 	</div>

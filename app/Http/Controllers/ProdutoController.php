@@ -179,12 +179,12 @@ class ProdutoController extends Controller
             }
         })
         ->when($local_id, function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
-        })
-        ->when(!$local_id, function ($query) use ($locais) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->whereIn('produto_localizacaos.localizacao_id', $locais);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->when(!$ordem, function ($query) {
             return $query->orderBy('nome');
@@ -2468,12 +2468,20 @@ public function reajuste(Request $request){
             });
         })
         ->when($local_id, function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->when(!$local_id, function ($query) use ($locais) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->whereIn('produto_localizacaos.localizacao_id', $locais);
+            return $query->whereExists(function ($sub) use ($locais) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->whereIn('estoques.local_id', $locais);
+            });
         })
         ->when($pendentes, function ($query) {
             return $query->where(function($q)

@@ -172,9 +172,22 @@
                         <td data-label="Código" style="font-weight: bold;">{{ $item->numero_sequencial }}</td>
                         <td class="sticky-col first-col" data-label="Nome">
                             <label style="width: 300px">{{ $item->nome }}</label>
-                            @if($item->local_armazenamento)
+                            @php
+                                $estoqueLocais = $item->estoqueLocais
+                                    ->filter(function ($estoque) {
+                                        return $estoque->local;
+                                    })
+                                    ->unique('local_id');
+                            @endphp
+                            @if($estoqueLocais->isNotEmpty())
                             <br>
-                            <label style="font-size: 11px; width: 300px">Local de armazenamento: <strong class="text-primary">{{ $item->local_armazenamento }}</strong></label>
+                            <label style="font-size: 11px; width: 300px">Local de armazenamento:
+                                <strong class="text-primary">
+                                    @foreach($estoqueLocais as $estoque)
+                                        {{ $estoque->local->descricao }}@if(!$loop->last) | @endif
+                                    @endforeach
+                                </strong>
+                            </label>
                             @endif
                         </td>
                         @if($item->variacoes && sizeof($item->variacoes) > 0)
@@ -188,11 +201,9 @@
                         @if(__countLocalAtivo() > 1)
                         <td data-label="Disponibilidade">
                             <label style="width: 250px">
-                                @foreach($item->locais as $l)
-                                @if($l->localizacao)
-                                <strong>{{ $l->localizacao->descricao }}</strong>
-                                @if(!$loop->last) | @endif
-                                @endif
+                                @foreach($estoqueLocais as $estoque)
+                                    <strong>{{ $estoque->local->descricao }}</strong>
+                                    @if(!$loop->last) | @endif
                                 @endforeach
                             </label>
                         </td>

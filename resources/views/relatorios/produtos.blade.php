@@ -54,11 +54,16 @@
 
 			@if(__countLocalAtivo() > 1)
 			<td>
-				@foreach($item->locais as $l)
-				@if($l->localizacao)
-				<strong>{{ $l->localizacao->descricao }}</strong>
+				@php
+					$estoqueLocais = $item->estoqueLocais
+						->filter(function ($estoque) {
+							return $estoque->local;
+						})
+						->unique('local_id');
+				@endphp
+				@foreach($estoqueLocais as $e)
+				<strong>{{ $e->local->descricao }}</strong>
 				@if(!$loop->last) | @endif
-				@endif
 				@endforeach
 			</td>
 			<td>
@@ -99,11 +104,16 @@
 			<td>{{ __data_pt($item->created_at) }}</td>
 			@if(__countLocalAtivo() > 1)
 			<td>
-				@foreach($item->locais as $l)
-				@if($l->localizacao)
-				<strong>{{ $l->localizacao->descricao }}</strong>
+				@php
+					$estoqueLocais = $item->estoqueLocais
+						->filter(function ($estoque) {
+							return $estoque->local;
+						})
+						->unique('local_id');
+				@endphp
+				@foreach($estoqueLocais as $e)
+				<strong>{{ $e->local->descricao }}</strong>
 				@if(!$loop->last) | @endif
-				@endif
 				@endforeach
 			</td>
 			<td>

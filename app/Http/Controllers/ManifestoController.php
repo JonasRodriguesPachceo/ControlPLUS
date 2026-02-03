@@ -356,7 +356,7 @@ class ManifestoController extends Controller
             $prod->observacao2 = $produto == null ? '' : $produto->observacao2;
             $prod->observacao3 = $produto == null ? '' : $produto->observacao3;
             $prod->observacao4 = $produto == null ? '' : $produto->observacao4;
-            $prod->disponibilidade = $produto == null ? $local : json_encode($produto->locais->pluck('localizacao_id')->toArray());
+            $prod->disponibilidade = $produto == null ? $local : json_encode($produto->estoqueLocais->pluck('local_id')->unique()->values()->toArray());
 
 
             $arr = (array_values((array)$item->imposto->ICMS));

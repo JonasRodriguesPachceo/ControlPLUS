@@ -99,8 +99,12 @@ class ProdutoController extends Controller
             return $q->where('referencia', 'LIKE', "%$pesquisa%");
         })
         ->when($local_id != null, function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->distinct('produtos.id')
         ->get();
@@ -387,10 +391,10 @@ class ProdutoController extends Controller
     public function findId($id)
     {
         $item = Produto::where('id', $id)
-        ->with(['categoria', 'adicionais', 'subcategoria', 'locais'])
+        ->with(['categoria', 'adicionais', 'subcategoria', 'estoqueLocais'])
         ->first();
 
-        $item->disponibilidade = $item->locais->pluck('localizacao_id');
+        $item->disponibilidade = $item->estoqueLocais->pluck('local_id')->unique()->values();
         return response()->json($item, 200);
     }
 
@@ -448,8 +452,12 @@ class ProdutoController extends Controller
         $produtos = Produto::where('empresa_id', $item->empresa_id)
         ->select('produtos.*')
         ->when($local_id != null, function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         // ->where('categoria_id', $id)
         ->where(function($query) use ($id)
@@ -502,8 +510,12 @@ class ProdutoController extends Controller
         $produtos = Produto::where('empresa_id', $request->empresa_id)
         ->select('produtos.*')
         ->when($local_id != null, function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->where('status', 1)
         ->limit(50)->get();
@@ -604,8 +616,12 @@ class ProdutoController extends Controller
         })
         ->where('empresa_id', $request->empresa_id)
         ->when($local_id != null, function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->first();
 
@@ -679,8 +695,12 @@ class ProdutoController extends Controller
         ->where('referencia_balanca', $ref)
         ->where('empresa_id', $request->empresa_id)
         ->when($local_id != null, function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->first();
 
@@ -746,8 +766,12 @@ class ProdutoController extends Controller
         ->where('referencia_balanca', $ref)
         ->where('empresa_id', $request->empresa_id)
         ->when($local_id != null, function ($query) use ($local_id) {
-            return $query->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-            ->where('produto_localizacaos.localizacao_id', $local_id);
+            return $query->whereExists(function ($sub) use ($local_id) {
+                $sub->selectRaw('1')
+                ->from('estoques')
+                ->whereColumn('estoques.produto_id', 'produtos.id')
+                ->where('estoques.local_id', $local_id);
+            });
         })
         ->first();
 

@@ -89,7 +89,7 @@ class CompraController extends Controller
         }else{
             $numero = $empresa->numero_ultima_nfe_homologacao;
         }
-        
+
         if($numero){
             Nfe::where('estado', 'novo')
             ->where('empresa_id', $empresa_id)
@@ -170,7 +170,7 @@ class CompraController extends Controller
         $caixa = __isCaixaAberto();
         $empresa = Empresa::findOrFail(request()->empresa_id);
         $empresa = __objetoParaEmissao($empresa, $caixa->local_id);
-        
+
         $numeroNfe = Nfe::lastNumero($empresa);
 
         $cotacao = null;
@@ -184,7 +184,7 @@ class CompraController extends Controller
         $config = ConfigGeral::where('empresa_id', request()->empresa_id)->first();
 
         return view(
-            'nfe.create', compact('produtos', 'transportadoras', 'cidades', 'naturezas', 'numeroNfe', 'isCompra', 
+            'nfe.create', compact('produtos', 'transportadoras', 'cidades', 'naturezas', 'numeroNfe', 'isCompra',
                 'cotacao', 'empresa', 'caixa', 'funcionarios', 'config')
         );
     }
@@ -371,7 +371,7 @@ class CompraController extends Controller
                 $prod->unidade = $produto == null ? strtoupper((string)$item->prod->uCom) : $produto->unidade;
                 $prod->valor_unitario = number_format((float)$item->prod->vUnCom + $vIpi + $vICMSST, 2, '.', '');
 
-                $prod->valor_venda = $produto != null ? $produto->valor_unitario : 
+                $prod->valor_venda = $produto != null ? $produto->valor_unitario :
                 ($prod->valor_unitario + (($prod->valor_unitario * $lucroPadraoProduto)/100));
 
                 $prod->quantidade = (float)$item->prod->qCom;
@@ -405,7 +405,7 @@ class CompraController extends Controller
                 $prod->observacao2 = $produto == null ? '' : $produto->observacao2;
                 $prod->observacao3 = $produto == null ? '' : $produto->observacao3;
                 $prod->observacao4 = $produto == null ? '' : $produto->observacao4;
-                $prod->disponibilidade = $produto == null ? $local : json_encode($produto->locais->pluck('localizacao_id')->toArray());
+                $prod->disponibilidade = $produto == null ? $local : json_encode($produto->estoqueLocais->pluck('local_id')->unique()->values()->toArray());
 
 
                 $arr = (array_values((array)$item->imposto->ICMS));
@@ -527,7 +527,7 @@ class CompraController extends Controller
             $categorias = CategoriaProduto::where('empresa_id', request()->empresa_id)->where('status', 1)
             ->where('categoria_id', null)
             ->get();
-            
+
             $marcas = Marca::where('empresa_id', request()->empresa_id)->get();
 
             $unidades = UnidadeMedida::where('empresa_id', request()->empresa_id)
@@ -536,7 +536,7 @@ class CompraController extends Controller
 
             $padroes = PadraoTributacaoProduto::where('empresa_id', request()->empresa_id)->get();
 
-            return view('compras.import_xml', compact('dadosXml', 'transportadoras', 'cidades', 'naturezas', 'fornecedor', 'caixa', 
+            return view('compras.import_xml', compact('dadosXml', 'transportadoras', 'cidades', 'naturezas', 'fornecedor', 'caixa',
                 'lucroPadraoProduto', 'isCompra', 'categorias', 'marcas', 'configGerenciaEstoque', 'unidades', 'config', 'padroes'));
         } else {
             session()->flash('flash_error', 'XML inválido!');
@@ -603,7 +603,7 @@ class CompraController extends Controller
             $nfe = DB::transaction(function () use ($request) {
 
                 $fornecedor_id = isset($request->fornecedor_id) ? $request->fornecedor_id : null;
-                
+
                 if (isset($request->fornecedor_id)) {
                     if ($request->fornecedor_id == null) {
                         // $fornecedor_id = $this->cadastrarFornecedor($request);
@@ -699,13 +699,13 @@ class CompraController extends Controller
                         if(is_array($disponibilidade)){
                             foreach($disponibilidade as $d){
                                 ProdutoLocalizacao::updateOrCreate([
-                                    'produto_id' => $product->id, 
+                                    'produto_id' => $product->id,
                                     'localizacao_id' => $d
                                 ]);
                             }
                         }else{
                             ProdutoLocalizacao::updateOrCreate([
-                                'produto_id' => $product->id, 
+                                'produto_id' => $product->id,
                                 'localizacao_id' => $disponibilidade
                             ]);
                         }
@@ -722,7 +722,7 @@ class CompraController extends Controller
 
                     $valorVenda = __convert_value_bd($request->valor_venda[$i]);
                     $valorVenda = $valorVenda / ((float)$request->conversao_estoque[$i] == 0 ? 1 : (float)$request->conversao_estoque[$i]);
-                    
+
                     ItemNfe::create([
                         'nfe_id' => $nfe->id,
                         'produto_id' => $product->id,
@@ -898,20 +898,20 @@ private function cadastrarProduto($request, $i, $local_id)
     if($disponibilidade == null){
         $caixa = __isCaixaAberto();
         ProdutoLocalizacao::updateOrCreate([
-            'produto_id' => $p->id, 
+            'produto_id' => $p->id,
             'localizacao_id' => $caixa->local_id
         ]);
     }else{
         if(is_array($disponibilidade)){
             foreach($disponibilidade as $d){
                 ProdutoLocalizacao::updateOrCreate([
-                    'produto_id' => $p->id, 
+                    'produto_id' => $p->id,
                     'localizacao_id' => $d
                 ]);
             }
         }else{
             ProdutoLocalizacao::updateOrCreate([
-                'produto_id' => $p->id, 
+                'produto_id' => $p->id,
                 'localizacao_id' => $disponibilidade
             ]);
         }
@@ -1088,7 +1088,7 @@ public function show($id){
 public function etiqueta($id){
     $item = Nfe::findOrFail($id);
     __validaObjetoEmpresa($item);
-    
+
     $modelos = ModeloEtiqueta::where('empresa_id', $item->empresa_id)->get();
     return view('compras.etiqueta', compact('item', 'modelos'));
 
@@ -1098,11 +1098,11 @@ public function etiquetaStore(Request $request, $id){
     if (!is_dir(public_path('barcode'))) {
         mkdir(public_path('barcode'), 0777, true);
     }
-    $files = glob(public_path("barcode/*")); 
+    $files = glob(public_path("barcode/*"));
 
-    foreach($files as $file){ 
+    foreach($files as $file){
         if(is_file($file)) {
-            unlink($file); 
+            unlink($file);
         }
     }
     $selecionados = [];
@@ -1172,7 +1172,7 @@ public function etiquetaStore(Request $request, $id){
     $valor_atacado = $request->valor_atacado;
     // dd($data);
     return view('compras.etiqueta_print', compact('altura', 'largura', 'rand', 'codigo', 'quantidade', 'distancia_topo',
-        'distancia_lateral', 'quantidade_por_linhas', 'tamanho_fonte', 'tamanho_codigo', 'data', 'distancia_entre_linhas', 'referencia', 
+        'distancia_lateral', 'quantidade_por_linhas', 'tamanho_fonte', 'tamanho_codigo', 'data', 'distancia_entre_linhas', 'referencia',
         'valor_atacado'));
 
 

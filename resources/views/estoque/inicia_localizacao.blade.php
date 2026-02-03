@@ -22,11 +22,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($item->locais as $local)
+                        @foreach(__getLocaisAtivoUsuario() as $local)
                         <tr>
                             <td>
-                                <input type="hidden" readonly class="form-control" required name="local_id[]" value="{{ $local->localizacao->id }}">
-                                <input readonly class="form-control" required value="{{ $local->localizacao->descricao }}">
+                                <input type="hidden" readonly class="form-control" required name="local_id[]" value="{{ $local->id }}">
+                                <input readonly class="form-control" required value="{{ $local->descricao }}">
                             </td>
                             <td>
                                 <input class="form-control quantidade" required name="quantidade[]">

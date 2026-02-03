@@ -502,8 +502,12 @@ public function dataHome(Request $request){
         $locais = $locais->pluck(['id']);
 
         $produtos = Produto::where('empresa_id', $empresa_id)
-        ->join('produto_localizacaos', 'produto_localizacaos.produto_id', '=', 'produtos.id')
-        ->whereIn('produto_localizacaos.localizacao_id', $locais)
+        ->whereExists(function ($sub) use ($locais) {
+            $sub->selectRaw('1')
+            ->from('estoques')
+            ->whereColumn('estoques.produto_id', 'produtos.id')
+            ->whereIn('estoques.local_id', $locais);
+        })
         ->count();
 
         $clientes = Cliente::where('empresa_id', $empresa_id)
