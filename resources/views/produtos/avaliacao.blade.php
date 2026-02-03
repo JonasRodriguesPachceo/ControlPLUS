@@ -76,10 +76,26 @@
                                     <td>{{ $item->created_at ? $item->created_at->format('d/m/Y H:i') : '--' }}</td>
                                     <td>--</td>
                                     <td class="text-end">
-                                        <a href="{{ route('produtos.avaliacao.edit', $item->id) }}"
-                                            class="btn btn-primary btn-sm">
-                                            Trade-in
-                                        </a>
+                                        @if($item->status_avaliacao === \App\Models\Produto::STATUS_AVALIACAO_PENDENTE)
+                                            <form class="d-inline" method="post" action="{{ route('produtos.avaliacao.reject', $item->id) }}">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="empresa_id" value="{{ request()->empresa_id ?? Auth::user()->empresa_id }}">
+                                                <button type="submit" class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('Reprovar este trade-in?');">
+                                                    Reprovar
+                                                </button>
+                                            </form>
+                                            <a href="{{ route('produtos.avaliacao.edit', $item->id) }}"
+                                                class="btn btn-primary btn-sm">
+                                                Trade-in
+                                            </a>
+                                        @else
+                                            <a href="{{ route('produtos.avaliacao.edit', $item->id) }}"
+                                                class="btn btn-primary btn-sm">
+                                                Trade-in
+                                            </a>
+                                        @endif
                                         <a href="{{ route('produtos.edit', $item->id) }}"
                                             class="btn btn-outline-secondary btn-sm">
                                             Editar cadastro

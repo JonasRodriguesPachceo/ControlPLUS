@@ -66,7 +66,7 @@ class ProdutoController extends Controller
         $this->utilIfood = $utilIfood;
 
         $this->middleware('permission:produtos_create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:produtos_edit', ['only' => ['edit', 'update', 'avaliacaoEdit', 'avaliacaoUpdate']]);
+        $this->middleware('permission:produtos_edit', ['only' => ['edit', 'update', 'avaliacaoEdit', 'avaliacaoUpdate', 'avaliacaoReject']]);
         $this->middleware('permission:produtos_view', ['only' => ['show', 'index', 'avaliacaoIndex']]);
         $this->middleware('permission:produtos_delete', ['only' => ['destroy']]);
     }
@@ -378,7 +378,10 @@ class ProdutoController extends Controller
             if ($tipoProduto === Produto::TIPO_AVALIACAO_LEGACY) {
                 $tipoProduto = Produto::TIPO_TRADE_IN;
             }
-            $emAvaliacao = $tipoProduto === Produto::TIPO_TRADE_IN;
+
+            $origemProduto = $tipoProduto === Produto::TIPO_TRADE_IN ? Produto::ORIGEM_TRADE_IN : Produto::ORIGEM_COMUM;
+            $statusAvaliacao = $origemProduto === Produto::ORIGEM_TRADE_IN ? Produto::STATUS_AVALIACAO_PENDENTE : null;
+            $emAvaliacao = $origemProduto === Produto::ORIGEM_TRADE_IN && $statusAvaliacao !== Produto::STATUS_AVALIACAO_APROVADO;
             $request->merge([
                 'woocommerce_valor' => $request->woocommerce_valor > 0 ? __convert_value_bd($request->woocommerce_valor) : __convert_value_bd($request->valor_unitario),
                 'valor_unitario' => __convert_value_bd($request->valor_unitario),
@@ -427,7 +430,9 @@ class ProdutoController extends Controller
 
                 'woocommerce_descricao' => $request->woocommerce_descricao ?? '',
                 'numero_sequencial' => $numeroSequencial,
-                'tipo_produto' => $tipoProduto
+                'tipo_produto' => $tipoProduto,
+                'origem_produto' => $origemProduto,
+                'status_avaliacao' => $statusAvaliacao,
             ]);
 
             __setUltimoNumeroSequencial($request->empresa_id, 'produtos', $numeroSequencial);
@@ -800,11 +805,18 @@ public function update(Request $request, $id)
             ]);
         }
 
-        $tipoProduto = $request->get('tipo_produto', $item->tipo_produto);
+        $tipoProduto = $item->tipo_produto;
         if ($tipoProduto === Produto::TIPO_AVALIACAO_LEGACY) {
             $tipoProduto = Produto::TIPO_TRADE_IN;
         }
-        $emAvaliacao = $tipoProduto === Produto::TIPO_TRADE_IN;
+
+        $origemProduto = $item->origem_produto ?: ($tipoProduto === Produto::TIPO_TRADE_IN ? Produto::ORIGEM_TRADE_IN : Produto::ORIGEM_COMUM);
+        $statusAvaliacao = $item->status_avaliacao ?: ($origemProduto === Produto::ORIGEM_TRADE_IN ? Produto::STATUS_AVALIACAO_PENDENTE : null);
+        $emAvaliacao = $origemProduto === Produto::ORIGEM_TRADE_IN && $statusAvaliacao !== Produto::STATUS_AVALIACAO_APROVADO;
+
+        $request->merge([
+            'tipo_produto' => $item->tipo_produto,
+        ]);
 
         $item->fill($request->all())->save();
 
@@ -1014,7 +1026,7 @@ public function update(Request $request, $id)
     public function avaliacaoEdit($id)
     {
         $item = $this->produtoComAvaliacao($id);
-        if (!in_array($item->tipo_produto, [Produto::TIPO_TRADE_IN, Produto::TIPO_AVALIACAO_LEGACY], true)) {
+        if ($item->origem_produto !== Produto::ORIGEM_TRADE_IN || $item->status_avaliacao !== Produto::STATUS_AVALIACAO_PENDENTE) {
             session()->flash('flash_warning', 'Produto não está pendente de trade-in.');
             return redirect()->route('produtos.avaliacao.index');
         }
@@ -1025,7 +1037,7 @@ public function update(Request $request, $id)
     public function avaliacaoUpdate(Request $request, $id)
     {
         $item = $this->produtoComAvaliacao($id);
-        if (!in_array($item->tipo_produto, [Produto::TIPO_TRADE_IN, Produto::TIPO_AVALIACAO_LEGACY], true)) {
+        if ($item->origem_produto !== Produto::ORIGEM_TRADE_IN || $item->status_avaliacao !== Produto::STATUS_AVALIACAO_PENDENTE) {
             session()->flash('flash_warning', 'Produto não está pendente de trade-in.');
             return redirect()->route('produtos.avaliacao.index');
         }
@@ -1038,7 +1050,7 @@ public function update(Request $request, $id)
         $item->avaliacao_observacao = $request->avaliacao_observacao;
 
         if ($request->boolean('avaliacao_concluida')) {
-            $item->tipo_produto = Produto::TIPO_NOVO;
+            $item->status_avaliacao = Produto::STATUS_AVALIACAO_APROVADO;
         }
 
         $item->save();
@@ -1046,6 +1058,30 @@ public function update(Request $request, $id)
         __createLog($request->empresa_id, 'Produto', 'trade_in', $item->nome);
         session()->flash('flash_success', 'Trade-in atualizado!');
 
+        return redirect()->route('produtos.avaliacao.index');
+    }
+
+    public function avaliacaoReject(Request $request, $id)
+    {
+        $item = $this->produtoComAvaliacao($id);
+        if ($item->origem_produto !== Produto::ORIGEM_TRADE_IN || $item->status_avaliacao !== Produto::STATUS_AVALIACAO_PENDENTE) {
+            session()->flash('flash_warning', 'Produto não está pendente de trade-in.');
+            return redirect()->route('produtos.avaliacao.index');
+        }
+
+        $request->validate([
+            'motivo_reprovacao' => 'nullable|string|max:255',
+        ]);
+
+        $item->avaliacao_observacao = trim(implode("\n", array_filter([
+            $item->avaliacao_observacao,
+            $request->motivo_reprovacao ? ('Reprovado: ' . $request->motivo_reprovacao) : null,
+        ])));
+        $item->status_avaliacao = Produto::STATUS_AVALIACAO_REPROVADO;
+        $item->save();
+
+        __createLog($request->empresa_id ?? $item->empresa_id, 'Produto', 'trade_in_reprovado', $item->nome);
+        session()->flash('flash_success', 'Trade-in reprovado!');
         return redirect()->route('produtos.avaliacao.index');
     }
 

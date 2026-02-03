@@ -719,6 +719,7 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::get('produtos-avaliacao', 'ProdutoController@avaliacaoIndex')->name('produtos.avaliacao.index');
     Route::get('produtos-avaliacao/{id}', 'ProdutoController@avaliacaoEdit')->name('produtos.avaliacao.edit');
     Route::put('produtos-avaliacao/{id}', 'ProdutoController@avaliacaoUpdate')->name('produtos.avaliacao.update');
+    Route::put('produtos-avaliacao/{id}/reprovar', 'ProdutoController@avaliacaoReject')->name('produtos.avaliacao.reject');
 
     Route::resource('produtos', 'ProdutoController');
     Route::delete('produtos-destroy-select', 'ProdutoController@destroySelecet')->name('produtos.destroy-select');

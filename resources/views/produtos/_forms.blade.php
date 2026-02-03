@@ -44,13 +44,15 @@
                 </div>
                 <div class="col-md-2">
                     @php
-                        $tipoProdutoValue = old('tipo_produto', isset($item) ? $item->tipo_produto : \App\Models\Produto::TIPO_NOVO);
+                        $tipoProdutoValue = old('tipo_produto', isset($item)
+                            ? ($item->origem_produto === \App\Models\Produto::ORIGEM_TRADE_IN ? \App\Models\Produto::TIPO_TRADE_IN : \App\Models\Produto::TIPO_NOVO)
+                            : \App\Models\Produto::TIPO_NOVO);
                         if ($tipoProdutoValue === \App\Models\Produto::TIPO_AVALIACAO_LEGACY) {
                             $tipoProdutoValue = \App\Models\Produto::TIPO_TRADE_IN;
                         }
                     @endphp
-                    {!!Form::select('tipo_produto', 'Tipo de produto', [
-                        \App\Models\Produto::TIPO_NOVO => 'Novo',
+                    {!!Form::select('tipo_produto', 'Origem do produto', [
+                        \App\Models\Produto::TIPO_NOVO => 'Comum',
                         \App\Models\Produto::TIPO_TRADE_IN => 'Trade-in'
                     ])
                     ->attrs(['class' => 'form-select'])
