@@ -109,7 +109,7 @@ class ProdutoController extends Controller
     }
 
     public function index(Request $request)
-    {   
+    {
         $this->setNumeroSequencial();
         $this->insertUnidadesMedida($request->empresa_id);
         $locais = __getLocaisAtivoUsuario();
@@ -142,7 +142,7 @@ class ProdutoController extends Controller
             return $q->where('marca_id', $request->marca_id);
         })
         ->when(!empty($request->categoria_id), function ($q) use ($request) {
-            return $q->where(function($t) use ($request) 
+            return $q->where(function($t) use ($request)
             {
                 $t->where('categoria_id', $request->categoria_id)->orWhere('sub_categoria_id', $request->categoria_id);
             });
@@ -206,8 +206,8 @@ class ProdutoController extends Controller
 
         $configGeral = ConfigGeral::where('empresa_id', $request->empresa_id)
         ->first();
-        $tipoExibe = $configGeral && $configGeral->produtos_exibe_tabela == 0 
-        ? 'card' 
+        $tipoExibe = $configGeral && $configGeral->produtos_exibe_tabela == 0
+        ? 'card'
         : 'tabela';
 
         return view('produtos.index', compact('data', 'categorias', 'empresa', 'tipoExibe', 'marcas'));
@@ -291,8 +291,8 @@ class ProdutoController extends Controller
 
         $unidades = UnidadeMedida::where('empresa_id', request()->empresa_id)
         ->where('status', 1)->get();
-        return view('produtos.create', 
-            compact('listaCTSCSOSN', 'padroes', 'categorias', 'cardapio', 'marcas', 'delivery', 'variacoes', 
+        return view('produtos.create',
+            compact('listaCTSCSOSN', 'padroes', 'categorias', 'cardapio', 'marcas', 'delivery', 'variacoes',
                 'padraoTributacao', 'ecommerce', 'configMercadoLivre', 'mercadolivre', 'configGeral', 'nuvemshop',
                 'reserva', 'woocommerce', 'categoriasWoocommerce', 'unidades', 'ifood', 'categoriasProdutoIfood', 'vendizap'));
     }
@@ -346,9 +346,9 @@ class ProdutoController extends Controller
         ->first();
         $categoriasProdutoIfood = CategoriaProdutoIfood::where('empresa_id', request()->empresa_id)->get();
 
-        return view('produtos.edit', 
+        return view('produtos.edit',
             compact('item', 'listaCTSCSOSN', 'padroes', 'categorias', 'cardapio', 'marcas', 'delivery', 'variacoes',
-                'ecommerce', 'mercadolivre', 'configMercadoLivre', 'categoriasWoocommerce', 'unidades', 'configGeral', 
+                'ecommerce', 'mercadolivre', 'configMercadoLivre', 'categoriasWoocommerce', 'unidades', 'configGeral',
                 'categoriasProdutoIfood'));
     }
 
@@ -412,7 +412,7 @@ class ProdutoController extends Controller
                 'perc_ibs_mun' => $request->perc_ibs_mun ?? 0,
                 'perc_cbs' => $request->perc_cbs ?? 0,
                 'perc_dif' => $request->perc_dif ?? 0,
-                
+
                 'cfop_estadual' => $request->cfop_estadual ?? '',
                 'cfop_outro_estado' => $request->cfop_outro_estado ?? '',
                 'sub_categoria_id' => $request->sub_categoria_id ?? null,
@@ -502,7 +502,7 @@ class ProdutoController extends Controller
                             $tipo = 'incremento';
                             $codigo_transacao = $transacao->id;
                             $tipo_transacao = 'alteracao_estoque';
-                            $this->utilEstoque->movimentacaoProduto($produto->id, $qtd, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, $variacao->id);      
+                            $this->utilEstoque->movimentacaoProduto($produto->id, $qtd, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, $variacao->id);
                         }
                     }
                 }else{
@@ -572,7 +572,7 @@ class ProdutoController extends Controller
                 }
 
                 if($request->nuvemshop){
-                    $resp = $this->utilNuvemShop->create($request, $produto); 
+                    $resp = $this->utilNuvemShop->create($request, $produto);
                 }
 
 
@@ -590,7 +590,7 @@ session()->flash("flash_success", "Produto cadastrado!");
 if(sizeof($locais) >= 2){
     for($i=0; $i<sizeof($locais); $i++){
         ProdutoLocalizacao::updateOrCreate([
-            'produto_id' => $produto->id, 
+            'produto_id' => $produto->id,
             'localizacao_id' => $locais[$i]
         ]);
     }
@@ -602,12 +602,12 @@ if(sizeof($locais) >= 2){
 
     if(sizeof($locais) == 1){
         ProdutoLocalizacao::updateOrCreate([
-            'produto_id' => $produto->id, 
+            'produto_id' => $produto->id,
             'localizacao_id' => $locais[0]
         ]);
     }else{
         ProdutoLocalizacao::updateOrCreate([
-            'produto_id' => $produto->id, 
+            'produto_id' => $produto->id,
             'localizacao_id' => $request->local_id
         ]);
     }
@@ -817,7 +817,7 @@ public function update(Request $request, $id)
                     'descricao' => $request->descricao_variacao[$i],
                     'valor' => __convert_value_bd($request->valor_venda_variacao[$i]),
                     'codigo_barras' => $request->codigo_barras_variacao[$i],
-                    'referencia' => $request->referencia_variacao[$i],        
+                    'referencia' => $request->referencia_variacao[$i],
                 ];
                 if(isset($request->variacao_id[$i])){
                     $variacao = ProdutoVariacao::findOrfail($request->variacao_id[$i]);
@@ -856,7 +856,7 @@ public function update(Request $request, $id)
                         $tipo = 'incremento';
                         $codigo_transacao = $transacao->id;
                         $tipo_transacao = 'alteracao_estoque';
-                        $this->utilEstoque->movimentacaoProduto($item->id, $qtd, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, $variacao->id);      
+                        $this->utilEstoque->movimentacaoProduto($item->id, $qtd, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, $variacao->id);
                     }
                     $variacaoDelete[] = $variacao->id;
                 }
@@ -953,7 +953,7 @@ public function update(Request $request, $id)
             }
             for($i=0; $i<sizeof($request->locais); $i++){
                 ProdutoLocalizacao::updateOrCreate([
-                    'produto_id' => $item->id, 
+                    'produto_id' => $item->id,
                     'localizacao_id' => $request->locais[$i]
                 ]);
             }
@@ -994,19 +994,19 @@ public function update(Request $request, $id)
 
     public function avaliacaoEdit($id)
     {
-        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo /produtos-avaliacao.');
+        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo /trade-in.');
         return redirect()->route('produtos.avaliacao.index');
     }
 
     public function avaliacaoUpdate(Request $request, $id)
     {
-        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo /produtos-avaliacao.');
+        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo /trade-in.');
         return redirect()->route('produtos.avaliacao.index');
     }
 
     public function avaliacaoReject(Request $request, $id)
     {
-        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo /produtos-avaliacao.');
+        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo /trade-in.');
         return redirect()->route('produtos.avaliacao.index');
     }
 
@@ -1036,7 +1036,7 @@ public function destroy($id)
             // $item->itemNfe()->delete();
             // $item->estoque()->delete();
             $item->galeria()->delete();
-            
+
             // $item->itemNfce()->delete();
             $item->itemCarrinhos()->delete();
             $item->composicao()->delete();
@@ -1086,7 +1086,7 @@ public function destroySelecet(Request $request)
             $item->locais()->delete();
             \App\Models\ImpressoraPedidoProduto::where('produto_id', $item->id)->delete();
             \App\Models\EstoqueAtualProduto::where('produto_id', $item->id)->delete();
-            
+
             if($item->estoque){
                 $item->estoque->delete();
             }
@@ -1227,7 +1227,7 @@ public function storeModelo(Request $request)
                                 if(isset($request->locais)){
                                     foreach($locais as $l){
                                         $local = ProdutoLocalizacao::updateOrCreate([
-                                            'produto_id' => $item->id, 
+                                            'produto_id' => $item->id,
                                             'localizacao_id' => $l
                                         ]);
 
@@ -1238,13 +1238,13 @@ public function storeModelo(Request $request)
                                             $tipo = 'incremento';
                                             $codigo_transacao = $transacao->id;
                                             $tipo_transacao = 'alteracao_estoque';
-                                            $this->utilEstoque->movimentacaoProduto($item->id, $data['estoque'], $tipo, 
+                                            $this->utilEstoque->movimentacaoProduto($item->id, $data['estoque'], $tipo,
                                                 $codigo_transacao, $tipo_transacao, \Auth::user()->id);
                                         }
                                     }
                                 }else{
                                     $local = ProdutoLocalizacao::updateOrCreate([
-                                        'produto_id' => $item->id, 
+                                        'produto_id' => $item->id,
                                         'localizacao_id' => $request->local_id
                                     ]);
 
@@ -1255,7 +1255,7 @@ public function storeModelo(Request $request)
                                         $tipo = 'incremento';
                                         $codigo_transacao = $transacao->id;
                                         $tipo_transacao = 'alteracao_estoque';
-                                        $this->utilEstoque->movimentacaoProduto($item->id, $data['estoque'], $tipo, 
+                                        $this->utilEstoque->movimentacaoProduto($item->id, $data['estoque'], $tipo,
                                             $codigo_transacao, $tipo_transacao, \Auth::user()->id);
                                     }
                                 }
@@ -1292,7 +1292,7 @@ public function storeModelo(Request $request)
                                 if(isset($request->locais)){
                                     foreach($locais as $l){
                                         $local = ProdutoLocalizacao::updateOrCreate([
-                                            'produto_id' => $produtoDuplicado->id, 
+                                            'produto_id' => $produtoDuplicado->id,
                                             'localizacao_id' => $l
                                         ]);
                                     }
@@ -1612,8 +1612,8 @@ public function duplicar(Request $request, $id)
     ->first();
     $categoriasProdutoIfood = CategoriaProdutoIfood::where('empresa_id', request()->empresa_id)->get();
 
-    return view('produtos.duplicar', 
-        compact('item', 'listaCTSCSOSN', 'padroes', 'categorias', 'cardapio', 'marcas', 'delivery', 'variacoes', 
+    return view('produtos.duplicar',
+        compact('item', 'listaCTSCSOSN', 'padroes', 'categorias', 'cardapio', 'marcas', 'delivery', 'variacoes',
             'ecommerce', 'configMercadoLivre', 'categoriasWoocommerce', 'unidades', 'configGeral', 'categoriasProdutoIfood'));
 }
 
@@ -1749,7 +1749,7 @@ private function setarEstoqueVendiZap($produto, $config){
             foreach($produto->variacoes as $v){
                 if($v->estoque){
                     $nome = explode(" ", $v->descricao);
-                    
+
                     // dd($nome);
 
                     $variacao_id = null;
@@ -2005,8 +2005,8 @@ private function criaProdutoWoocommerce($request, $produto){
         }
 
         if($produto->imagem){
-            $data['images'][] = 
-            [   
+            $data['images'][] =
+            [
                 'src' => env('APP_URL') . '/uploads/produtos/'.$produto->imagem
             ];
         }
@@ -2034,7 +2034,7 @@ private function criaProdutoWoocommerce($request, $produto){
             ];
 
         }
-        
+
         // dd($data);
 
         $product = $woocommerceClient->post("products", $data);
@@ -2340,11 +2340,11 @@ public function etiquetaStore(Request $request, $id){
     if (!is_dir(public_path('barcode'))) {
         mkdir(public_path('barcode'), 0777, true);
     }
-    $files = glob(public_path("barcode/*")); 
+    $files = glob(public_path("barcode/*"));
 
-    foreach($files as $file){ 
+    foreach($files as $file){
         if(is_file($file)) {
-            unlink($file); 
+            unlink($file);
         }
     }
 
@@ -2395,7 +2395,7 @@ public function etiquetaStore(Request $request, $id){
     $tamanho_codigo = $request->tamanho_codigo_barras;
 
     return view('produtos.etiqueta_print', compact('altura', 'largura', 'rand', 'codigo', 'quantidade', 'distancia_topo',
-        'distancia_lateral', 'quantidade_por_linhas', 'tamanho_fonte', 'tamanho_codigo', 'data', 'distancia_entre_linhas', 'referencia', 
+        'distancia_lateral', 'quantidade_por_linhas', 'tamanho_fonte', 'tamanho_codigo', 'data', 'distancia_entre_linhas', 'referencia',
         'valor_atacado'));
 
 }
@@ -2488,7 +2488,7 @@ public function reajusteUpdate(Request $request){
                 $item->locais()->delete();
                 for($j=0; $j<sizeof($request->locais); $j++){
                     ProdutoLocalizacao::updateOrCreate([
-                        'produto_id' => $item->id, 
+                        'produto_id' => $item->id,
                         'localizacao_id' => $request->locais[$j]
                     ]);
                 }
@@ -2529,7 +2529,7 @@ public function reajusteUpdate(Request $request){
             $item->redBCST = $request->redBCST[$i];
             $item->pICMSEfet = $request->pICMSEfet[$i];
             $item->pRedBCEfet = $request->pRedBCEfet[$i];
-            
+
             $item->save();
         }
 
@@ -2561,7 +2561,7 @@ public function uploadMultiple(Request $request){
     }
 
     return redirect()->route('produtos.vincula-imagens');
-    
+
 }
 
 public function vinculaImagens(){
@@ -2603,8 +2603,8 @@ public function vincularImagens(Request $request){
 
 private function clearFolder($destino){
     $files = glob($destino."/*");
-    foreach($files as $file){ 
-        if(is_file($file)) unlink($file); 
+    foreach($files as $file){
+        if(is_file($file)) unlink($file);
     }
 }
 
@@ -2651,7 +2651,7 @@ public function ibpt(Request $request){
                     $dataIbpt = [
                         'produto_id' => $p->id,
                         'codigo' => $resp->Codigo,
-                        'uf' => $resp->UF, 
+                        'uf' => $resp->UF,
                         'descricao' => $resp->Descricao,
                         'nacional' => $resp->Nacional,
                         'estadual' => $resp->Estadual,
@@ -2746,7 +2746,7 @@ public function alterarCampo(Request $request)
             $tipo = 'incremento';
             $codigo_transacao = $transacao->id;
             $tipo_transacao = 'alteracao_estoque';
-            $this->utilEstoque->movimentacaoProduto($produto->id, $valor, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, null);  
+            $this->utilEstoque->movimentacaoProduto($produto->id, $valor, $tipo, $codigo_transacao, $tipo_transacao, \Auth::user()->id, null);
         }else{
             $estoque->quantidade = $valor;
             $estoque->save();

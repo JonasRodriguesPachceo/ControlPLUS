@@ -70,9 +70,9 @@ Route::middleware(['validaDelivery'])->group(function () {
     Route::get('food-pesquisa', 'Delivery\\HomeController@pesquisa')->name('food.pesquisa');
     Route::get('food-ofertas', 'Delivery\\HomeController@ofertas')->name('food.ofertas');
     Route::post('food-carrinho-adicionar', 'Delivery\\CarrinhoController@adicionar')->name('food.adicionar-carrinho');
-    
+
     Route::post('food-carrinho-adicionar-servico', 'Delivery\\CarrinhoController@adicionarServico')->name('food.adicionar-carrinho-servico');
-    
+
     Route::get('food-carrinho', 'Delivery\\CarrinhoController@index')->name('food.carrinho');
     Route::get('food-carrinho-update', 'Delivery\\CarrinhoController@updateQuantidades')->name('food.carrinho-update');
     Route::delete('remove-item-food/{id}', 'Delivery\\CarrinhoController@removeItem')->name('food.remove-item');
@@ -92,7 +92,7 @@ Route::middleware(['validaDelivery'])->group(function () {
     Route::get('food-qr_code/{transacao_id}', 'Delivery\\PagamentoController@qrCode')->name('food.qr_code');
     Route::post('food-pagamento-pix', 'Delivery\\PagamentoController@pagamentoPix')->name('food.pagamento-pix');
     Route::post('food-pagamento-cartao', 'Delivery\\PagamentoController@pagamentoCartao')->name('food.pagamento-cartao');
-    
+
 });
 
 Route::middleware(['validaEcommerce'])->group(function () {
@@ -571,7 +571,7 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::resource('devolucao', 'DevolucaoController');
     Route::resource('localizacao', 'LocalizacaoController');
     Route::get('localizacao-delete-logo/{id}', 'LocalizacaoController@removerLogo')->name('localizacao.delete-logo');
-    
+
     Route::get('/devolucao-xml', 'DevolucaoController@xml')->name('devolucao.xml');
     Route::post('/devolucao-store-xml', 'DevolucaoController@storeXml')->name('devolucao.store-xml');
     Route::post('/devolucao-finish-xml', 'DevolucaoController@finishXml')->name('devolucao.finish-xml');
@@ -624,7 +624,7 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::resource('garantias', 'GarantiaController');
     Route::get('garantias-modal/{id}', 'GarantiaController@modal');
     Route::get('garantias/imprimir/{id}', 'GarantiaController@imprimir');
-    
+
     Route::resource('manutencao-veiculos', 'ManutencaoVeiculoController');
     Route::put('manutencao-veiculos-alterar-estado/{id}', 'ManutencaoVeiculoController@alterarEstado')->name('manutencao-veiculos.alterar-estado');
     Route::get('manutencao-veiculos-gerar-conta-pagar/{id}', 'ManutencaoVeiculoController@gerarContaReceber')->name('manutencao-veiculos.gerar-conta-pagar');
@@ -716,10 +716,10 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::resource('unidades-medida', 'UnidadeMedidaController');
     Route::delete('categoria-produtos-destroy-select', 'CategoriaProdutoController@destroySelecet')->name('categoria-produtos.destroy-select');
 
-    Route::get('produtos-avaliacao', 'ProdutoController@avaliacaoIndex')->name('produtos.avaliacao.index');
-    Route::get('produtos-avaliacao/{id}', 'ProdutoController@avaliacaoEdit')->name('produtos.avaliacao.edit');
-    Route::put('produtos-avaliacao/{id}', 'ProdutoController@avaliacaoUpdate')->name('produtos.avaliacao.update');
-    Route::put('produtos-avaliacao/{id}/reprovar', 'ProdutoController@avaliacaoReject')->name('produtos.avaliacao.reject');
+    Route::get('trade-in', 'ProdutoController@avaliacaoIndex')->name('produtos.avaliacao.index');
+    Route::get('trade-in/{id}', 'ProdutoController@avaliacaoEdit')->name('produtos.avaliacao.edit');
+    Route::put('trade-in/{id}', 'ProdutoController@avaliacaoUpdate')->name('produtos.avaliacao.update');
+    Route::put('trade-in/{id}/reprovar', 'ProdutoController@avaliacaoReject')->name('produtos.avaliacao.reject');
 
     Route::resource('produtos', 'ProdutoController');
     Route::delete('produtos-destroy-select', 'ProdutoController@destroySelecet')->name('produtos.destroy-select');
@@ -762,7 +762,7 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::resource('assinar-contrato', 'AssinarContratoController')->withoutMiddleware('validaContrato');
 
     Route::get('/imprimir-apontamento/{id}', 'ApontamentoController@imprimir')->name('apontamento.imprimir');
-    
+
     Route::resource('produto-consulta-codigo', 'ProdutoConsultaCodigoController');
 
     Route::get('produtos-import', 'ProdutoController@import')->name('produtos.import');
@@ -818,7 +818,7 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::put('conta-pagar-estornar-update/{id}', 'ContaPagarController@estornarUpdate')->name('conta-pagar.estornar-update');
     Route::get('conta-pagar-export-excel', 'ContaPagarController@exportExcel')->name('conta-pagar.export-excel');
     Route::put('conta-pagar-pay-select', 'ContaPagarController@paySelect')->name('conta-pagar.pay-select');
-    
+
     Route::resource('conta-receber', 'ContaReceberController');
 
     Route::get('/financeiro-dashboard', 'FinanceiroDashboardController@index')->name('financeiro.dashboard');
