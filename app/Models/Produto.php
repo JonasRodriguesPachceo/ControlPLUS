@@ -10,22 +10,9 @@ class Produto extends Model
 	use HasFactory;
 
 	public const TIPO_NOVO = 'novo';
-	public const TIPO_TRADE_IN = 'trade_in';
-	/** @deprecated legacy db value; use self::TIPO_TRADE_IN */
-	public const TIPO_AVALIACAO_LEGACY = 'avaliacao';
-	/** @deprecated use self::TIPO_TRADE_IN */
-	public const TIPO_AVALIACAO = self::TIPO_TRADE_IN;
 
 	public const ORIGEM_COMUM = 'comum';
 	public const ORIGEM_TRADE_IN = 'trade_in';
-
-	public const STATUS_AVALIACAO_PENDENTE = 'pendente';
-	public const STATUS_AVALIACAO_APROVADO = 'aprovado';
-	public const STATUS_AVALIACAO_REPROVADO = 'reprovado';
-
-	public const SCOPE_TRADE_IN = 'produto_trade_in_pendente';
-	/** @deprecated use self::SCOPE_TRADE_IN */
-	public const SCOPE_AVALIACAO = self::SCOPE_TRADE_IN;
 
 	protected $fillable = [
 		'empresa_id', 'nome', 'codigo_barras', 'ncm', 'cest', 'unidade', 'perc_icms', 'perc_pis',
@@ -51,36 +38,10 @@ class Produto extends Model
 		'numero_sequencial', 'valor_prazo', 'ifood_id', 'vendizap_id', 'vendizap_valor', 'destaque_cardapio', 'oferta_cardapio',
 		'sub_variacao_modelo_id', 'peso_bruto', 'pICMSEfet', 'pRedBCEfet',
 		'cst_ibscbs', 'cclass_trib', 'perc_ibs_uf', 'perc_ibs_mun', 'perc_cbs', 'perc_dif', 'tipo_item_sped', 'prazo_garantia',
-		'tipo_produto', 'origem_produto', 'status_avaliacao', 'avaliacao_observacao'
+		'tipo_produto', 'origem_produto'
 	];
 
 	protected $appends = [ 'imgApp' ];
-
-	protected static function booted()
-	{
-		static::addGlobalScope(self::SCOPE_TRADE_IN, function ($query) {
-			return $query->where(function ($q) {
-				$q->whereNull('origem_produto')
-					->orWhere('origem_produto', '!=', self::ORIGEM_TRADE_IN)
-					->orWhere('status_avaliacao', self::STATUS_AVALIACAO_APROVADO);
-			});
-		});
-	}
-
-	public function scopeSomenteTradeIn($query)
-	{
-		return $query->withoutGlobalScope(self::SCOPE_TRADE_IN)
-			->where('origem_produto', self::ORIGEM_TRADE_IN)
-			->where(function ($q) {
-				$q->whereNull('status_avaliacao')
-					->orWhere('status_avaliacao', self::STATUS_AVALIACAO_PENDENTE);
-			});
-	}
-
-	public function scopeSomenteAvaliacao($query)
-	{
-		return $query->somenteTradeIn();
-	}
 
 	public function _ncm(){
 		return $this->belongsTo(Ncm::class, 'ncm', 'codigo');

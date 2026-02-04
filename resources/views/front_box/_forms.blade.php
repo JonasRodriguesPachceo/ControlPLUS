@@ -639,24 +639,6 @@
 
                     </div>
                 </div>
-<div class="col-12 mt-2">
-                    <div class="alert alert-info d-none d-flex flex-column flex-md-row align-items-md-center justify-content-between" id="tradein-credit-card">
-                        <div class="mb-2 mb-md-0">
-                            <span>Crédito (trade-in) disponível:
-                                <strong class="tradein-credit-value">R$ 0,00</strong>
-                            </span>
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="tradein-credit-applied d-none">
-                                Aplicado:
-                                <strong class="tradein-credit-applied-value">R$ 0,00</strong>
-                            </span>
-                            <button type="button" class="btn btn-sm btn-primary" id="btn-tradein-add">
-                                Aplicar crédito
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -673,7 +655,6 @@
 @include('front_box.partials._modal_orcamentos')
 @include('modals._tef_consulta')
 @include('modals._valor_credito')
-@include('modals._tradein_credit')
 @include('modals._modal_pix')
 @include('modals._fatura_venda')
 @include('modals._frete')

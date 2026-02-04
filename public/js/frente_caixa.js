@@ -3,9 +3,6 @@ var VALORCREDITO = 0;
 var VALORFRETE = 0;
 var VALORACRESCIMO = 0;
 var PERCENTUALMAXDESCONTO = false;
-var TRADEIN_PAYMENT_CODE = "98";
-var TRADEIN_SALDO = 0;
-var TRADEIN_UTILIZADO = 0;
 function isTablet() {
     const ua = navigator.userAgent.toLowerCase();
     return /ipad|android(?!.*mobile)|tablet|kindle|playbook/.test(ua);
@@ -429,15 +426,6 @@ $(document).on("change", "#inp-cliente_id", function () {
             $(".p-cliente").html(
                 "<label>Cliente: <strong>" + cliente.info + "</strong></label>",
             );
-            removerParcelasTradein();
-            TRADEIN_UTILIZADO = 0;
-            if (cliente.tradein_credit && cliente.tradein_credit.saldo > 0) {
-                TRADEIN_SALDO = cliente.tradein_credit.saldo;
-                atualizarTradeinCard(true);
-            } else {
-                TRADEIN_SALDO = 0;
-                atualizarTradeinCard(false);
-            }
             if (
                 cliente.cpf_cnpj.replace(/[^0-9]/g, "").length == 14 &&
                 $("#NFECNPJ").val() == "1"
@@ -1817,41 +1805,6 @@ $("#inp-tipo_pagamento").change(() => {
     $("#inp-valor_recebido").val("");
     let tipo = $("#inp-tipo_pagamento").val();
     let cliente = $("#inp-cliente_id").val();
-    if (tipo == TRADEIN_PAYMENT_CODE) {
-        if (cliente == null) {
-            swal("Alerta", "Informe o cliente!", "warning");
-            $("#inp-tipo_pagamento").val("").change();
-            return;
-        }
-        if (TRADEIN_SALDO <= 0) {
-            swal(
-                "Alerta",
-                "Este cliente não possui crédito trade-in disponível.",
-                "warning",
-            );
-            $("#inp-tipo_pagamento").val("").change();
-            return;
-        }
-        let totalNecessario =
-            total_venda + parseFloat(VALORACRESCIMO) - parseFloat(DESCONTO);
-        if (totalNecessario <= 0) {
-            swal(
-                "Alerta",
-                "Informe ao menos um produto para continuar",
-                "warning",
-            );
-            $("#inp-tipo_pagamento").val("").change();
-            return;
-        }
-        if (TRADEIN_SALDO < totalNecessario) {
-            swal(
-                "Erro",
-                "Crédito trade-in insuficiente para esta venda. Disponível: " +
-                    convertFloatToMoeda(TRADEIN_SALDO),
-                "warning",
-            );
-        }
-    }
     if (tipo == "06" && cliente == null) {
         toastr.warning("Informe o cliente!");
         $("#cliente").modal("show");
@@ -2232,41 +2185,6 @@ $(".btn-add-payment").click(() => {
     //         );
     // }
 
-    let clienteSelecionado = $("#inp-cliente_id").val();
-    if (tipo_pagamento_row == TRADEIN_PAYMENT_CODE) {
-        if (clienteSelecionado == null) {
-            swal("Alerta", "Informe o cliente!", "warning");
-            return;
-        }
-        if (TRADEIN_SALDO <= 0) {
-            swal(
-                "Alerta",
-                "Este cliente não possui crédito trade-in disponível.",
-                "warning",
-            );
-            return;
-        }
-        let disponivel = tradeinSaldoDisponivel();
-        if (v > disponivel) {
-            swal(
-                "Erro",
-                "Valor acima do saldo disponível. Limite: " +
-                    convertFloatToMoeda(disponivel),
-                "warning",
-            );
-            return;
-        }
-        let restanteTotal = total - total_payment;
-        if (v > restanteTotal) {
-            swal(
-                "Atenção",
-                "Valor informado é maior que o restante da venda",
-                "warning",
-            );
-            return;
-        }
-    }
-
     if (vencimento && valor_integral_row && tipo_pagamento_row) {
         let dataRequest = {
             data_vencimento_row: vencimento,
@@ -2342,7 +2260,6 @@ function calcTotalPayment() {
     setTimeout(() => {
         total_payment = total;
         $(".sum-payment").html("R$ " + convertFloatToMoeda(total));
-        atualizarTradeinAplicado();
         let t = total_venda + parseFloat(VALORACRESCIMO) - parseFloat(DESCONTO);
         $(".sum-restante").html("R$ " + convertFloatToMoeda(t - total));
 
@@ -2374,142 +2291,6 @@ $(".table-payment").on("click", ".btn-delete-row", function () {
     swal("Sucesso", "Parcela removida!", "success");
     calcTotalPayment();
 });
-
-$("#btn-tradein-add").click(() => {
-    if ($("#tradein-credit-card").hasClass("d-none")) {
-        return;
-    }
-    let disponivel = tradeinSaldoDisponivel();
-    if (disponivel <= 0) {
-        swal("Alerta", "Crédito trade-in já utilizado.", "warning");
-        return;
-    }
-    let restante =
-        total_venda +
-        parseFloat(VALORACRESCIMO) -
-        parseFloat(DESCONTO) -
-        total_payment;
-    if (restante <= 0) {
-        swal(
-            "Alerta",
-            "Nenhum valor restante para aplicar o crédito.",
-            "warning",
-        );
-        return;
-    }
-    $("#tradein_credit_available").text(
-        "R$ " + convertFloatToMoeda(disponivel),
-    );
-    $("#tradein_credit_input").val(
-        convertFloatToMoeda(Math.min(disponivel, restante)),
-    );
-    $("#modal_tradein_credit").modal("show");
-});
-
-$("#btn-confirm-tradein").click(() => {
-    let valor = convertMoedaToFloat($("#tradein_credit_input").val());
-    let disponivel = tradeinSaldoDisponivel();
-    if (valor <= 0) {
-        swal("Alerta", "Informe um valor para aplicar.", "warning");
-        return;
-    }
-    if (valor > disponivel) {
-        swal(
-            "Erro",
-            "Valor acima do saldo disponível. Limite: " +
-                convertFloatToMoeda(disponivel),
-            "warning",
-        );
-        return;
-    }
-    let restante =
-        total_venda +
-        parseFloat(VALORACRESCIMO) -
-        parseFloat(DESCONTO) -
-        total_payment;
-    if (valor > restante) {
-        swal(
-            "Atenção",
-            "Valor informado é maior que o restante da venda.",
-            "warning",
-        );
-        return;
-    }
-    let hoje = new Date().toISOString().split("T")[0];
-    let dataRequest = {
-        data_vencimento_row: hoje,
-        valor_integral_row: convertFloatToMoeda(valor),
-        obs_row: "Crédito trade-in",
-        tipo_pagamento_row: TRADEIN_PAYMENT_CODE,
-    };
-    $.get(path_url + "api/frenteCaixa/linhaParcelaVenda", dataRequest)
-        .done((e) => {
-            $(".table-payment tbody").append(e);
-            calcTotalPayment();
-            $("#modal_tradein_credit").modal("hide");
-        })
-        .fail((err) => {
-            console.log(err);
-            swal(
-                "Erro",
-                err.responseJSON
-                    ? err.responseJSON
-                    : "Falha ao aplicar crédito",
-                "error",
-            );
-        });
-});
-
-function atualizarTradeinCard(temSaldo) {
-    if (temSaldo) {
-        $("#tradein-credit-card").removeClass("d-none");
-        $(".tradein-credit-value").text(
-            "R$ " + convertFloatToMoeda(TRADEIN_SALDO),
-        );
-    } else {
-        $("#tradein-credit-card").addClass("d-none");
-        $(".tradein-credit-applied").addClass("d-none");
-    }
-}
-
-function atualizarTradeinAplicado() {
-    TRADEIN_UTILIZADO = 0;
-    $(".table-payment tbody tr").each(function () {
-        let tipo = $(this).find('input[name="tipo_pagamento_row[]"]').val();
-        if (tipo == TRADEIN_PAYMENT_CODE) {
-            TRADEIN_UTILIZADO += convertMoedaToFloat(
-                $(this).find(".valor_integral").val(),
-            );
-        }
-    });
-    if (!$("#tradein-credit-card").hasClass("d-none")) {
-        $(".tradein-credit-value").text(
-            "R$ " + convertFloatToMoeda(TRADEIN_SALDO),
-        );
-    }
-    if (TRADEIN_UTILIZADO > 0) {
-        $(".tradein-credit-applied-value").text(
-            "R$ " + convertFloatToMoeda(TRADEIN_UTILIZADO),
-        );
-        $(".tradein-credit-applied").removeClass("d-none");
-    } else {
-        $(".tradein-credit-applied").addClass("d-none");
-    }
-}
-
-function removerParcelasTradein() {
-    $(".table-payment tbody tr").each(function () {
-        let tipo = $(this).find('input[name="tipo_pagamento_row[]"]').val();
-        if (tipo == TRADEIN_PAYMENT_CODE) {
-            $(this).remove();
-        }
-    });
-    calcTotalPayment();
-}
-
-function tradeinSaldoDisponivel() {
-    return Math.max(TRADEIN_SALDO - TRADEIN_UTILIZADO, 0);
-}
 
 $.fn.serializeFormJSON = function () {
     var o = {};
