@@ -63,6 +63,7 @@ use App\Utils\FilaEnvioUtil;
 use App\Models\Garantia;
 use App\Models\ProdutoUnico;
 use App\Models\TradeinCreditMovement;
+use Illuminate\Database\QueryException;
 use App\Utils\TradeinCreditUtil;
 
 class FrontBoxController extends Controller
@@ -772,17 +773,28 @@ class FrontBoxController extends Controller
             abort(422, 'Saldo trade-in insuficiente.');
         }
 
-        TradeinCreditMovement::create([
-            'empresa_id' => $empresaId,
-            'documento' => $documento,
-            'cliente_id' => $clienteId,
-            'tipo' => TradeinCreditMovement::TYPE_DEBIT,
-            'valor' => $valor,
-            'origem_tipo' => 'pdv_payment',
-            'origem_id' => $origemId,
-            'ref_texto' => 'Uso de crédito trade-in no PDV',
-            'user_id' => $userId,
-        ]);
+        try {
+            TradeinCreditMovement::create([
+                'empresa_id' => $empresaId,
+                'documento' => $documento,
+                'cliente_id' => $clienteId,
+                'tipo' => TradeinCreditMovement::TYPE_DEBIT,
+                'valor' => $valor,
+                'origem_tipo' => 'pdv_payment',
+                'origem_id' => $origemId,
+                'ref_texto' => 'Uso de crédito trade-in no PDV',
+                'user_id' => $userId,
+            ]);
+        } catch (QueryException $e) {
+            if (!$this->isDuplicateKey($e)) {
+                throw $e;
+            }
+        }
+    }
+
+    private function isDuplicateKey(QueryException $e): bool
+    {
+        return isset($e->errorInfo[1]) && (int) $e->errorInfo[1] === 1062;
     }
 
     private function processaCodigoUnicoSaida($produtoId, $quantidade, $jsonCodigos, $nfceId, ItemNfce $itemNfce)

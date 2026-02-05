@@ -7,6 +7,7 @@ use App\Models\Tradein;
 use App\Models\TradeinCreditMovement;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -146,17 +147,23 @@ class TradeinController extends Controller
                 ->exists();
 
             if (!$alreadyCredited) {
-                TradeinCreditMovement::create([
-                    'empresa_id' => $tradein->empresa_id,
-                    'cliente_id' => $tradein->cliente_id,
-                    'tipo' => TradeinCreditMovement::TYPE_CREDIT,
-                    'valor' => $creditValue,
-                    'origem_tipo' => 'tradein_accept',
-                    'origem_id' => $tradein->id,
-                    'ref_texto' => 'Crédito Trade-in #' . $tradein->id,
-                    'user_id' => Auth::id(),
-                ]);
-                $creditCreated = true;
+                try {
+                    TradeinCreditMovement::create([
+                        'empresa_id' => $tradein->empresa_id,
+                        'cliente_id' => $tradein->cliente_id,
+                        'tipo' => TradeinCreditMovement::TYPE_CREDIT,
+                        'valor' => $creditValue,
+                        'origem_tipo' => 'tradein_accept',
+                        'origem_id' => $tradein->id,
+                        'ref_texto' => 'Crédito Trade-in #' . $tradein->id,
+                        'user_id' => Auth::id(),
+                    ]);
+                    $creditCreated = true;
+                } catch (QueryException $e) {
+                    if (!$this->isDuplicateKey($e)) {
+                        throw $e;
+                    }
+                }
             }
 
             return $tradein;
@@ -392,5 +399,10 @@ class TradeinController extends Controller
             'id' => $tradein->id,
             'status' => $tradein->status,
         ], 201);
+    }
+
+    private function isDuplicateKey(QueryException $e): bool
+    {
+        return isset($e->errorInfo[1]) && (int) $e->errorInfo[1] === 1062;
     }
 }
