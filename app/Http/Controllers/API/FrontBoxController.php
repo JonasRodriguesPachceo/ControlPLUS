@@ -713,6 +713,10 @@ class FrontBoxController extends Controller
 
     private function collectTradeinPagamentos(Request $request): array
     {
+        if ($request->tradein_credit_skip || $request->tradein_credit_debited) {
+            return ['total' => 0];
+        }
+
         $total = 0;
         if ($request->tipo_pagamento == TradeinCreditMovement::PAYMENT_CODE) {
             $total += __convert_value_bd($request->valor_total);

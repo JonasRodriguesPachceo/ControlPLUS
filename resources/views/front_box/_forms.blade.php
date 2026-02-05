@@ -104,6 +104,9 @@
                                         TRADE-IN
                                     </button>
                                 </div>
+                                <div class="mt-2 small text-muted d-none" id="tradein_credit_wrap">
+                                    Saldo Trade-in: <span id="tradein_credit_balance">R$ 0,00</span>
+                                </div>
                             </div>
                             <div class="avatar-sm flex-shrink-0">
                                 <button type="button" class="avatar-title text-bg-success rounded rounded-3 fs-3 widget-icon-box-avatar shadow btn-selecionar_cliente" data-bs-toggle="modal" data-bs-target="#cliente">

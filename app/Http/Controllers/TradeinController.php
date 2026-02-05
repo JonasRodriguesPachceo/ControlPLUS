@@ -18,7 +18,7 @@ class TradeinController extends Controller
         $this->middleware('permission:tradein_edit', ['only' => ['update']]);
         $this->middleware('permission:pdv_edit', ['only' => ['storeWeb']]);
         $this->middleware('permission:pdv_view', ['only' => ['status', 'creditBalance']]);
-        $this->middleware('permission:pdv_edit', ['only' => ['accept', 'reject', 'cancel']]);
+        $this->middleware('permission:pdv_edit', ['only' => ['accept', 'reject', 'cancel', 'creditDebit']]);
     }
 
     public function index(Request $request)
@@ -197,6 +197,65 @@ class TradeinController extends Controller
             'empresa_id' => (int) $empresaId,
             'saldo' => $credit - $debit,
         ], 200);
+    }
+
+    public function creditDebit(Request $request)
+    {
+        $request->validate([
+            'empresa_id' => 'required|integer',
+            'cliente_id' => 'required|integer',
+            'valor' => 'required',
+            'origem_id' => 'required|integer',
+            'origem_tipo' => 'required|string',
+        ]);
+
+        $empresaId = (int) $request->empresa_id;
+        $clienteId = (int) $request->cliente_id;
+        $valor = (float) __convert_value_bd($request->valor);
+
+        if ($valor <= 0) {
+            return response()->json('Valor inválido para uso de crédito.', 422);
+        }
+
+        $cliente = Cliente::find($clienteId);
+        if (!$cliente || (int) $cliente->empresa_id !== $empresaId) {
+            abort(403);
+        }
+
+        return DB::transaction(function () use ($empresaId, $clienteId, $valor, $request, $cliente) {
+            $movements = TradeinCreditMovement::where('empresa_id', $empresaId)
+                ->where('cliente_id', $clienteId)
+                ->lockForUpdate()
+                ->get();
+
+            $saldo = $movements->reduce(function ($carry, TradeinCreditMovement $movement) {
+                return $carry + ($movement->tipo === TradeinCreditMovement::TYPE_CREDIT ? $movement->valor : -$movement->valor);
+            }, 0.0);
+
+            if ($saldo < $valor - 0.0001) {
+                return response()->json('Saldo trade-in insuficiente.', 422);
+            }
+
+            $documento = TradeinCreditMovement::sanitizeDocumento($cliente->cpf_cnpj) ?? '';
+
+            TradeinCreditMovement::create([
+                'empresa_id' => $empresaId,
+                'documento' => $documento,
+                'cliente_id' => $clienteId,
+                'tipo' => TradeinCreditMovement::TYPE_DEBIT,
+                'valor' => $valor,
+                'origem_tipo' => 'pdv_payment',
+                'origem_id' => (int) $request->origem_id,
+                'ref_texto' => 'Uso de crédito trade-in no PDV',
+                'user_id' => Auth::id(),
+            ]);
+
+            return response()->json([
+                'cliente_id' => $clienteId,
+                'empresa_id' => $empresaId,
+                'saldo_restante' => $saldo - $valor,
+            ], 200);
+        });
     }
 
     public function reject(Request $request, $id)
