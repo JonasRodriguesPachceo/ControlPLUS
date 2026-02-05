@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use App\Models\Tradein;
+use App\Models\TradeinCreditMovement;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TradeinController extends Controller
 {
@@ -15,7 +17,7 @@ class TradeinController extends Controller
         $this->middleware('permission:tradein_view', ['only' => ['index', 'edit']]);
         $this->middleware('permission:tradein_edit', ['only' => ['update']]);
         $this->middleware('permission:pdv_edit', ['only' => ['storeWeb']]);
-        $this->middleware('permission:pdv_view', ['only' => ['status']]);
+        $this->middleware('permission:pdv_view', ['only' => ['status', 'creditBalance']]);
         $this->middleware('permission:pdv_edit', ['only' => ['accept', 'reject', 'cancel']]);
     }
 
@@ -116,26 +118,84 @@ class TradeinController extends Controller
 
     public function accept(Request $request, $id)
     {
-        $tradein = Tradein::findOrFail($id);
-        if ($request->empresa_id && (int) $request->empresa_id !== (int) $tradein->empresa_id) {
-            abort(403);
-        }
-        __validaObjetoEmpresa($tradein);
+        $creditCreated = false;
+        $creditValue = 0.0;
 
-        if ($tradein->status !== Tradein::STATUS_COMPLETED || !$tradein->valor_avaliado) {
-            return response()->json('Trade-in ainda não concluído.', 422);
-        }
+        $result = DB::transaction(function () use ($request, $id, &$creditCreated, &$creditValue) {
+            $tradein = Tradein::where('id', $id)->lockForUpdate()->firstOrFail();
+            if ($request->empresa_id && (int) $request->empresa_id !== (int) $tradein->empresa_id) {
+                abort(403);
+            }
+            __validaObjetoEmpresa($tradein);
 
-        if ($tradein->status_aceite_cliente !== Tradein::ACEITE_ACCEPTED) {
-            $tradein->status_aceite_cliente = Tradein::ACEITE_ACCEPTED;
-            $tradein->aceite_em = $tradein->aceite_em ?? now();
-            $tradein->save();
+            if ($tradein->status !== Tradein::STATUS_COMPLETED || !$tradein->valor_avaliado) {
+                return response()->json('Trade-in ainda não concluído.', 422);
+            }
+
+            if ($tradein->status_aceite_cliente !== Tradein::ACEITE_ACCEPTED) {
+                $tradein->status_aceite_cliente = Tradein::ACEITE_ACCEPTED;
+                $tradein->aceite_em = $tradein->aceite_em ?? now();
+                $tradein->save();
+            }
+
+            $creditValue = (float) $tradein->valor_avaliado;
+            $alreadyCredited = TradeinCreditMovement::where('empresa_id', $tradein->empresa_id)
+                ->where('origem_tipo', 'tradein_accept')
+                ->where('origem_id', $tradein->id)
+                ->where('tipo', TradeinCreditMovement::TYPE_CREDIT)
+                ->exists();
+
+            if (!$alreadyCredited) {
+                TradeinCreditMovement::create([
+                    'empresa_id' => $tradein->empresa_id,
+                    'cliente_id' => $tradein->cliente_id,
+                    'tipo' => TradeinCreditMovement::TYPE_CREDIT,
+                    'valor' => $creditValue,
+                    'origem_tipo' => 'tradein_accept',
+                    'origem_id' => $tradein->id,
+                    'ref_texto' => 'Crédito Trade-in #' . $tradein->id,
+                    'user_id' => Auth::id(),
+                ]);
+                $creditCreated = true;
+            }
+
+            return $tradein;
+        });
+
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
         }
 
         return response()->json([
-            'client_decision_status' => $tradein->status_aceite_cliente,
-            'status_aceite_cliente' => $tradein->status_aceite_cliente,
-            'aceite_em' => $tradein->aceite_em,
+            'tradein_id' => $result->id,
+            'status_aceite_cliente' => $result->status_aceite_cliente,
+            'client_decision_status' => $result->status_aceite_cliente,
+            'credit_created' => $creditCreated,
+            'credit_value' => $creditValue,
+        ], 200);
+    }
+
+    public function creditBalance(Request $request, $clienteId)
+    {
+        $empresaId = $request->empresa_id;
+        if (!$empresaId) {
+            return response()->json('Empresa inválida.', 422);
+        }
+
+        $credit = (float) TradeinCreditMovement::where('empresa_id', $empresaId)
+            ->where('cliente_id', $clienteId)
+            ->where('tipo', TradeinCreditMovement::TYPE_CREDIT)
+            ->sum('valor');
+
+        $debit = (float) TradeinCreditMovement::where('empresa_id', $empresaId)
+            ->where('cliente_id', $clienteId)
+            ->where('tipo', TradeinCreditMovement::TYPE_DEBIT)
+            ->sum('valor');
+
+        return response()->json([
+            'cliente_id' => (int) $clienteId,
+            'empresa_id' => (int) $empresaId,
+            'saldo' => $credit - $debit,
         ], 200);
     }
 
