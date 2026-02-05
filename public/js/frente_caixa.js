@@ -2386,11 +2386,14 @@ function updateTradeinModal(data) {
     $("#tradein_aceite_text").text(decisionLabel);
 
     const completed = data.status === "completed";
+    const termGenerated = data.term_generated === true || !!data.term_generated_at;
+    const decisionPending = !decisionKey || decisionKey === "pending";
     $("#btn-tradein-termo")
         .prop("disabled", !completed)
         .toggleClass("disabled", !completed);
-    $("#btn-tradein-accept").prop("disabled", !completed);
-    $("#btn-tradein-reject").prop("disabled", !completed);
+    const canDecide = completed && termGenerated && decisionPending;
+    $("#btn-tradein-accept").prop("disabled", !canDecide);
+    $("#btn-tradein-reject").prop("disabled", !canDecide);
 
     if (completed) {
         const tradeinId = $("#tradein_status_id").val();
@@ -2493,34 +2496,46 @@ function cancelTradein() {
         $("#modal_tradein_status").modal("hide");
         return;
     }
-    if (!confirm("Ao sair, o trade-in será cancelado e apagado. Confirmar?")) {
-        return;
-    }
-    $.post(path_url + "trade-in/" + tradeinId + "/cancel", {
-        empresa_id: $("#empresa_id").val(),
-        _token: $('meta[name="csrf-token"]').attr("content"),
-    })
-        .done(() => {
-            TRADEIN_ALLOW_CLOSE = true;
-            $("#tradein_status_id").val("");
-            $("#modal_tradein_status").modal("hide");
+    swal({
+        title: "Confirmar",
+        text: "Ao sair, o trade-in será cancelado e apagado. Confirmar?",
+        icon: "warning",
+        buttons: ["Cancelar", "Sim, cancelar"],
+        dangerMode: true,
+    }).then((willConfirm) => {
+        if (!willConfirm) return;
+        $.post(path_url + "trade-in/" + tradeinId + "/cancel", {
+            empresa_id: $("#empresa_id").val(),
+            _token: $('meta[name="csrf-token"]').attr("content"),
         })
-        .fail((err) => {
-            console.log("tradein cancel error", err.status, err.responseText);
-            if (err.status === 422) {
-                swal(
-                    "Aviso",
-                    "Trade-in com aceite/recusa não pode ser cancelado.",
-                    "warning",
+            .done(() => {
+                TRADEIN_ALLOW_CLOSE = true;
+                $("#tradein_status_id").val("");
+                $("#modal_tradein_status").modal("hide");
+            })
+            .fail((err) => {
+                console.log(
+                    "tradein cancel error",
+                    err.status,
+                    err.responseText,
                 );
-                return;
-            }
-            swal(
-                "Erro",
-                "Nao foi possivel cancelar o trade-in. (" + err.status + ")",
-                "error",
-            );
-        });
+                if (err.status === 422) {
+                    swal(
+                        "Aviso",
+                        "Trade-in com aceite/recusa não pode ser cancelado.",
+                        "warning",
+                    );
+                    return;
+                }
+                swal(
+                    "Erro",
+                    "Nao foi possivel cancelar o trade-in. (" +
+                        err.status +
+                        ")",
+                    "error",
+                );
+            });
+    });
 }
 
 $("#modal_tradein_status").on("hide.bs.modal", function (e) {
@@ -2541,37 +2556,86 @@ $("#modal_tradein_status").on("hidden.bs.modal", function () {
 $("#btn-tradein-accept").click(() => {
     const tradeinId = $("#tradein_status_id").val();
     if (!tradeinId) return;
-    $.post(path_url + "trade-in/" + tradeinId + "/accept", {
-        empresa_id: $("#empresa_id").val(),
-        _token: $('meta[name="csrf-token"]').attr("content"),
-    })
-        .done((data) => {
-            $("#tradein_aceite_text").text(data.status_aceite_cliente || "--");
+    swal({
+        title: "Confirmar",
+        text:
+            "Ao confirmar, será gerado um crédito de Trade-in para este cliente. Esta ação é irreversível e terá efeito financeiro. Deseja continuar?",
+        icon: "warning",
+        buttons: ["Cancelar", "Sim, gerar crédito"],
+        dangerMode: true,
+    }).then((willConfirm) => {
+        if (!willConfirm) return;
+        $.post(path_url + "trade-in/" + tradeinId + "/accept", {
+            empresa_id: $("#empresa_id").val(),
+            _token: $('meta[name="csrf-token"]').attr("content"),
         })
-        .fail((err) => {
-            console.log(err);
-            swal("Erro", "Nao foi possivel aceitar o trade-in.", "error");
-        });
+            .done((data) => {
+                $("#tradein_aceite_text").text(
+                    data.status_aceite_cliente || "--",
+                );
+                $("#btn-tradein-accept").prop("disabled", true);
+                $("#btn-tradein-reject").prop("disabled", true);
+                if (typeof fetchTradeinStatus === "function") {
+                    fetchTradeinStatus(tradeinId);
+                }
+                TRADEIN_ALLOW_CLOSE = true;
+                $("#modal_tradein_status").modal("hide");
+            })
+            .fail((err) => {
+                console.log(err);
+                swal("Erro", "Nao foi possivel aceitar o trade-in.", "error");
+            });
+    });
 });
 
 $("#btn-tradein-reject").click(() => {
     const tradeinId = $("#tradein_status_id").val();
     if (!tradeinId) return;
-    $.post(path_url + "trade-in/" + tradeinId + "/reject", {
-        empresa_id: $("#empresa_id").val(),
-        _token: $('meta[name="csrf-token"]').attr("content"),
-    })
-        .done((data) => {
-            $("#tradein_aceite_text").text(data.status_aceite_cliente || "--");
+    swal({
+        title: "Confirmar",
+        text:
+            "Ao confirmar a recusa, a oferta será encerrada e não terá mais validade. Esta ação é irreversível. Deseja continuar?",
+        icon: "warning",
+        buttons: ["Voltar", "Sim, recusar"],
+        dangerMode: true,
+    }).then((willConfirm) => {
+        if (!willConfirm) return;
+        $.post(path_url + "trade-in/" + tradeinId + "/reject", {
+            empresa_id: $("#empresa_id").val(),
+            _token: $('meta[name="csrf-token"]').attr("content"),
         })
-        .fail((err) => {
-            console.log(err);
-            swal("Erro", "Nao foi possivel recusar o trade-in.", "error");
-        });
+            .done((data) => {
+                $("#tradein_aceite_text").text(
+                    data.status_aceite_cliente || "--",
+                );
+                $("#btn-tradein-accept").prop("disabled", true);
+                $("#btn-tradein-reject").prop("disabled", true);
+                if (typeof fetchTradeinStatus === "function") {
+                    fetchTradeinStatus(tradeinId);
+                }
+                TRADEIN_ALLOW_CLOSE = true;
+                $("#tradein_status_id").val("");
+                $("#modal_tradein_status").modal("hide");
+            })
+            .fail((err) => {
+                console.log(err);
+                swal("Erro", "Nao foi possivel recusar o trade-in.", "error");
+            });
+    });
 });
 
 $("#btn-tradein-cancel").click(() => {
     cancelTradein();
+});
+
+$("#btn-tradein-termo").click(() => {
+    const tradeinId = $("#tradein_status_id").val();
+    if (!tradeinId) return;
+    setTimeout(() => {
+        if (typeof fetchTradeinStatus === "function") {
+            fetchTradeinStatus(tradeinId);
+        }
+    }, 1000);
 });
 
 $("body").on("change", "#inp-lista_preco_id", function () {

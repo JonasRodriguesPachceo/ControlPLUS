@@ -108,6 +108,8 @@ class TradeinController extends Controller
             'status_aceite_cliente' => $tradein->status_aceite_cliente,
             'valor_avaliado' => $tradein->valor_avaliado,
             'valor_pretendido' => $tradein->valor_pretendido,
+            'term_generated_at' => $tradein->term_generated_at,
+            'term_generated' => (bool) $tradein->term_generated_at,
             'updated_at' => $tradein->updated_at,
         ], 200);
     }
@@ -236,6 +238,11 @@ class TradeinController extends Controller
         $domPdf = new Dompdf(['enable_remote' => true]);
         $domPdf->loadHtml($html);
         $domPdf->render();
+
+        if (!$tradein->term_generated_at) {
+            $tradein->term_generated_at = now();
+            $tradein->save();
+        }
 
         return $domPdf->stream("Termo Trade-in #{$tradein->id}.pdf", ['Attachment' => false]);
     }
