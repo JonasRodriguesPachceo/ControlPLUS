@@ -720,6 +720,10 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::post('trade-in/store', 'TradeinController@storeWeb')->name('tradein.store');
     Route::get('trade-in/{id}', 'TradeinController@edit')->name('tradein.edit');
     Route::put('trade-in/{id}', 'TradeinController@update')->name('tradein.update');
+    Route::get('trade-in/{id}/status', 'TradeinController@status')->name('tradein.status');
+    Route::post('trade-in/{id}/accept', 'TradeinController@accept')->name('tradein.accept');
+    Route::post('trade-in/{id}/reject', 'TradeinController@reject')->name('tradein.reject');
+    Route::post('trade-in/{id}/cancel', 'TradeinController@cancel')->name('tradein.cancel');
     Route::get('trade-in/{id}/termo.pdf', 'TradeinController@termoPdf')->name('tradein.termo-pdf');
 
     Route::resource('produtos', 'ProdutoController');

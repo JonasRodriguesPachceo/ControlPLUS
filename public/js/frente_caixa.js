@@ -2358,9 +2358,22 @@ function selecionaLista() {
 }
 
 let TRADEIN_POLL_TIMER = null;
+let TRADEIN_ALLOW_CLOSE = false;
+const tradeinStatusLabels = {
+    submitted: "Submetido",
+    in_review: "Em análise",
+    completed: "Concluído",
+    cancelled: "Cancelado",
+};
+const tradeinDecisionLabels = {
+    pending: "Pendente",
+    accepted: "Aceito",
+    rejected: "Recusado",
+};
 
 function updateTradeinModal(data) {
-    $("#tradein_status_text").text(data.status || "--");
+    const statusLabel = tradeinStatusLabels[data.status] || data.status || "--";
+    $("#tradein_status_text").text(statusLabel);
     if (data.valor_avaliado) {
         $("#tradein_valor_text").text(
             "R$ " + convertFloatToMoeda(data.valor_avaliado),
@@ -2368,7 +2381,9 @@ function updateTradeinModal(data) {
     } else {
         $("#tradein_valor_text").text("R$ 0,00");
     }
-    $("#tradein_aceite_text").text(data.status_aceite_cliente || "--");
+    const decisionKey = data.status_aceite_cliente || data.client_decision_status;
+    const decisionLabel = tradeinDecisionLabels[decisionKey] || decisionKey || "--";
+    $("#tradein_aceite_text").text(decisionLabel);
 
     const completed = data.status === "completed";
     $("#btn-tradein-termo")
@@ -2385,7 +2400,7 @@ function updateTradeinModal(data) {
 }
 
 function fetchTradeinStatus(tradeinId) {
-    return $.get(path_url + "api/tradeins/" + tradeinId, {
+    return $.get(path_url + "trade-in/" + tradeinId + "/status", {
         empresa_id: $("#empresa_id").val(),
     })
         .done((data) => {
@@ -2397,10 +2412,17 @@ function fetchTradeinStatus(tradeinId) {
         })
         .fail((err) => {
             console.log(err);
+            $("#tradein_status_text").text("Erro ao carregar");
+            $("#tradein_valor_text").text("R$ 0,00");
+            $("#tradein_aceite_text").text("--");
+            $("#btn-tradein-termo").attr("href", "#").prop("disabled", true);
+            $("#btn-tradein-accept").prop("disabled", true);
+            $("#btn-tradein-reject").prop("disabled", true);
         });
 }
 
 function openTradeinStatusModal(tradeinId) {
+    TRADEIN_ALLOW_CLOSE = false;
     $("#tradein_status_id").val(tradeinId);
     $("#modal_tradein_status").modal("show");
     fetchTradeinStatus(tradeinId);
@@ -2429,7 +2451,11 @@ $("#btn-create-tradein").click(() => {
     const clienteId = $("#inp-cliente_id").val();
     const nomeItem = $("#tradein_nome_item").val();
     if (!clienteId) {
-        swal("Alerta", "Selecione um cliente para criar o trade-in.", "warning");
+        swal(
+            "Alerta",
+            "Selecione um cliente para criar o trade-in.",
+            "warning",
+        );
         return;
     }
     if (!nomeItem || !nomeItem.trim()) {
@@ -2461,6 +2487,50 @@ $("#btn-create-tradein").click(() => {
         });
 });
 
+function cancelTradein() {
+    const tradeinId = $("#tradein_status_id").val();
+    if (!tradeinId) {
+        $("#modal_tradein_status").modal("hide");
+        return;
+    }
+    if (!confirm("Ao sair, o trade-in será cancelado e apagado. Confirmar?")) {
+        return;
+    }
+    $.post(path_url + "trade-in/" + tradeinId + "/cancel", {
+        empresa_id: $("#empresa_id").val(),
+        _token: $('meta[name="csrf-token"]').attr("content"),
+    })
+        .done(() => {
+            TRADEIN_ALLOW_CLOSE = true;
+            $("#tradein_status_id").val("");
+            $("#modal_tradein_status").modal("hide");
+        })
+        .fail((err) => {
+            console.log("tradein cancel error", err.status, err.responseText);
+            if (err.status === 422) {
+                swal(
+                    "Aviso",
+                    "Trade-in com aceite/recusa não pode ser cancelado.",
+                    "warning",
+                );
+                return;
+            }
+            swal(
+                "Erro",
+                "Nao foi possivel cancelar o trade-in. (" + err.status + ")",
+                "error",
+            );
+        });
+}
+
+$("#modal_tradein_status").on("hide.bs.modal", function (e) {
+    if (TRADEIN_ALLOW_CLOSE) return;
+    if ($("#tradein_status_id").val()) {
+        e.preventDefault();
+        cancelTradein();
+    }
+});
+
 $("#modal_tradein_status").on("hidden.bs.modal", function () {
     if (TRADEIN_POLL_TIMER) {
         clearInterval(TRADEIN_POLL_TIMER);
@@ -2471,7 +2541,7 @@ $("#modal_tradein_status").on("hidden.bs.modal", function () {
 $("#btn-tradein-accept").click(() => {
     const tradeinId = $("#tradein_status_id").val();
     if (!tradeinId) return;
-    $.post(path_url + "api/tradeins/" + tradeinId + "/accept", {
+    $.post(path_url + "trade-in/" + tradeinId + "/accept", {
         empresa_id: $("#empresa_id").val(),
         _token: $('meta[name="csrf-token"]').attr("content"),
     })
@@ -2480,13 +2550,14 @@ $("#btn-tradein-accept").click(() => {
         })
         .fail((err) => {
             console.log(err);
+            swal("Erro", "Nao foi possivel aceitar o trade-in.", "error");
         });
 });
 
 $("#btn-tradein-reject").click(() => {
     const tradeinId = $("#tradein_status_id").val();
     if (!tradeinId) return;
-    $.post(path_url + "api/tradeins/" + tradeinId + "/reject", {
+    $.post(path_url + "trade-in/" + tradeinId + "/reject", {
         empresa_id: $("#empresa_id").val(),
         _token: $('meta[name="csrf-token"]').attr("content"),
     })
@@ -2495,7 +2566,12 @@ $("#btn-tradein-reject").click(() => {
         })
         .fail((err) => {
             console.log(err);
+            swal("Erro", "Nao foi possivel recusar o trade-in.", "error");
         });
+});
+
+$("#btn-tradein-cancel").click(() => {
+    cancelTradein();
 });
 
 $("body").on("change", "#inp-lista_preco_id", function () {

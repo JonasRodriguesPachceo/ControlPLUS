@@ -15,6 +15,8 @@ class TradeinController extends Controller
         $this->middleware('permission:tradein_view', ['only' => ['index', 'edit']]);
         $this->middleware('permission:tradein_edit', ['only' => ['update']]);
         $this->middleware('permission:pdv_edit', ['only' => ['storeWeb']]);
+        $this->middleware('permission:pdv_view', ['only' => ['status']]);
+        $this->middleware('permission:pdv_edit', ['only' => ['accept', 'reject', 'cancel']]);
     }
 
     public function index(Request $request)
@@ -89,6 +91,92 @@ class TradeinController extends Controller
 
         session()->flash('flash_success', 'Avaliacao atualizada.');
         return redirect()->route('tradein.edit', ['id' => $tradein->id, 'empresa_id' => $request->empresa_id]);
+    }
+
+    public function status(Request $request, $id)
+    {
+        $tradein = Tradein::findOrFail($id);
+        if ($request->empresa_id && (int) $request->empresa_id !== (int) $tradein->empresa_id) {
+            abort(403);
+        }
+        __validaObjetoEmpresa($tradein);
+
+        return response()->json([
+            'id' => $tradein->id,
+            'status' => $tradein->status,
+            'client_decision_status' => $tradein->status_aceite_cliente,
+            'status_aceite_cliente' => $tradein->status_aceite_cliente,
+            'valor_avaliado' => $tradein->valor_avaliado,
+            'valor_pretendido' => $tradein->valor_pretendido,
+            'updated_at' => $tradein->updated_at,
+        ], 200);
+    }
+
+    public function accept(Request $request, $id)
+    {
+        $tradein = Tradein::findOrFail($id);
+        if ($request->empresa_id && (int) $request->empresa_id !== (int) $tradein->empresa_id) {
+            abort(403);
+        }
+        __validaObjetoEmpresa($tradein);
+
+        if ($tradein->status !== Tradein::STATUS_COMPLETED || !$tradein->valor_avaliado) {
+            return response()->json('Trade-in ainda não concluído.', 422);
+        }
+
+        if ($tradein->status_aceite_cliente !== Tradein::ACEITE_ACCEPTED) {
+            $tradein->status_aceite_cliente = Tradein::ACEITE_ACCEPTED;
+            $tradein->aceite_em = $tradein->aceite_em ?? now();
+            $tradein->save();
+        }
+
+        return response()->json([
+            'client_decision_status' => $tradein->status_aceite_cliente,
+            'status_aceite_cliente' => $tradein->status_aceite_cliente,
+            'aceite_em' => $tradein->aceite_em,
+        ], 200);
+    }
+
+    public function reject(Request $request, $id)
+    {
+        $tradein = Tradein::findOrFail($id);
+        if ($request->empresa_id && (int) $request->empresa_id !== (int) $tradein->empresa_id) {
+            abort(403);
+        }
+        __validaObjetoEmpresa($tradein);
+
+        if ($tradein->status !== Tradein::STATUS_COMPLETED || !$tradein->valor_avaliado) {
+            return response()->json('Trade-in ainda não concluído.', 422);
+        }
+
+        if ($tradein->status_aceite_cliente !== Tradein::ACEITE_REJECTED) {
+            $tradein->status_aceite_cliente = Tradein::ACEITE_REJECTED;
+            $tradein->aceite_em = $tradein->aceite_em ?? now();
+            $tradein->save();
+        }
+
+        return response()->json([
+            'client_decision_status' => $tradein->status_aceite_cliente,
+            'status_aceite_cliente' => $tradein->status_aceite_cliente,
+            'aceite_em' => $tradein->aceite_em,
+        ], 200);
+    }
+
+    public function cancel(Request $request, $id)
+    {
+        $tradein = Tradein::findOrFail($id);
+        if ($request->empresa_id && (int) $request->empresa_id !== (int) $tradein->empresa_id) {
+            abort(403);
+        }
+        __validaObjetoEmpresa($tradein);
+
+        if (in_array($tradein->status_aceite_cliente, [Tradein::ACEITE_ACCEPTED, Tradein::ACEITE_REJECTED], true)) {
+            return response()->json('Trade-in com aceite/recusa não pode ser cancelado.', 422);
+        }
+
+        $tradein->delete();
+
+        return response()->json(['ok' => true], 200);
     }
 
     public function start(Request $request, $id)
