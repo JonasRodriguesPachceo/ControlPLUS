@@ -711,12 +711,8 @@ class FrontBoxController extends Controller
         return 0;
     }
 
-    private function collectTradeinPagamentos(Request $request): array
+    private function extractTradeinCreditAmount(Request $request): float
     {
-        if ($request->tradein_credit_skip || $request->tradein_credit_debited) {
-            return ['total' => 0];
-        }
-
         $total = 0;
         if ($request->tipo_pagamento == TradeinCreditMovement::PAYMENT_CODE) {
             $total += __convert_value_bd($request->valor_total);
@@ -730,7 +726,63 @@ class FrontBoxController extends Controller
             }
         }
 
-        return ['total' => $total];
+        return (float) $total;
+    }
+
+    private function debitTradeinCredit(int $empresaId, ?int $clienteId, float $valor, int $origemId, ?int $userId): void
+    {
+        if ($valor <= 0) {
+            return;
+        }
+
+        if (!$clienteId) {
+            abort(422, 'Informe o cliente para usar crédito trade-in.');
+        }
+
+        $cliente = Cliente::find($clienteId);
+        if (!$cliente || (int) $cliente->empresa_id !== $empresaId) {
+            abort(403, 'Cliente inválido para uso de crédito trade-in.');
+        }
+
+        $documento = TradeinCreditMovement::sanitizeDocumento($cliente->cpf_cnpj);
+        if (!$documento) {
+            abort(422, 'Documento do cliente obrigatório para uso de crédito trade-in.');
+        }
+
+        $alreadyDebited = TradeinCreditMovement::where('empresa_id', $empresaId)
+            ->where('cliente_id', $clienteId)
+            ->where('tipo', TradeinCreditMovement::TYPE_DEBIT)
+            ->where('origem_tipo', 'pdv_payment')
+            ->where('origem_id', $origemId)
+            ->exists();
+        if ($alreadyDebited) {
+            return;
+        }
+
+        $movements = TradeinCreditMovement::where('empresa_id', $empresaId)
+            ->where('cliente_id', $clienteId)
+            ->lockForUpdate()
+            ->get();
+
+        $saldo = $movements->reduce(function ($carry, TradeinCreditMovement $movement) {
+            return $carry + ($movement->tipo === TradeinCreditMovement::TYPE_CREDIT ? $movement->valor : -$movement->valor);
+        }, 0.0);
+
+        if ($saldo < $valor - 0.0001) {
+            abort(422, 'Saldo trade-in insuficiente.');
+        }
+
+        TradeinCreditMovement::create([
+            'empresa_id' => $empresaId,
+            'documento' => $documento,
+            'cliente_id' => $clienteId,
+            'tipo' => TradeinCreditMovement::TYPE_DEBIT,
+            'valor' => $valor,
+            'origem_tipo' => 'pdv_payment',
+            'origem_id' => $origemId,
+            'ref_texto' => 'Uso de crédito trade-in no PDV',
+            'user_id' => $userId,
+        ]);
     }
 
     private function processaCodigoUnicoSaida($produtoId, $quantidade, $jsonCodigos, $nfceId, ItemNfce $itemNfce)
@@ -992,8 +1044,6 @@ class FrontBoxController extends Controller
                     }
                 }
 
-            $tradeinResumo = $this->collectTradeinPagamentos($request);
-
             if ($request->tipo_pagamento == '06') {
                 ContaReceber::create([
                     'nfe_id' => null,
@@ -1014,8 +1064,6 @@ class FrontBoxController extends Controller
                         'referencia' => "Pedido PDV " . $nfce->numero_sequencial
                     ]);
                 }
-
-                $tradeinResumo = $this->collectTradeinPagamentos($request);
 
                 if ($request->tipo_pagamento_row) {
                     for ($i = 0; $i < sizeof($request->tipo_pagamento_row); $i++) {
@@ -1099,14 +1147,14 @@ class FrontBoxController extends Controller
                     }
                 }
 
-                if ($tradeinResumo['total'] > 0) {
-                    $nfce->loadMissing('cliente');
-                    $this->tradeinCreditUtil->consumirCreditoVenda(
-                        $nfce,
-                        $nfce->cliente,
-                        $nfce->cliente_cpf_cnpj,
-                        $tradeinResumo['total'],
-                        TradeinCreditMovement::ORIGEM_VENDA_NFCE
+                $tradeinValor = $this->extractTradeinCreditAmount($request);
+                if ($tradeinValor > 0) {
+                    $this->debitTradeinCredit(
+                        (int) $request->empresa_id,
+                        $request->cliente_id ? (int) $request->cliente_id : null,
+                        $tradeinValor,
+                        (int) $nfce->id,
+                        $request->usuario_id ? (int) $request->usuario_id : null
                     );
                 }
 
@@ -1217,6 +1265,8 @@ class FrontBoxController extends Controller
 __createLog($request->empresa_id, 'PDV', 'cadastrar', "#$nfce->numero_sequencial - R$ " . __moeda($nfce->total));
 
 return response()->json($nfce, 200);
+} catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+    return response()->json($e->getMessage(), $e->getStatusCode());
 } catch (\Exception $e) {
     __createLog($request->empresa_id, 'PDV', 'erro', $e->getMessage());
     return response()->json($e->getMessage() . ", line: " . $e->getLine() . ", file: " . $e->getFile(), 401);
@@ -2005,8 +2055,6 @@ public function storeNfe(Request $request)
                 }
             }
 
-            $tradeinResumo = $this->collectTradeinPagamentos($request);
-
             if ($request->tipo_pagamento == '06') {
                 ContaReceber::create([
                     'nfce_id' => null,
@@ -2092,17 +2140,6 @@ public function storeNfe(Request $request)
                 }
             }
 
-            if ($tradeinResumo['total'] > 0) {
-                $nfe->loadMissing('cliente');
-                $this->tradeinCreditUtil->consumirCreditoVenda(
-                    $nfe,
-                    $nfe->cliente,
-                    $nfe->cliente_cpf_cnpj,
-                    $tradeinResumo['total'],
-                    TradeinCreditMovement::ORIGEM_VENDA_NFE
-                );
-            }
-
             if(isset($request->valor_cashback) && $request->valor_cashback == 0 && $request->permitir_credito){
                 $this->saveCashBack($nfe);
             }else{
@@ -2111,14 +2148,14 @@ public function storeNfe(Request $request)
                 }
             }
 
-            if ($tradeinResumo['total'] > 0) {
-                $nfce->loadMissing('cliente');
-                $this->tradeinCreditUtil->consumirCreditoVenda(
-                    $nfce,
-                    $nfce->cliente,
-                    $nfce->cliente_cpf_cnpj,
-                    $tradeinResumo['total'],
-                    TradeinCreditMovement::ORIGEM_VENDA_NFCE
+            $tradeinValor = $this->extractTradeinCreditAmount($request);
+            if ($tradeinValor > 0) {
+                $this->debitTradeinCredit(
+                    (int) $request->empresa_id,
+                    $request->cliente_id ? (int) $request->cliente_id : null,
+                    $tradeinValor,
+                    (int) $nfe->id,
+                    $request->usuario_id ? (int) $request->usuario_id : null
                 );
             }
 
@@ -2146,6 +2183,8 @@ public function storeNfe(Request $request)
         });
 __createLog($request->empresa_id, 'Venda', 'cadastrar', "#$nfe->numero_sequencial - R$ " . __moeda($nfe->total));
 return response()->json($nfe, 200);
+} catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+    return response()->json($e->getMessage(), $e->getStatusCode());
 } catch (\Exception $e) {
     __createLog($request->empresa_id, 'PDV', 'erro', $e->getMessage());
     return response()->json($e->getMessage() . ", line: " . $e->getLine() . ", file: " . $e->getFile(), 401);
@@ -2334,12 +2373,24 @@ public function update(Request $request, $id){
                     ]);
                 }
             }
+            $tradeinValor = $this->extractTradeinCreditAmount($request);
+            if ($tradeinValor > 0) {
+                $this->debitTradeinCredit(
+                    (int) $request->empresa_id,
+                    $request->cliente_id ? (int) $request->cliente_id : null,
+                    $tradeinValor,
+                    (int) $id,
+                    $request->usuario_id ? (int) $request->usuario_id : null
+                );
+            }
             return $item;
         });
 __createLog($request->empresa_id, 'PDV', 'editar', "#$nfce->numero_sequencial - R$ " . __moeda($nfce->total));
 
 return response()->json($nfce, 200);
 
+} catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+    return response()->json($e->getMessage(), $e->getStatusCode());
 } catch (\Exception $e) {
     __createLog($request->empresa_id, 'PDV', 'erro', $e->getMessage());
     return response()->json($e->getMessage() . ", line: " . $e->getLine() . ", file: " . $e->getFile(), 401);

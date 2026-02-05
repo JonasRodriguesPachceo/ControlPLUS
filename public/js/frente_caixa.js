@@ -2703,73 +2703,6 @@ function normalizeArray(value) {
     return Array.isArray(value) ? value : [value];
 }
 
-function getTradeinPaymentTotal(json) {
-    let total = 0;
-    const paymentCode = String(TRADEIN_PAYMENT_CODE);
-    if (json.tipo_pagamento && String(json.tipo_pagamento) === paymentCode) {
-        const totalValue = json.valor_total || $("#inp-valor_total").val();
-        total += convertMoedaToFloat(totalValue || 0);
-    }
-
-    const rows = normalizeArray(json.tipo_pagamento_row);
-    const values = normalizeArray(json.valor_integral_row);
-    rows.forEach((tipoRow, idx) => {
-        if (String(tipoRow) === paymentCode) {
-            total += convertMoedaToFloat(values[idx] || 0);
-        }
-    });
-
-    return total;
-}
-
-function debitTradeinCredit(tradeinValor, origemId, onSuccess) {
-    if (!tradeinValor || tradeinValor <= 0) {
-        onSuccess();
-        return;
-    }
-
-    const clienteId = $("#inp-cliente_id").val();
-    if (!clienteId) {
-        swal("Erro", "Informe o cliente para usar crédito trade-in.", "error");
-        return;
-    }
-
-    $.post(path_url + "trade-in/credit/debit", {
-        empresa_id: $("#empresa_id").val(),
-        cliente_id: clienteId,
-        valor: tradeinValor,
-        origem_id: origemId,
-        origem_tipo: "pdv_payment",
-        _token: $('meta[name="csrf-token"]').attr("content"),
-    })
-        .done((res) => {
-            if (res && res.saldo_restante !== undefined) {
-                $("#tradein_credit_balance").text(
-                    "R$ " + convertFloatToMoeda(res.saldo_restante),
-                );
-                $("#tradein_credit_wrap").removeClass("d-none");
-            }
-            onSuccess();
-        })
-        .fail((err) => {
-            console.log(err);
-            if (err.status === 422 && err.responseJSON) {
-                swal(
-                    "Atenção",
-                    err.responseJSON +
-                        " Venda criada sem debitar crédito. Cancele a venda e refaça.",
-                    "warning",
-                );
-                return;
-            }
-            swal(
-                "Erro",
-                "Não foi possível usar o crédito trade-in.",
-                "error",
-            );
-        });
-}
-
 $("#form-pdv").on("submit", function (e) {
     e.preventDefault();
     if (!validateCodigoUnicoRows()) {
@@ -2784,10 +2717,6 @@ $("#form-pdv").on("submit", function (e) {
     json.desconto = convertMoedaToFloat($("#valor_desconto").text());
     json.acrescimo = convertMoedaToFloat($("#valor_acrescimo").text());
     json.valor_frete = convertMoedaToFloat($(".valor-frete").text());
-    const tradeinValor = getTradeinPaymentTotal(json);
-    if (tradeinValor > 0) {
-        json.tradein_credit_skip = 1;
-    }
     // console.log(">>>>>>>> salvando ", json);
     // return;
     let documentoPdv = $("#documento_pdv").val();
@@ -2798,71 +2727,63 @@ $("#form-pdv").on("submit", function (e) {
             (clienteCNPJ == true && emitirNfce == true) ||
             (documentoPdv == "nfe" && cliente && emitirNfce == true)
         ) {
-            storeNfe(json, tradeinValor);
+            storeNfe(json);
             return;
         }
 
         $.post(path_url + "api/frenteCaixa/store", json)
             .done((success) => {
-                const finalizeVenda = () => {
-                    if (emitirNfce == true) {
-                        gerarNfce(success);
-                        return;
-                    }
-                    swal({
-                        title: "Sucesso",
-                        text: "Venda finalizada com sucesso, deseja imprimir o comprovante?",
-                        icon: "success",
-                        buttons: true,
-                        buttons: ["Não", "Sim"],
-                        dangerMode: true,
-                    }).then((isConfirm) => {
-                        if (isConfirm) {
-                            imprimirNaoFiscal(success.id, json.tipo_pagamento);
-                        }
-
-                        if ($("#pedido_delivery_id").length) {
-                            location.href = "/pedidos-delivery";
-                        } else if ($("#pedido_id").length) {
-                            location.href =
-                                "/pedidos-cardapio/" + $("#pedido_id").val();
-                        } else {
-                            if (
-                                $(".table-payment tbody tr").length > 0 &&
-                                $("#inp-cliente_id").val()
-                            ) {
-                                swal({
-                                    title: "Sucesso",
-                                    text: "Deseja imprimir as duplicatas",
-                                    icon: "success",
-                                    buttons: ["Não", "Imprimir"],
-                                    dangerMode: true,
-                                }).then((v) => {
-                                    if (v) {
-                                        window.open(
-                                            path_url +
-                                                "frontbox/imprimir-carne/" +
-                                                success.id,
-                                            "_blank",
-                                        );
-
-                                        location.href = "/frontbox/create";
-                                    } else {
-                                        location.href = "/frontbox/create";
-                                    }
-                                });
-                            } else {
-                                location.href = "/frontbox/create";
-                            }
-                        }
-                    });
-                };
-
-                if (tradeinValor > 0) {
-                    debitTradeinCredit(tradeinValor, success.id, finalizeVenda);
-                } else {
-                    finalizeVenda();
+                if (emitirNfce == true) {
+                    gerarNfce(success);
+                    return;
                 }
+                swal({
+                    title: "Sucesso",
+                    text: "Venda finalizada com sucesso, deseja imprimir o comprovante?",
+                    icon: "success",
+                    buttons: true,
+                    buttons: ["Não", "Sim"],
+                    dangerMode: true,
+                }).then((isConfirm) => {
+                    if (isConfirm) {
+                        imprimirNaoFiscal(success.id, json.tipo_pagamento);
+                    }
+
+                    if ($("#pedido_delivery_id").length) {
+                        location.href = "/pedidos-delivery";
+                    } else if ($("#pedido_id").length) {
+                        location.href =
+                            "/pedidos-cardapio/" + $("#pedido_id").val();
+                    } else {
+                        if (
+                            $(".table-payment tbody tr").length > 0 &&
+                            $("#inp-cliente_id").val()
+                        ) {
+                            swal({
+                                title: "Sucesso",
+                                text: "Deseja imprimir as duplicatas",
+                                icon: "success",
+                                buttons: ["Não", "Imprimir"],
+                                dangerMode: true,
+                            }).then((v) => {
+                                if (v) {
+                                    window.open(
+                                        path_url +
+                                            "frontbox/imprimir-carne/" +
+                                            success.id,
+                                        "_blank",
+                                    );
+
+                                    location.href = "/frontbox/create";
+                                } else {
+                                    location.href = "/frontbox/create";
+                                }
+                            });
+                        } else {
+                            location.href = "/frontbox/create";
+                        }
+                    }
+                });
             })
             .fail((err) => {
                 swal("Erro", err.responseJSON, "error");
@@ -2873,19 +2794,12 @@ $("#form-pdv").on("submit", function (e) {
     submitVenda();
 });
 
-function storeNfe(json, tradeinValor) {
+function storeNfe(json) {
     // console.log(json)
     $.post(path_url + "api/frenteCaixa/storeNfe", json)
         .done((success) => {
-            const finalizeNfe = () => {
-                // console.log(success)
-                gerarNfe(success);
-            };
-            if (tradeinValor > 0) {
-                debitTradeinCredit(tradeinValor, success.id, finalizeNfe);
-            } else {
-                finalizeNfe();
-            }
+            // console.log(success)
+            gerarNfe(success);
         })
         .fail((err) => {
             swal("Erro", err.responseJSON, "error");
@@ -2963,11 +2877,6 @@ $("#form-pdv-update").on("submit", function (e) {
     json.desconto = convertMoedaToFloat($("#valor_desconto").text());
     json.acrescimo = convertMoedaToFloat($("#valor_acrescimo").text());
     json.valor_frete = convertMoedaToFloat($(".valor-frete").text());
-    const tradeinValor = getTradeinPaymentTotal(json);
-    if (tradeinValor > 0) {
-        json.tradein_credit_skip = 1;
-    }
-
     // console.log(">>>>>>>> salvando ", json);
     const submitUpdate = () => {
         $.post(
@@ -2975,55 +2884,46 @@ $("#form-pdv-update").on("submit", function (e) {
             json,
         )
             .done((success) => {
-                const finalizeUpdate = () => {
-                    if (emitirNfce == true) {
-                        gerarNfce(success);
-                        return;
-                    }
-                    swal(
-                        "Sucesso",
-                        "Venda atualizada com sucesso, deseja imprimir o comprovante?",
-                        "success",
-                    );
-
-                    swal({
-                        title: "Sucesso",
-                        text: "Venda finalizada com sucesso, deseja imprimir o comprovante?",
-                        icon: "success",
-                        buttons: true,
-                        buttons: ["Não", "Sim"],
-                        dangerMode: true,
-                    }).then((isConfirm) => {
-                        if (isConfirm) {
-                            window.open(
-                                path_url +
-                                    "frontbox/imprimir-nao-fiscal/" +
-                                    success.id,
-                                "_blank",
-                            );
-                        } else {
-                            // location.reload()
-                        }
-                        if ($("#pedido_delivery_id").length) {
-                            location.href = "/pedidos-delivery";
-                        } else if ($("#pedido_id").length) {
-                            location.href = "/pedidos-cardapio";
-                        } else {
-                            if (update) {
-                                location.href = path_url + "frontbox";
-                            } else {
-                                location.reload();
-                            }
-                        }
-                    });
-                };
-
-                if (tradeinValor > 0) {
-                    const origemId = success.id || $("#venda_id").val();
-                    debitTradeinCredit(tradeinValor, origemId, finalizeUpdate);
-                } else {
-                    finalizeUpdate();
+                if (emitirNfce == true) {
+                    gerarNfce(success);
+                    return;
                 }
+                swal(
+                    "Sucesso",
+                    "Venda atualizada com sucesso, deseja imprimir o comprovante?",
+                    "success",
+                );
+
+                swal({
+                    title: "Sucesso",
+                    text: "Venda finalizada com sucesso, deseja imprimir o comprovante?",
+                    icon: "success",
+                    buttons: true,
+                    buttons: ["Não", "Sim"],
+                    dangerMode: true,
+                }).then((isConfirm) => {
+                    if (isConfirm) {
+                        window.open(
+                            path_url +
+                                "frontbox/imprimir-nao-fiscal/" +
+                                success.id,
+                            "_blank",
+                        );
+                    } else {
+                        // location.reload()
+                    }
+                    if ($("#pedido_delivery_id").length) {
+                        location.href = "/pedidos-delivery";
+                    } else if ($("#pedido_id").length) {
+                        location.href = "/pedidos-cardapio";
+                    } else {
+                        if (update) {
+                            location.href = path_url + "frontbox";
+                        } else {
+                            location.reload();
+                        }
+                    }
+                });
             })
             .fail((err) => {
                 console.log(err);
