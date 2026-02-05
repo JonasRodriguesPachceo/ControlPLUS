@@ -12,7 +12,8 @@ class TradeinController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:ordem_servico_edit', ['only' => ['index', 'edit', 'update']]);
+        $this->middleware('permission:tradein_view', ['only' => ['index', 'edit']]);
+        $this->middleware('permission:tradein_edit', ['only' => ['update']]);
         $this->middleware('permission:pdv_edit', ['only' => ['storeWeb']]);
     }
 
