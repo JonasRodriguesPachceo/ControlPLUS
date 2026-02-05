@@ -111,6 +111,9 @@ class Permission extends \Spatie\Permission\Models\Permission
             array('name' => 'pdv_edit', 'description' => 'Edita PDV'),
             array('name' => 'pdv_delete', 'description' => 'Deleta PDV'),
 
+            array('name' => 'tradein_view', 'description' => 'Visualiza Trade-in'),
+            array('name' => 'tradein_edit', 'description' => 'Edita Trade-in'),
+
             array('name' => 'pre_venda_view', 'description' => 'Visualiza pré venda'),
             array('name' => 'pre_venda_create', 'description' => 'Cria pré venda'),
             array('name' => 'pre_venda_edit', 'description' => 'Edita pré venda'),

@@ -989,25 +989,25 @@ public function update(Request $request, $id)
 
     public function avaliacaoIndex(Request $request)
     {
-        return view('produtos.avaliacao');
+        return redirect()->route('tradein.index');
     }
 
     public function avaliacaoEdit($id)
     {
-        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo /trade-in.');
-        return redirect()->route('produtos.avaliacao.index');
+        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo TRADE-IN.');
+        return redirect()->route('tradein.index');
     }
 
     public function avaliacaoUpdate(Request $request, $id)
     {
-        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo /trade-in.');
-        return redirect()->route('produtos.avaliacao.index');
+        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo TRADE-IN.');
+        return redirect()->route('tradein.index');
     }
 
     public function avaliacaoReject(Request $request, $id)
     {
-        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo /trade-in.');
-        return redirect()->route('produtos.avaliacao.index');
+        session()->flash('flash_warning', 'Fluxo de trade-in movido para o módulo TRADE-IN.');
+        return redirect()->route('tradein.index');
     }
 
 public function destroy($id)

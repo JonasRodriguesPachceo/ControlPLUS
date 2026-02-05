@@ -423,7 +423,7 @@
                                             <a href="{{ route('produtos.index', ['status=1']) }}">Listar</a>
                                         </li>
                                         <li>
-                                            <a href="{{ route('produtos.avaliacao.index') }}">Trade-in</a>
+                                            <a href="{{ route('tradein.index') }}">Trade-in</a>
                                         </li>
                                     @endcan
                                     @can('produtos_create')

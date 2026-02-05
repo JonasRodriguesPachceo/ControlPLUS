@@ -99,6 +99,11 @@
                                 @else
                                 <h6 class="cliente_selecionado">--</h6>
                                 @endif
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-outline-primary btn-sm w-100" id="btn-open-tradein">
+                                        TRADE-IN
+                                    </button>
+                                </div>
                             </div>
                             <div class="avatar-sm flex-shrink-0">
                                 <button type="button" class="avatar-title text-bg-success rounded rounded-3 fs-3 widget-icon-box-avatar shadow btn-selecionar_cliente" data-bs-toggle="modal" data-bs-target="#cliente">
@@ -658,6 +663,8 @@
 @include('modals._modal_pix')
 @include('modals._fatura_venda')
 @include('modals._frete')
+@include('modals._tradein_status')
+@include('modals._tradein_create')
 
 @include('modals._observacao_pdv')
 @include('modals._adicionais_pdv')

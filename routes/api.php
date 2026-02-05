@@ -387,6 +387,12 @@ Route::group(['prefix' => 'frenteCaixa'], function () {
     });
 });
 
+Route::group(['prefix' => 'tradeins'], function () {
+    Route::get('/{id}', 'TradeinController@show');
+    Route::post('/{id}/accept', 'TradeinController@accept');
+    Route::post('/{id}/reject', 'TradeinController@reject');
+});
+
 Route::group(['prefix' => 'financeiro-boleto'], function () {
     Route::post('/store', 'FinanceiroBoletoController@store');
     Route::get('/modal', 'FinanceiroBoletoController@modal');
@@ -851,6 +857,3 @@ Route::middleware(['validaApiTokenSuperAdmin'])->group(function () {
         });
     });
 });
-
-
-

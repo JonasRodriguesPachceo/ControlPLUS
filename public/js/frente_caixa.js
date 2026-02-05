@@ -396,6 +396,20 @@ $(document).on("change", "#inp-cliente_id", function () {
     $("#inp-valor_cashback").val("");
     $("#inp-permitir_credito").val("1").change();
     let cliente_id = $(this).val();
+    $("#tradein_status_id").val("");
+    if (typeof TRADEIN_POLL_TIMER !== "undefined" && TRADEIN_POLL_TIMER) {
+        clearInterval(TRADEIN_POLL_TIMER);
+        TRADEIN_POLL_TIMER = null;
+    }
+    $("#tradein_status_text").text("Nenhum trade-in selecionado");
+    $("#tradein_valor_text").text("R$ 0,00");
+    $("#tradein_aceite_text").text("--");
+    $("#btn-tradein-termo").attr("href", "#").prop("disabled", true);
+    $("#btn-tradein-accept").prop("disabled", true);
+    $("#btn-tradein-reject").prop("disabled", true);
+    if ($("#modal_tradein_status").hasClass("show")) {
+        $("#modal_tradein_status").modal("hide");
+    }
     $.get(path_url + "api/clientes/cashback/" + cliente_id)
         .done((e) => {
             if (e) {
@@ -2342,6 +2356,147 @@ function selecionaLista() {
         $("#codBarras").focus();
     }, 500);
 }
+
+let TRADEIN_POLL_TIMER = null;
+
+function updateTradeinModal(data) {
+    $("#tradein_status_text").text(data.status || "--");
+    if (data.valor_avaliado) {
+        $("#tradein_valor_text").text(
+            "R$ " + convertFloatToMoeda(data.valor_avaliado),
+        );
+    } else {
+        $("#tradein_valor_text").text("R$ 0,00");
+    }
+    $("#tradein_aceite_text").text(data.status_aceite_cliente || "--");
+
+    const completed = data.status === "completed";
+    $("#btn-tradein-termo")
+        .prop("disabled", !completed)
+        .toggleClass("disabled", !completed);
+    $("#btn-tradein-accept").prop("disabled", !completed);
+    $("#btn-tradein-reject").prop("disabled", !completed);
+
+    if (completed) {
+        const tradeinId = $("#tradein_status_id").val();
+        const termoUrl = path_url + "trade-in/" + tradeinId + "/termo.pdf";
+        $("#btn-tradein-termo").attr("href", termoUrl);
+    }
+}
+
+function fetchTradeinStatus(tradeinId) {
+    return $.get(path_url + "api/tradeins/" + tradeinId, {
+        empresa_id: $("#empresa_id").val(),
+    })
+        .done((data) => {
+            updateTradeinModal(data);
+            if (data.status === "completed" && TRADEIN_POLL_TIMER) {
+                clearInterval(TRADEIN_POLL_TIMER);
+                TRADEIN_POLL_TIMER = null;
+            }
+        })
+        .fail((err) => {
+            console.log(err);
+        });
+}
+
+function openTradeinStatusModal(tradeinId) {
+    $("#tradein_status_id").val(tradeinId);
+    $("#modal_tradein_status").modal("show");
+    fetchTradeinStatus(tradeinId);
+    if (!TRADEIN_POLL_TIMER) {
+        TRADEIN_POLL_TIMER = setInterval(() => {
+            fetchTradeinStatus(tradeinId);
+        }, 5000);
+    }
+}
+
+$("#btn-open-tradein").click(() => {
+    const clienteId = $("#inp-cliente_id").val();
+    if (!clienteId) {
+        swal("Alerta", "Selecione um cliente para ver o trade-in.", "warning");
+        return;
+    }
+    const tradeinId = $("#tradein_status_id").val();
+    if (tradeinId) {
+        openTradeinStatusModal(tradeinId);
+        return;
+    }
+    $("#modal_tradein_create").modal("show");
+});
+
+$("#btn-create-tradein").click(() => {
+    const clienteId = $("#inp-cliente_id").val();
+    const nomeItem = $("#tradein_nome_item").val();
+    if (!clienteId) {
+        swal("Alerta", "Selecione um cliente para criar o trade-in.", "warning");
+        return;
+    }
+    if (!nomeItem || !nomeItem.trim()) {
+        swal("Alerta", "Informe o nome do item.", "warning");
+        return;
+    }
+
+    const payload = {
+        empresa_id: $("#empresa_id").val(),
+        cliente_id: clienteId,
+        nome_item: nomeItem,
+        serial_number: $("#tradein_serial_number").val(),
+        valor_pretendido: $("#tradein_valor_pretendido").val(),
+        observacao: $("#tradein_observacao").val(),
+        _token: $('meta[name="csrf-token"]').attr("content"),
+    };
+
+    $.post(path_url + "trade-in/store", payload)
+        .done((data) => {
+            if (data && data.id) {
+                $("#tradein_status_id").val(data.id);
+                $("#modal_tradein_create").modal("hide");
+                openTradeinStatusModal(data.id);
+            }
+        })
+        .fail((err) => {
+            console.log(err);
+            swal("Erro", "Não foi possível criar o trade-in.", "error");
+        });
+});
+
+$("#modal_tradein_status").on("hidden.bs.modal", function () {
+    if (TRADEIN_POLL_TIMER) {
+        clearInterval(TRADEIN_POLL_TIMER);
+        TRADEIN_POLL_TIMER = null;
+    }
+});
+
+$("#btn-tradein-accept").click(() => {
+    const tradeinId = $("#tradein_status_id").val();
+    if (!tradeinId) return;
+    $.post(path_url + "api/tradeins/" + tradeinId + "/accept", {
+        empresa_id: $("#empresa_id").val(),
+        _token: $('meta[name="csrf-token"]').attr("content"),
+    })
+        .done((data) => {
+            $("#tradein_aceite_text").text(data.status_aceite_cliente || "--");
+        })
+        .fail((err) => {
+            console.log(err);
+        });
+});
+
+$("#btn-tradein-reject").click(() => {
+    const tradeinId = $("#tradein_status_id").val();
+    if (!tradeinId) return;
+    $.post(path_url + "api/tradeins/" + tradeinId + "/reject", {
+        empresa_id: $("#empresa_id").val(),
+        _token: $('meta[name="csrf-token"]').attr("content"),
+    })
+        .done((data) => {
+            $("#tradein_aceite_text").text(data.status_aceite_cliente || "--");
+        })
+        .fail((err) => {
+            console.log(err);
+        });
+});
 
 $("body").on("change", "#inp-lista_preco_id", function () {
     $.get(path_url + "api/lista-preco/find", { id: $(this).val() })

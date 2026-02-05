@@ -716,10 +716,11 @@ Route::middleware(['verificaEmpresa', 'validaPlano', 'validaContrato'])->group(f
     Route::resource('unidades-medida', 'UnidadeMedidaController');
     Route::delete('categoria-produtos-destroy-select', 'CategoriaProdutoController@destroySelecet')->name('categoria-produtos.destroy-select');
 
-    Route::get('trade-in', 'ProdutoController@avaliacaoIndex')->name('produtos.avaliacao.index');
-    Route::get('trade-in/{id}', 'ProdutoController@avaliacaoEdit')->name('produtos.avaliacao.edit');
-    Route::put('trade-in/{id}', 'ProdutoController@avaliacaoUpdate')->name('produtos.avaliacao.update');
-    Route::put('trade-in/{id}/reprovar', 'ProdutoController@avaliacaoReject')->name('produtos.avaliacao.reject');
+    Route::get('trade-in', 'TradeinController@index')->name('tradein.index');
+    Route::post('trade-in/store', 'TradeinController@storeWeb')->name('tradein.store');
+    Route::get('trade-in/{id}', 'TradeinController@edit')->name('tradein.edit');
+    Route::put('trade-in/{id}', 'TradeinController@update')->name('tradein.update');
+    Route::get('trade-in/{id}/termo.pdf', 'TradeinController@termoPdf')->name('tradein.termo-pdf');
 
     Route::resource('produtos', 'ProdutoController');
     Route::delete('produtos-destroy-select', 'ProdutoController@destroySelecet')->name('produtos.destroy-select');
