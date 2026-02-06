@@ -5,7 +5,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 use NFePHP\Common\Certificate;
 use NFePHP\NFe\Tools;
-use NFePHP\NFe\Make;
 use NFePHP\NFe\Common\Standardize;
 use NFePHP\NFe\Complements;
 use App\Models\Nfe;
@@ -17,18 +16,18 @@ use App\Models\Ibpt;
 use NFePHP\NFe\Factories\Contingency;
 use App\Models\Contigencia;
 use NFePHP\Common\Soap\SoapCurl;
-use NFePHP\NFe\MakeDev;
+use NFePHP\NFe\Make;
 
 class NFeService{
 
-	private $config; 
+	private $config;
 	private $tools;
 	protected $empresa_id = null;
 
 	protected $timeout = 8;
 
 	public function __construct($config, $empresa){
-		
+
 		$this->empresa_id = $empresa->id;
 
 		$this->config = $config;
@@ -45,7 +44,7 @@ class NFeService{
 		$soapCurl = new SoapCurl();
 		$soapCurl->httpVersion('1.1');
 		$this->tools->loadSoapClass($soapCurl);
-		
+
 		$contigencia = $this->getContigencia();
 		if($contigencia != null){
 			$contingency = new Contingency($contigencia->status_retorno);
@@ -66,9 +65,9 @@ class NFeService{
 	public function gerarXml($item){
 
 		// $nfe = new Make();
-		// $nfe = new MakeDev();
+		// $nfe = new Make();
 		$schema = 'PL_010_V1';
-		$nfe = new MakeDev($schema);
+		$nfe = new Make($schema);
 		$stdInNFe = new \stdClass();
 		$stdInNFe->versao = '4.00';
 		$stdInNFe->Id = null;
@@ -101,7 +100,7 @@ class NFeService{
 			$nNF = $emitente->numero_ultima_nfe_producao;
 		}
 
-		$stdIde->nNF = $item->numero; 
+		$stdIde->nNF = $item->numero;
 		$stdIde->dhEmi = date("Y-m-d\TH:i:sP");
 		if($item->data_emissao_retroativa){
 			$stdIde->dhEmi = $item->data_emissao_retroativa.date("\TH:i:sP");
@@ -110,7 +109,7 @@ class NFeService{
 		if($item->data_emissao_saida){
 			$stdIde->dhSaiEnt = $item->data_emissao_saida.date("\TH:i:sP");
 		}
-		
+
 		$stdIde->tpNF = $item->tpNF;
 		$stdIde->idDest = $emitente->cidade->uf == $contact->cidade->uf ? 1 : 2;
 
@@ -136,7 +135,7 @@ class NFeService{
 		$stdEmit->xFant = $emitente->nome_fantasia;
 		// $stdEmit->CRT = $emitente->tributacao == 'Regime Normal' ? 3 : 1;
 		// if($emitente->tributacao == 'Simples Nacional, excesso sublimite de receita bruta'){
-		// 	$stdEmit->CRT = 2;	
+		// 	$stdEmit->CRT = 2;
 		// }
 
 		$stdEmit->CRT = $emitente->getCRT();
@@ -198,7 +197,7 @@ class NFeService{
 			$stdDest->CNPJ = null;
 		}
 
-		
+
 		$dest = $nfe->tagdest($stdDest);
 
 		$stdEnderDest = new \stdClass();
@@ -250,7 +249,7 @@ class NFeService{
 				$stdEnderDestEntrega->CNPJ = $cnpj_cpf;
 			}else{
 				$stdEnderDestEntrega->CPF = $cnpj_cpf;
-			} 
+			}
 
 			$enderDestEntrega = $nfe->tagentrega($stdEnderDestEntrega);
 		}
@@ -357,7 +356,7 @@ class NFeService{
 			if($i->produto->quantidade_tributavel > 0){
 				$stdProd->vUnTrib = $stdProd->vProd/$stdProd->qTrib;
 			}
-			
+
 			$stdProd->indTot = 1;
 			$somaProdutos += $stdProd->vProd;
 			if($i->codigo_beneficio_fiscal){
@@ -366,7 +365,7 @@ class NFeService{
 
 			if($item->valor_frete > 0){
 				if($itemCont < $totalItens){
-					$somaFrete += $vFt = 
+					$somaFrete += $vFt =
 					$this->format($item->valor_frete/$totalItens, 2);
 					$stdProd->vFrete = $this->format($vFt);
 				}else{
@@ -518,7 +517,7 @@ class NFeService{
 			if ($stdEmit->CRT == 1 || $stdEmit->CRT == 4) {
 
 				$stdICMS = new \stdClass();
-				$stdICMS->item = $itemCont; 
+				$stdICMS->item = $itemCont;
 				$stdICMS->orig = $i->produto->origem;
 				$stdICMS->CSOSN = $i->cst_csosn;
 
@@ -557,7 +556,7 @@ class NFeService{
 						$stdICMS->vICMS = 0;
 					}
 				}
-				
+
 				if($i->cst_csosn == 201 || $i->cst_csosn == 202){
 
 					$stdICMS->modBCST = $i->produto->modBCST;
@@ -608,7 +607,7 @@ class NFeService{
 				if(isset($stdICMS->vICMSST)){
 					$somaVICMSST += $stdICMS->vICMSST;
 				}
-				
+
 				if ((int)$stdICMS->CSOSN < 101 && (int)$stdICMS->CSOSN != 61) {
 					return [
 						'erros_xml' => "Xml mal formado, CST inválido no item $itemCont"
@@ -637,7 +636,7 @@ class NFeService{
 				}
 
 				$stdICMS = new \stdClass();
-				$stdICMS->item = $itemCont; 
+				$stdICMS->item = $itemCont;
 				$stdICMS->orig = $i->produto->origem;
 				$stdICMS->CST = $i->cst_csosn;
 				$stdICMS->modBC = 0;
@@ -682,7 +681,7 @@ class NFeService{
 					$stdICMS->pICMSST = $this->format($i->produto->pICMSST);
 					$stdICMS->vICMSST = $stdICMS->vBCST * ($stdICMS->pICMSST/100);
 				}
-				
+
 				if($i->cst_csosn == 60){
 					// $stdICMS->vBCSTRet = 0.00;
 					// $stdICMS->vICMSSTRet = 0.00;
@@ -876,7 +875,7 @@ class NFeService{
 
 			if(strlen($i->produto->codigo_anp) > 2){
 				$stdComb = new \stdClass();
-				$stdComb->item = $itemCont; 
+				$stdComb->item = $itemCont;
 				$stdComb->cProdANP = $i->produto->codigo_anp;
 				$stdComb->descANP = $i->produto->getDescricaoAnp();
 				if($i->produto->perc_glp > 0){
@@ -903,7 +902,7 @@ class NFeService{
 			if($stdIde->indFinal == 0 && strlen($i->produto->codigo_anp) > 2){
 				$stdOrigComb = new \stdClass();
 
-				$stdOrigComb->item = $itemCont; 
+				$stdOrigComb->item = $itemCont;
 				$stdOrigComb->indImport = $i->produto->indImport;
 				$stdOrigComb->cUFOrig = $i->produto->cUFOrig;
 				$stdOrigComb->pOrig = $i->produto->pOrig;
@@ -915,7 +914,7 @@ class NFeService{
 			// $stdProd->CEST = $cest;
 			// if(strlen($cest) > 0){
 			// 	$std = new \stdClass();
-			// 	$std->item = $itemCont; 
+			// 	$std->item = $itemCont;
 			// 	$std->CEST = $cest;
 			// 	$nfe->tagCEST($std);
 			// }
@@ -985,7 +984,7 @@ class NFeService{
 				if($difal && $stdICMS->vBC){
 
 					$std = new \stdClass();
-					$std->item = $itemCont; 
+					$std->item = $itemCont;
 					$std->vBCUFDest = $stdICMS->vBC;
 					$std->vBCFCPUFDest = $stdICMS->vBC;
 					$std->pFCPUFDest = $this->format($difal->pFCPUFDest);
@@ -1131,7 +1130,7 @@ class NFeService{
 				$stdDetPag = new \stdClass();
 				$stdDetPag->tPag = $ft->tipo_pagamento;
 				if($stdDetPag->tPag == '06'){
-					$stdDetPag->tPag = '05'; 
+					$stdDetPag->tPag = '05';
 				}
 				$stdDetPag->vPag = $this->format($ft->valor);
 				$stdDetPag->indPag = 0;
@@ -1188,13 +1187,13 @@ class NFeService{
 		if($somaEstadual > 0 || $somaFederal > 0 || $somaMunicipal > 0){
 			$obs .= " Trib. aprox. ";
 			if($somaFederal > 0){
-				$obs .= "R$ " . number_format($somaFederal, 2, ',', '.') ." Federal"; 
+				$obs .= "R$ " . number_format($somaFederal, 2, ',', '.') ." Federal";
 			}
 			if($somaEstadual > 0){
-				$obs .= ", R$ ".number_format($somaEstadual, 2, ',', '.')." Estadual"; 
+				$obs .= ", R$ ".number_format($somaEstadual, 2, ',', '.')." Estadual";
 			}
 			if($somaMunicipal > 0){
-				$obs .= ", R$ ".number_format($somaMunicipal, 2, ',', '.')." Municipal"; 
+				$obs .= ", R$ ".number_format($somaMunicipal, 2, ',', '.')." Municipal";
 			}
 			// $ibpt = IBPT::where('uf', $config->UF)->first();
 
@@ -1377,7 +1376,7 @@ class NFeService{
 
 	public function consultar($nfe){
 		try {
-			
+
 			$this->tools->model('55');
 
 			$chave = $nfe->chave;
@@ -1417,7 +1416,7 @@ class NFeService{
 			return $arr;
 
 		} catch (\Exception $e) {
-			return ['erro' => true, 'data' => $e->getMessage(), 'status' => 402];	
+			return ['erro' => true, 'data' => $e->getMessage(), 'status' => 402];
 		}
 	}
 
@@ -1451,10 +1450,10 @@ class NFeService{
 					return $arr;
 
 				} else {
-            //houve alguma falha no evento 
+            //houve alguma falha no evento
 					return ['erro' => true, 'data' => $arr, 'status' => 402];
 				}
-			}    
+			}
 		} catch (\Exception $e) {
 			return ['erro' => true, 'data' => $e->getMessage(), 'status' => 404];
 		}
@@ -1462,7 +1461,7 @@ class NFeService{
 
 	public function cancelar($nfe, $motivo){
 		try {
-			
+
 			$chave = $nfe->chave;
 			$response = $this->tools->sefazConsultaChave($chave);
 			$stdCl = new Standardize($response);
@@ -1491,10 +1490,10 @@ class NFeService{
 
 					return $arr;
 				} else {
-					
-					return ['erro' => true, 'data' => $arr, 'status' => 402];	
+
+					return ['erro' => true, 'data' => $arr, 'status' => 402];
 				}
-			}    
+			}
 		} catch (\Exception $e) {
 			// echo $e->getMessage();
 			return ['erro' => true, 'data' => $e->getMessage(), 'status' => 402];
