@@ -422,8 +422,13 @@
                                         <li>
                                             <a href="{{ route('produtos.index', ['status=1']) }}">Listar</a>
                                         </li>
+                                    @endcan
+                                    @can('tradein_view')
                                         <li>
                                             <a href="{{ route('tradein.index') }}">Trade-in</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('tradein.inventory.index', ['empresa_id' => request()->empresa_id]) }}">Estoque Trade-in</a>
                                         </li>
                                     @endcan
                                     @can('produtos_create')

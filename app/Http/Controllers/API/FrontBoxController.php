@@ -727,6 +727,16 @@ class FrontBoxController extends Controller
             }
         }
 
+        if ($request->fatura) {
+            foreach ($request->fatura as $fatura) {
+                $tipo = is_array($fatura) ? ($fatura['tipo_pagamento'] ?? null) : ($fatura->tipo_pagamento ?? null);
+                if ($tipo == TradeinCreditMovement::PAYMENT_CODE) {
+                    $valor = is_array($fatura) ? ($fatura['valor'] ?? 0) : ($fatura->valor ?? 0);
+                    $total += __convert_value_bd($valor);
+                }
+            }
+        }
+
         return (float) $total;
     }
 
@@ -1251,28 +1261,27 @@ class FrontBoxController extends Controller
                 }
 
 
-                if (isset($request->venda_suspensa_id)) {
-                    $vendaSuspensa = VendaSuspensa::findOrfail($request->venda_suspensa_id);
-                    $vendaSuspensa->itens()->delete();
-                    $vendaSuspensa->delete();
-                }
+            if (isset($request->venda_suspensa_id)) {
+                $vendaSuspensa = VendaSuspensa::findOrfail($request->venda_suspensa_id);
+                $vendaSuspensa->itens()->delete();
+                $vendaSuspensa->delete();
+            }
 
-                if (isset($request->orcamento_id)) {
-                    $orcamento = Nfe::findOrfail($request->orcamento_id);
+            if (isset($request->orcamento_id)) {
+                $orcamento = Nfe::findOrfail($request->orcamento_id);
 
-                    $nfce->observacao .= " Referência orçamento #".$orcamento->numero_sequencial;
-                    $nfce->save();
+                $nfce->observacao .= " Referência orçamento #".$orcamento->numero_sequencial;
+                $nfce->save();
 
-                    $orcamento->itens()->delete();
-                    $orcamento->fatura()->delete();
-                    $orcamento->delete();
+                $orcamento->itens()->delete();
+                $orcamento->fatura()->delete();
+                $orcamento->delete();
+            }
 
-                }
+            $this->filaEnvioUtil->adicionaVendaFila($nfce);
 
-                $this->filaEnvioUtil->adicionaVendaFila($nfce);
-
-                return $nfce;
-            });
+            return $nfce;
+        });
 // return response()->json($nfce, 401);
 __createLog($request->empresa_id, 'PDV', 'cadastrar', "#$nfce->numero_sequencial - R$ " . __moeda($nfce->total));
 
@@ -1481,10 +1490,23 @@ public function storePdv3(Request $request){
                 $orcamento->delete();
             }
 
+            $tradeinValor = $this->extractTradeinCreditAmount($request);
+            if ($tradeinValor > 0) {
+                $this->debitTradeinCredit(
+                    (int) $request->empresa_id,
+                    $request->cliente_id ? (int) $request->cliente_id : null,
+                    $tradeinValor,
+                    (int) $nfce->id,
+                    $request->usuario_id ? (int) $request->usuario_id : null
+                );
+            }
+
             $this->filaEnvioUtil->adicionaVendaFila($nfce);
             return $nfce;
         });
 return response()->json($nfce, 200);
+} catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+    return response()->json($e->getMessage(), $e->getStatusCode());
 } catch (\Exception $e) {
     __createLog($request->empresa_id, 'PDV', 'erro', $e->getMessage());
     return response()->json($e->getMessage() . ", line: " . $e->getLine() . ", file: " . $e->getFile(), 401);
@@ -1677,9 +1699,22 @@ public function updatePdv3(Request $request){
                 $orcamento->fatura()->delete();
                 $orcamento->delete();
             }
+
+            $tradeinValor = $this->extractTradeinCreditAmount($request);
+            if ($tradeinValor > 0) {
+                $this->debitTradeinCredit(
+                    (int) $request->empresa_id,
+                    $request->cliente_id ? (int) $request->cliente_id : null,
+                    $tradeinValor,
+                    (int) $nfce->id,
+                    $request->usuario_id ? (int) $request->usuario_id : null
+                );
+            }
             return $nfce;
         });
 return response()->json($nfce, 200);
+} catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+    return response()->json($e->getMessage(), $e->getStatusCode());
 } catch (\Exception $e) {
     __createLog($request->empresa_id, 'PDV', 'erro', $e->getMessage());
     return response()->json($e->getMessage() . ", line: " . $e->getLine() . ", file: " . $e->getFile(), 401);
@@ -1959,11 +1994,24 @@ public function storeComanda(Request $request)
             ->update([ 'estado' => 'finalizado' ]);
             $pedido->save();
 
+            $tradeinValor = $this->extractTradeinCreditAmount($request);
+            if ($tradeinValor > 0) {
+                $this->debitTradeinCredit(
+                    (int) $request->empresa_id,
+                    $request->cliente_id ? (int) $request->cliente_id : null,
+                    $tradeinValor,
+                    (int) $nfce->id,
+                    $request->usuario_id ? (int) $request->usuario_id : null
+                );
+            }
+
             return $nfce;
         });
 
 __createLog($request->empresa_id, 'PDV', 'cadastrar', "#$nfce->numero_sequencial - R$ " . __moeda($nfce->total));
 return response()->json($nfce, 200);
+} catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+    return response()->json($e->getMessage(), $e->getStatusCode());
 } catch (\Exception $e) {
     __createLog($request->empresa_id, 'PDV', 'erro', $e->getMessage());
     return response()->json($e->getMessage() . ", line: " . $e->getLine() . ", file: " . $e->getFile(), 401);

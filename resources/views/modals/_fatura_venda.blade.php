@@ -34,10 +34,17 @@
 
                     <div class="col-md-4">
                         <label>Tipo de pagamento</label>
+                        @php
+                            $tiposPagamentoFatura = App\Models\Nfe::tiposPagamento();
+                            $tradeinCode = \App\Models\TradeinCreditMovement::PAYMENT_CODE;
+                        @endphp
                         <select class="form-control form-select tipo_pagamento" id="inp-tipo_pagamento_fatura">
-                            @foreach(App\Models\Nfe::tiposPagamento() as $key => $c)
+                            @foreach($tiposPagamentoFatura as $key => $c)
                             <option value="{{$key}}">{{$c}}</option>
                             @endforeach
+                            @if (!array_key_exists($tradeinCode, $tiposPagamentoFatura))
+                            <option value="{{ $tradeinCode }}">Crédito Trade-in (98)</option>
+                            @endif
                         </select>
                     </div>
 

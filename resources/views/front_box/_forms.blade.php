@@ -52,6 +52,12 @@
 <input type="hidden" id="documento_pdv" value="{{ $config ? $config->documento_pdv : 'nfce' }}">
 <input type="hidden" id="NFECNPJ" value="{{ env('NFECNPJ') }}">
 
+@php
+    $tiposPagamentoTradein = $tiposPagamento ?? [];
+    $tradeinCode = \App\Models\TradeinCreditMovement::PAYMENT_CODE;
+    $tiposPagamentoTradein[$tradeinCode] = 'Crédito Trade-in (98)';
+@endphp
+
 @if ($isVendaSuspensa)
     <input type="hidden" value="{{ $item->id }}" name="venda_suspensa_id">
 @endif
@@ -535,7 +541,7 @@
                                         </div>
                                     </div>
 
-                                    {!! Form::select('tipo_pagamento', '', ['' => 'Selecione'] + $tiposPagamento)->attrs(['class' => 'form-select tp-pag'])->value(isset($item) ? $item->tipo_pagamento : '') !!}
+                                    {!! Form::select('tipo_pagamento', '', ['' => 'Selecione'] + $tiposPagamentoTradein)->attrs(['class' => 'form-select tp-pag'])->value(isset($item) ? $item->tipo_pagamento : '') !!}
                                 </div>
                             </div>
                         </div>
@@ -653,7 +659,7 @@
 </div>
 </div>
 
-@include('modals._pagamento_multiplo', ['not_submit' => true])
+@include('modals._pagamento_multiplo', ['not_submit' => true, 'tiposPagamento' => $tiposPagamentoTradein])
 @include('modals._finalizar_venda', ['not_submit' => true])
 @include('modals._funcionario', ['not_submit' => true])
 @include('modals._cartao_credito', ['not_submit' => true])

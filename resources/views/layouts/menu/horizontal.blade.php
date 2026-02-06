@@ -223,7 +223,11 @@
 
                                         @can('produtos_view')
                                             <a href="{{ route('produtos.index') }}" class="dropdown-item">Listar</a>
+                                        @endcan
+                                        @can('tradein_view')
                                             <a href="{{ route('tradein.index') }}" class="dropdown-item">Trade-in</a>
+                                            <a href="{{ route('tradein.inventory.index', ['empresa_id' => request()->empresa_id]) }}"
+                                               class="dropdown-item">Estoque Trade-in</a>
                                         @endcan
                                         @can('produtos_create')
                                             <a href="{{ route('produtos.create') }}" class="dropdown-item">Novo Produto</a>

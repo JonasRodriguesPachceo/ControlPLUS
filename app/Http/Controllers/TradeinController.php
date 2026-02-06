@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cliente;
 use App\Models\Tradein;
 use App\Models\TradeinCreditMovement;
+use App\Models\TradeinInventoryItem;
 use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
@@ -121,53 +122,80 @@ class TradeinController extends Controller
     {
         $creditCreated = false;
         $creditValue = 0.0;
+        $inventoryCreated = false;
 
-        $result = DB::transaction(function () use ($request, $id, &$creditCreated, &$creditValue) {
-            $tradein = Tradein::where('id', $id)->lockForUpdate()->firstOrFail();
-            if ($request->empresa_id && (int) $request->empresa_id !== (int) $tradein->empresa_id) {
-                abort(403);
-            }
-            __validaObjetoEmpresa($tradein);
+        try {
+            $result = DB::transaction(function () use ($request, $id, &$creditCreated, &$creditValue, &$inventoryCreated) {
+                $tradein = Tradein::where('id', $id)->lockForUpdate()->firstOrFail();
+                if ($request->empresa_id && (int) $request->empresa_id !== (int) $tradein->empresa_id) {
+                    abort(403);
+                }
+                __validaObjetoEmpresa($tradein);
 
-            if ($tradein->status !== Tradein::STATUS_COMPLETED || !$tradein->valor_avaliado) {
-                return response()->json('Trade-in ainda não concluído.', 422);
-            }
+                if ($tradein->status !== Tradein::STATUS_COMPLETED || !$tradein->valor_avaliado) {
+                    return response()->json('Trade-in ainda não concluído.', 422);
+                }
 
-            if ($tradein->status_aceite_cliente !== Tradein::ACEITE_ACCEPTED) {
-                $tradein->status_aceite_cliente = Tradein::ACEITE_ACCEPTED;
-                $tradein->aceite_em = $tradein->aceite_em ?? now();
-                $tradein->save();
-            }
+                if ($tradein->status_aceite_cliente !== Tradein::ACEITE_ACCEPTED) {
+                    $tradein->status_aceite_cliente = Tradein::ACEITE_ACCEPTED;
+                    $tradein->aceite_em = $tradein->aceite_em ?? now();
+                    $tradein->save();
+                }
 
-            $creditValue = (float) $tradein->valor_avaliado;
-            $alreadyCredited = TradeinCreditMovement::where('empresa_id', $tradein->empresa_id)
-                ->where('origem_tipo', 'tradein_accept')
-                ->where('origem_id', $tradein->id)
-                ->where('tipo', TradeinCreditMovement::TYPE_CREDIT)
-                ->exists();
+                $creditValue = (float) $tradein->valor_avaliado;
+                $alreadyCredited = TradeinCreditMovement::where('empresa_id', $tradein->empresa_id)
+                    ->where('origem_tipo', 'tradein_accept')
+                    ->where('origem_id', $tradein->id)
+                    ->where('tipo', TradeinCreditMovement::TYPE_CREDIT)
+                    ->exists();
 
-            if (!$alreadyCredited) {
-                try {
-                    TradeinCreditMovement::create([
-                        'empresa_id' => $tradein->empresa_id,
-                        'cliente_id' => $tradein->cliente_id,
-                        'tipo' => TradeinCreditMovement::TYPE_CREDIT,
-                        'valor' => $creditValue,
-                        'origem_tipo' => 'tradein_accept',
-                        'origem_id' => $tradein->id,
-                        'ref_texto' => 'Crédito Trade-in #' . $tradein->id,
-                        'user_id' => Auth::id(),
-                    ]);
-                    $creditCreated = true;
-                } catch (QueryException $e) {
-                    if (!$this->isDuplicateKey($e)) {
-                        throw $e;
+                if (!$alreadyCredited) {
+                    try {
+                        TradeinCreditMovement::create([
+                            'empresa_id' => $tradein->empresa_id,
+                            'cliente_id' => $tradein->cliente_id,
+                            'tipo' => TradeinCreditMovement::TYPE_CREDIT,
+                            'valor' => $creditValue,
+                            'origem_tipo' => 'tradein_accept',
+                            'origem_id' => $tradein->id,
+                            'ref_texto' => 'Crédito Trade-in #' . $tradein->id,
+                            'user_id' => Auth::id(),
+                        ]);
+                        $creditCreated = true;
+                    } catch (QueryException $e) {
+                        if (!$this->isDuplicateKey($e)) {
+                            throw $e;
+                        }
                     }
                 }
-            }
 
-            return $tradein;
-        });
+                $alreadyInInventory = TradeinInventoryItem::where('tradein_id', $tradein->id)->exists();
+                if (!$alreadyInInventory) {
+                    try {
+                        TradeinInventoryItem::create([
+                            'empresa_id' => $tradein->empresa_id,
+                            'tradein_id' => $tradein->id,
+                            'cliente_id' => $tradein->cliente_id,
+                            'descricao_item' => $tradein->nome_item,
+                            'serial' => $tradein->serial_number,
+                            'valor' => $tradein->valor_avaliado,
+                            'status' => TradeinInventoryItem::STATUS_PENDING_TRANSFER,
+                            'observacao_tecnica' => $tradein->observacao_tecnico,
+                            'created_by_user_id' => Auth::id(),
+                        ]);
+                        $inventoryCreated = true;
+                    } catch (QueryException $e) {
+                        if (!$this->isDuplicateKey($e)) {
+                            throw $e;
+                        }
+                    }
+                }
+
+                return $tradein;
+            });
+        } catch (\RuntimeException $e) {
+            return response()->json($e->getMessage(), 422);
+        }
 
         if ($result instanceof \Illuminate\Http\JsonResponse) {
             return $result;
@@ -179,6 +207,7 @@ class TradeinController extends Controller
             'client_decision_status' => $result->status_aceite_cliente,
             'credit_created' => $creditCreated,
             'credit_value' => $creditValue,
+            'inventory_created' => $inventoryCreated,
         ], 200);
     }
 

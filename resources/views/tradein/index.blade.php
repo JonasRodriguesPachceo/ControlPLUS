@@ -4,8 +4,14 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                     <h4 class="card-title mb-0">Trade-in</h4>
+                    <div class="mt-2 mt-md-0">
+                        <a href="{{ route('tradein.inventory.index', ['empresa_id' => request()->empresa_id]) }}"
+                           class="btn btn-sm btn-outline-primary">
+                            Estoque Trade-in
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body border-top">
                     @if($tradeins->count())
