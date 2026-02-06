@@ -22,11 +22,11 @@ Implementado:
 
 Implementar:
 
+    -Add a possibilidade do vendedor alterar valor da avaliacao final com aprovacao do gestor
     -Atribuir Estoque -> avaliar se faz mais sentido apenas abrir o novo produto e add estoque.
-    -CORRECAO DO FLUXO
     -Possibilidade de add vários produtos no mesmo trade-in
 
 
 EM ANDAMENTO:
-parei na implementacao do view do trade-in no PDV, a venda nao esta ocorrendo,
-ver o que é para testar se debita o valor do trade-in
+
+    -CORRIR ERROS DO FLUXO DE TRADEIN
