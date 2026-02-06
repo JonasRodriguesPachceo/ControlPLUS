@@ -8,6 +8,39 @@ function isTablet() {
     return /ipad|android(?!.*mobile)|tablet|kindle|playbook/.test(ua);
 }
 
+function getAjaxErrorMessage(err) {
+    if (!err) {
+        return "Algo deu errado";
+    }
+    if (err.responseJSON) {
+        if (Array.isArray(err.responseJSON) && err.responseJSON.length) {
+            return err.responseJSON[0];
+        }
+        if (typeof err.responseJSON === "string") {
+            return err.responseJSON;
+        }
+        if (err.responseJSON.message) {
+            return err.responseJSON.message;
+        }
+        if (
+            err.responseJSON.errors &&
+            typeof err.responseJSON.errors === "object"
+        ) {
+            const keys = Object.keys(err.responseJSON.errors);
+            if (keys.length && err.responseJSON.errors[keys[0]].length) {
+                return err.responseJSON.errors[keys[0]][0];
+            }
+        }
+        if (err.responseJSON.error) {
+            return err.responseJSON.error;
+        }
+    }
+    if (err.responseText) {
+        return err.responseText;
+    }
+    return "Algo deu errado";
+}
+
 $(".btn-clinte").click(() => {
     $("#cpf_nota").modal("hide");
     $("#finalizar_venda").modal("hide");
@@ -135,6 +168,16 @@ $(".btn-pagamento-multi").click(() => {
 
 $(".btn-store-fatura").click(() => {
     console.clear();
+    const cliente = $("#inp-cliente_id").val();
+    const tipoPagamentoFatura = $("#inp-tipo_pagamento_fatura").val();
+    if (tipoPagamentoFatura === TRADEIN_PAYMENT_CODE && !cliente) {
+        swal(
+            "Alerta",
+            "Informe o cliente para usar Crédito Trade-in.",
+            "warning",
+        );
+        return;
+    }
 
     if (!$("#inp-parcelas_fatura").val()) {
         swal("Erro", "Informe a quantidade de parcelas!", "error");
@@ -1820,6 +1863,15 @@ $("#inp-tipo_pagamento").change(() => {
     $("#inp-valor_recebido").val("");
     let tipo = $("#inp-tipo_pagamento").val();
     let cliente = $("#inp-cliente_id").val();
+    if (tipo == TRADEIN_PAYMENT_CODE && !cliente) {
+        swal(
+            "Alerta",
+            "Informe o cliente para usar Crédito Trade-in.",
+            "warning",
+        );
+        $("#inp-tipo_pagamento").val("").change();
+        return;
+    }
     if (tipo == "06" && cliente == null) {
         toastr.warning("Informe o cliente!");
         $("#cliente").modal("show");
@@ -1869,6 +1921,15 @@ $("#inp-tipo_pagamento").change(() => {
 $("#inp-tipo_pagamento_row").change(() => {
     let cliente = $("#inp-cliente_id").val();
     let tipo = $("#inp-tipo_pagamento_row").val();
+    if (tipo == TRADEIN_PAYMENT_CODE && !cliente) {
+        swal(
+            "Alerta",
+            "Informe o cliente para usar Crédito Trade-in.",
+            "warning",
+        );
+        $("#inp-tipo_pagamento_row").val("").change();
+        return;
+    }
     if (tipo == "06") {
         if (cliente == null) {
             swal("Alerta", "Informe o cliente!", "warning");
@@ -2786,7 +2847,8 @@ $("#form-pdv").on("submit", function (e) {
                 });
             })
             .fail((err) => {
-                swal("Erro", err.responseJSON, "error");
+                const message = getAjaxErrorMessage(err);
+                swal("Erro", message, "error");
                 console.log(err);
             });
     };
@@ -2802,7 +2864,8 @@ function storeNfe(json) {
             gerarNfe(success);
         })
         .fail((err) => {
-            swal("Erro", err.responseJSON, "error");
+            const message = getAjaxErrorMessage(err);
+            swal("Erro", message, "error");
             console.log(err);
         });
 }
@@ -2926,6 +2989,8 @@ $("#form-pdv-update").on("submit", function (e) {
                 });
             })
             .fail((err) => {
+                const message = getAjaxErrorMessage(err);
+                swal("Erro", message, "error");
                 console.log(err);
             });
     };

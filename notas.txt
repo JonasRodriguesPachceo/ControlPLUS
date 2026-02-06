@@ -1,0 +1,1 @@
+ao terminar implementar a possibilidade de add varios produtos no mesmo trade-in
