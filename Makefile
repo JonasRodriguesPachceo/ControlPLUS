@@ -37,7 +37,7 @@ setup: check-env docker-up-build perms composer-install npm-install wait-db key 
 # ---------------------------
 up: check-env docker-up
 	@echo "✅ Containers ativos:"
-	@echo "   Backend: http://localhost:8000"
+	@echo "   Backend: http://localhost:8080"
 
 # ---------------------------
 # Subir ambiente dev (com Vite)
@@ -45,7 +45,7 @@ up: check-env docker-up
 dev: check-env docker-up
 	$(COMPOSE) exec -d $(APP_SERVICE) npm run dev -- --host 0.0.0.0 --port 5173
 	@echo "✅ Ambiente DEV iniciado:"
-	@echo "   Backend: http://localhost:8000"
+	@echo "   Backend: http://localhost:8080"
 	@echo "   Vite:    http://localhost:5173"
 
 # ---------------------------

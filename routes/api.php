@@ -18,6 +18,48 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+/*
+|--------------------------------------------------------------------------
+| Arcadia ⇄ Plus integration routes (no auth)
+|--------------------------------------------------------------------------
+*/
+Route::get('/health', 'ArcadiaPlus\\IntegrationController@health');
+Route::get('/empresas', 'ArcadiaPlus\\IntegrationController@listarEmpresas');
+Route::get('/clientes', 'ArcadiaPlus\\IntegrationController@listarClientes');
+Route::post('/clientes', 'ArcadiaPlus\\IntegrationController@criarCliente');
+Route::get('/clientes/{id}', 'ArcadiaPlus\\IntegrationController@buscarCliente')->where('id', '[0-9]+');
+Route::put('/clientes/{id}', 'ArcadiaPlus\\IntegrationController@atualizarCliente')->where('id', '[0-9]+');
+Route::post('/fornecedores', 'ArcadiaPlus\\IntegrationController@criarFornecedor');
+Route::get('/produtos', 'ArcadiaPlus\\IntegrationController@listarProdutos');
+Route::post('/vendas', 'ArcadiaPlus\\IntegrationController@criarVenda');
+Route::get('/estoque', 'ArcadiaPlus\\IntegrationController@consultarEstoque');
+Route::get('/contas-receber', 'ArcadiaPlus\\IntegrationController@listarContasReceber');
+Route::post('/nfe/emitir', 'ArcadiaPlus\\IntegrationController@emitirNfe');
+Route::post('/nfce/emitir', 'ArcadiaPlus\\IntegrationController@emitirNfce');
+
+Route::group(['prefix' => 'suite'], function () {
+    Route::get('/stats', 'ArcadiaPlus\\SuiteController@stats');
+
+    Route::get('/planos', 'ArcadiaPlus\\SuiteController@listarPlanos');
+    Route::post('/planos', 'ArcadiaPlus\\SuiteController@criarPlano');
+    Route::put('/planos/{id}', 'ArcadiaPlus\\SuiteController@atualizarPlano')->where('id', '[0-9]+');
+    Route::delete('/planos/{id}', 'ArcadiaPlus\\SuiteController@removerPlano')->where('id', '[0-9]+');
+
+    Route::get('/empresas', 'ArcadiaPlus\\SuiteController@listarEmpresas');
+    Route::post('/empresas', 'ArcadiaPlus\\SuiteController@criarEmpresa');
+    Route::put('/empresas/{id}', 'ArcadiaPlus\\SuiteController@atualizarEmpresa')->where('id', '[0-9]+');
+    Route::delete('/empresas/{id}', 'ArcadiaPlus\\SuiteController@removerEmpresa')->where('id', '[0-9]+');
+
+    Route::get('/usuarios', 'ArcadiaPlus\\SuiteController@listarUsuarios');
+    Route::get('/clientes', 'ArcadiaPlus\\SuiteController@listarClientes');
+    Route::get('/fornecedores', 'ArcadiaPlus\\SuiteController@listarFornecedores');
+    Route::get('/produtos', 'ArcadiaPlus\\SuiteController@listarProdutos');
+    Route::get('/vendas', 'ArcadiaPlus\\SuiteController@listarVendas');
+    Route::get('/dashboard', 'ArcadiaPlus\\SuiteController@dashboard');
+    Route::post('/nfe/emitir', 'ArcadiaPlus\\IntegrationController@emitirNfe');
+    Route::post('/nfce/emitir', 'ArcadiaPlus\\IntegrationController@emitirNfce');
+});
+
 Route::get('/cidadePorNome/{nome}', 'HelperController@cidadePorNome');
 Route::get('/cidadePorCodigoIbge/{codigo}', 'HelperController@cidadePorCodigoIbge');
 Route::get('/cidadePorId/{id}', 'HelperController@cidadePorId');
