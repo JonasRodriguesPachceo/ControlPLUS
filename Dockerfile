@@ -5,10 +5,10 @@ FROM php:8.2-fpm AS build
 
 WORKDIR /var/www/html
 
-# Instala dependências do sistema, PHP e Node 18
+# Instala dependências do sistema, PHP e Node 18 (flexível)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git unzip curl ca-certificates \
-    libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
+    libzip-dev libpng-dev libjpeg-dev libfreetype6-dev \
     libicu-dev libonig-dev libxml2-dev \
     zip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -51,10 +51,15 @@ FROM php:8.2-fpm AS runtime
 
 WORKDIR /var/www/html
 
-# Dependências runtime
+# Dependências runtime (genéricas, flexíveis)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libzip4 libpng16-16 libjpeg62-turbo libfreetype6 \
-    libicu72 libonig5 libxml2 \
+    libzip-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libicu-dev \
+    libonig-dev \
+    libxml2-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         bcmath \
