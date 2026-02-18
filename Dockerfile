@@ -5,6 +5,11 @@ FROM php:8.2-fpm AS build
 
 WORKDIR /var/www/html
 
+# Variáveis de build (para garantir que composer scripts não quebrem)
+ARG APP_ENV=production
+ARG APP_KEY
+ENV APP_ENV=${APP_ENV} APP_KEY=${APP_KEY}
+
 # Instala dependências do sistema, PHP e Node 18 (flexível)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git unzip curl ca-certificates \
@@ -39,7 +44,8 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Copia código e instala dependências
 COPY . .
 
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+# Instala dependências do Laravel e Node
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs
 RUN npm ci
 RUN npm run build \
     && rm -rf node_modules
@@ -82,6 +88,8 @@ RUN mkdir -p storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+# Porta exposta para Coolify
 EXPOSE 9000
 
+# Start
 CMD ["php-fpm"]
