@@ -2,7 +2,7 @@
 # Controle do ambiente Docker - Laravel + Vite + MySQL
 # ---------------------------------------
 
-COMPOSE     = docker compose
+COMPOSE     = docker compose -f docker-compose.yml -f docker-compose.dev.yml
 APP_SERVICE = app
 DB_SERVICE  = db
 

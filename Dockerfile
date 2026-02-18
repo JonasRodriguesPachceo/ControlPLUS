@@ -1,8 +1,8 @@
-FROM php:8.2-fpm
+FROM php:8.2-fpm AS build
 
-ARG UID=1000
-ARG GID=33
+WORKDIR /var/www/html
 
+<<<<<<< Updated upstream
 # Sistema + extensões PHP + Node 18
 RUN apt-get update && apt-get install -y \
     git \
@@ -15,6 +15,12 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libonig-dev \
     libxml2-dev \
+=======
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git unzip curl ca-certificates \
+    libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
+    libicu-dev libonig-dev libxml2-dev \
+>>>>>>> Stashed changes
     zip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
@@ -28,6 +34,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     soap \
     && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+<<<<<<< Updated upstream
     && apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -37,25 +44,41 @@ RUN groupmod -g ${GID} www-data \
     && usermod -u ${UID} -g ${GID} www-data
 
 # Composer da imagem oficial
+=======
+    && apt-get install -y --no-install-recommends nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+>>>>>>> Stashed changes
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copia o script de entrypoint (como root mesmo)
-COPY docker/check-env.sh /usr/local/bin/check-env.sh
-RUN chmod +x /usr/local/bin/check-env.sh
+COPY . .
+RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+
+RUN npm ci
+RUN npm run build \
+    && rm -rf node_modules
+
+
+FROM php:8.2-fpm AS runtime
 
 WORKDIR /var/www/html
 
-# A partir daqui o usuário padrão é www-data (mesmo UID do rob)
-USER www-data
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libzip4 libpng16-16 libjpeg62-turbo libfreetype6 \
+    libicu72 libonig5 libxml2 \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+    bcmath exif gd intl pcntl pdo_mysql sockets zip soap \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Define o home do www-data
-ENV HOME=/var/www/html
+COPY --from=build /var/www/html /var/www/html
 
-# Configs úteis do Composer
-ENV COMPOSER_MEMORY_LIMIT=-1
-ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN mkdir -p storage/logs bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
-EXPOSE 9000 5173
+EXPOSE 9000
 
-ENTRYPOINT ["/usr/local/bin/check-env.sh"]
 CMD ["php-fpm"]

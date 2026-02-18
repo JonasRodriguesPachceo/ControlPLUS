@@ -1,4 +1,5 @@
 services:
+<<<<<<< Updated upstream
     app:
         build:
             context: .
@@ -52,10 +53,85 @@ services:
             - db_data:/var/lib/mysql
         networks:
             - controlplus
+=======
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: controlplus-app:latest
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_URL: ${APP_URL:-http://localhost}
+      APP_KEY: ${APP_KEY:-}
+      DB_CONNECTION: ${DB_CONNECTION:-mysql}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_DATABASE: ${DB_DATABASE:-controlplus}
+      DB_USERNAME: ${DB_USERNAME:-controlplus}
+      DB_PASSWORD: ${DB_PASSWORD:-controlplus_pass}
+      LOG_CHANNEL: ${LOG_CHANNEL:-stack}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - app_storage:/var/www/html/storage
+    networks:
+      - controlplus
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    image: controlplus-web:latest
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "${CONTROLPLUS_HTTP_PORT:-8080}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/api/health >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - controlplus
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-controlplus}
+      MYSQL_USER: ${DB_USERNAME:-controlplus}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-controlplus_pass}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_pass_change_me}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - controlplus
+>>>>>>> Stashed changes
 
 volumes:
-    db_data:
+  db_data:
+  app_storage:
 
 networks:
+<<<<<<< Updated upstream
     controlplus:
         driver: bridge
+=======
+  controlplus:
+>>>>>>> Stashed changes
