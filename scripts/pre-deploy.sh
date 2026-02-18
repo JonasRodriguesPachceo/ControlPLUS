@@ -1,0 +1,5 @@
+# scripts/pre-deploy.sh
+#!/bin/sh
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
