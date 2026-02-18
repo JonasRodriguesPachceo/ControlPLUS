@@ -26,13 +26,13 @@ psysh_history
 !/bootstrap/cache/.gitignore
 
 # Laravel .env files
-.env
-.env.backup
-.env.local
-.env.development
-.env.production
-.env.testing
-.bash*
+# .env
+# .env.backup
+# .env.local
+# .env.development
+# .env.production
+# .env.testing
+# .bash*
 
 # Laravel Homestead
 Homestead.yaml
